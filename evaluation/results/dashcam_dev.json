@@ -1,0 +1,392 @@
+{
+  "rows": [
+    {
+      "scene": "dash_00",
+      "t0": 0.0,
+      "true": 23.399875405019777,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_00",
+      "t0": 2.0,
+      "true": 20.399875405019664,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_00",
+      "t0": 4.0,
+      "true": 17.39987540501955,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "no periodic (dashed) lane marking found -- metric scale unavailable"
+      ]
+    },
+    {
+      "scene": "dash_01",
+      "t0": 0.0,
+      "true": 14.1452883228196,
+      "status": "OK",
+      "est": 13.624910855544684,
+      "ci": [
+        12.90194621455549,
+        14.347875496533877
+      ],
+      "reasons": [],
+      "err_pct": -3.6788042449119054,
+      "covered": true
+    },
+    {
+      "scene": "dash_01",
+      "t0": 2.0,
+      "true": 14.1452883228196,
+      "status": "OK",
+      "est": 13.85210612249436,
+      "ci": [
+        13.081844292518577,
+        14.622367952470144
+      ],
+      "reasons": [],
+      "err_pct": -2.072649165109407,
+      "covered": true
+    },
+    {
+      "scene": "dash_01",
+      "t0": 4.0,
+      "true": 14.1452883228196,
+      "status": "OK",
+      "est": 14.367900497707495,
+      "ci": [
+        13.633048906802024,
+        15.102752088612966
+      ],
+      "reasons": [],
+      "err_pct": 1.5737549479905009,
+      "covered": true
+    },
+    {
+      "scene": "dash_02",
+      "t0": 0.0,
+      "true": 17.581797390140938,
+      "status": "OK",
+      "est": 17.630089390428324,
+      "ci": [
+        16.71705445649505,
+        18.5431243243616
+      ],
+      "reasons": [],
+      "err_pct": 0.27467044020462916,
+      "covered": true
+    },
+    {
+      "scene": "dash_02",
+      "t0": 2.0,
+      "true": 19.581797390143382,
+      "status": "OK",
+      "est": 19.401982399068455,
+      "ci": [
+        18.389132569495565,
+        20.414832228641345
+      ],
+      "reasons": [],
+      "err_pct": -0.9182762311974403,
+      "covered": true
+    },
+    {
+      "scene": "dash_02",
+      "t0": 4.0,
+      "true": 21.581797390145827,
+      "status": "OK",
+      "est": 21.616354906430175,
+      "ci": [
+        20.5073326789894,
+        22.72537713387095
+      ],
+      "reasons": [],
+      "err_pct": 0.16012343948760704,
+      "covered": true
+    },
+    {
+      "scene": "dash_03",
+      "t0": 0.0,
+      "true": 7.944771568804967,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_03",
+      "t0": 2.0,
+      "true": 4.944771568804853,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "frame-pair speeds disagree (robust spread 38% around the trend)",
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_03",
+      "t0": 4.0,
+      "true": 1.9447715688047438,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "frame-pair speeds disagree (robust spread 161% around the trend)",
+        "frame-pair speeds disagree (robust spread 54% around the trend)",
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_04",
+      "t0": 0.0,
+      "true": 14.29420549900301,
+      "status": "OK",
+      "est": 14.416736851971939,
+      "ci": [
+        13.62029197914162,
+        15.213181724802258
+      ],
+      "reasons": [],
+      "err_pct": 0.857209958101382,
+      "covered": true
+    },
+    {
+      "scene": "dash_04",
+      "t0": 2.0,
+      "true": 16.294205499002647,
+      "status": "OK",
+      "est": 16.82726285082292,
+      "ci": [
+        15.924319877399826,
+        17.730205824246013
+      ],
+      "reasons": [],
+      "err_pct": 3.271453473769555,
+      "covered": true
+    },
+    {
+      "scene": "dash_04",
+      "t0": 4.0,
+      "true": 18.29420549900487,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "frame-pair speeds disagree (robust spread 26% around the trend)",
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_05",
+      "t0": 0.0,
+      "true": 14.22652655305527,
+      "status": "OK",
+      "est": 14.846561600233947,
+      "ci": [
+        13.888565358489627,
+        15.804557841978268
+      ],
+      "reasons": [],
+      "err_pct": 4.358302392831922,
+      "covered": true
+    },
+    {
+      "scene": "dash_05",
+      "t0": 2.0,
+      "true": 16.226526553054832,
+      "status": "OK",
+      "est": 15.927637824718804,
+      "ci": [
+        15.0446247633919,
+        16.810650886045707
+      ],
+      "reasons": [],
+      "err_pct": -1.8419760221558845,
+      "covered": true
+    },
+    {
+      "scene": "dash_05",
+      "t0": 4.0,
+      "true": 18.226526553057006,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_06",
+      "t0": 0.0,
+      "true": 17.238041559055365,
+      "status": "OK",
+      "est": 17.001573483655292,
+      "ci": [
+        16.148581779605312,
+        17.854565187705273
+      ],
+      "reasons": [],
+      "err_pct": -1.371780399704702,
+      "covered": true
+    },
+    {
+      "scene": "dash_06",
+      "t0": 2.0,
+      "true": 17.238041559055365,
+      "status": "OK",
+      "est": 17.05861189166886,
+      "ci": [
+        16.203321273784596,
+        17.913902509553125
+      ],
+      "reasons": [],
+      "err_pct": -1.0408935769866932,
+      "covered": true
+    },
+    {
+      "scene": "dash_06",
+      "t0": 4.0,
+      "true": 17.238041559055365,
+      "status": "OK",
+      "est": 17.269459278406767,
+      "ci": [
+        16.37465645561244,
+        18.164262101201096
+      ],
+      "reasons": [],
+      "err_pct": 0.18225805549760127,
+      "covered": true
+    },
+    {
+      "scene": "dash_07",
+      "t0": 0.0,
+      "true": 29.084477132865647,
+      "status": "OK",
+      "est": 28.635781672161578,
+      "ci": [
+        27.199146733505003,
+        30.072416610818152
+      ],
+      "reasons": [],
+      "err_pct": -1.542731741933365,
+      "covered": true
+    },
+    {
+      "scene": "dash_07",
+      "t0": 2.0,
+      "true": 29.084477132865647,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_07",
+      "t0": 4.0,
+      "true": 29.084477132865647,
+      "status": "OK",
+      "est": 28.34900688814659,
+      "ci": [
+        26.934438535793845,
+        29.763575240499335
+      ],
+      "reasons": [],
+      "err_pct": -2.5287380665611856,
+      "covered": true
+    },
+    {
+      "scene": "dash_08",
+      "t0": 0.0,
+      "true": 22.99358562474879,
+      "status": "OK",
+      "est": 24.065522473902224,
+      "ci": [
+        22.634129065701813,
+        25.496915882102634
+      ],
+      "reasons": [],
+      "err_pct": 4.661895133048201,
+      "covered": true
+    },
+    {
+      "scene": "dash_08",
+      "t0": 2.0,
+      "true": 24.993585624751233,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_08",
+      "t0": 4.0,
+      "true": 26.993585624753678,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_09",
+      "t0": 0.0,
+      "true": 20.633748322582186,
+      "status": "OK",
+      "est": 20.460452002793144,
+      "ci": [
+        19.342232418273483,
+        21.578671587312805
+      ],
+      "reasons": [],
+      "err_pct": -0.8398683413201343,
+      "covered": true
+    },
+    {
+      "scene": "dash_09",
+      "t0": 2.0,
+      "true": 22.63374832258463,
+      "status": "ABSTAIN",
+      "est": null,
+      "ci": null,
+      "reasons": [
+        "too few frames show three complete dashes to test the equal-spacing assumption"
+      ]
+    },
+    {
+      "scene": "dash_09",
+      "t0": 4.0,
+      "true": 24.633748322587074,
+      "status": "OK",
+      "est": 24.58533655512514,
+      "ci": [
+        23.239121022364404,
+        25.931552087885873
+      ],
+      "reasons": [],
+      "err_pct": -0.1965261917430001,
+      "covered": true
+    }
+  ]
+}

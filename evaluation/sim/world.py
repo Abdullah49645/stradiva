@@ -59,6 +59,8 @@ class CameraSpec:
     y_m: float = 0.0          # lateral position
     speed_mps: float = 0.0    # >0 => forward-moving (dashcam) camera
     shake_deg: float = 0.0    # per-frame random roll/pitch jitter (std, degrees)
+    accel_segments: list = None   # optional [(t_start, accel_mps2), ...] for a moving camera
+    hood_frac: float = 0.0        # dark bonnet occupying the bottom fraction of the image (dashcam)
 
 
 def camera_axes(pitch_deg, roll_deg, yaw_deg):
@@ -221,6 +223,7 @@ class VehicleSpec:
     height_m: float = 1.5
     color_bgr: tuple = (30, 40, 200)
     segments: List[MotionSegment] = field(default_factory=list)
+    direction: int = 1        # +1 travels away from the camera (+X), -1 towards it
     # lateral manoeuvre: (t_start, duration, dy) cosine-ramp lane change
     swerve: Optional[tuple] = None
 
@@ -242,7 +245,9 @@ def simulate_vehicle(spec: VehicleSpec, t):
         v[i] = max(0.0, v[i - 1] + acc[i - 1] * dt)
         x[i] = x[i - 1] + 0.5 * (v[i] + v[i - 1]) * dt
     a_eff = np.gradient(v, tt)
-    return np.interp(t, tt, x), np.interp(t, tt, v), np.interp(t, tt, a_eff)
+    d = spec.direction
+    x_signed = spec.x0_m + d * (x - spec.x0_m)
+    return np.interp(t, tt, x_signed), np.interp(t, tt, v), np.interp(t, tt, a_eff)
 
 
 def lateral_offset(spec: VehicleSpec, t):
@@ -359,22 +364,23 @@ class Scenario:
 
 
 def _collision_time(t, xs, vehicles):
-    """First time the follower's front reaches the lead's rear, for any
-    same-lane ordered pair. Returns (t_contact, follower_id, lead_id) or None."""
+    """First time a follower's front reaches its lead's rear (same lane, same
+    travel direction, follower behind in the direction of travel at t=0).
+    Returns (t_contact, follower_id, lead_id) or None."""
     best = None
-    for i, a in enumerate(vehicles):
-        for j, b in enumerate(vehicles):
-            if i == j:
+    for a in vehicles:
+        for b in vehicles:
+            if a is b or a.direction != b.direction:
                 continue
-            ya = lateral_offset(a, t)
-            yb = lateral_offset(b, t)
+            d = a.direction
+            ya, yb = lateral_offset(a, t), lateral_offset(b, t)
             same_lane = np.abs(ya - yb) < (a.width_m + b.width_m) / 2.0
-            gap = (xs[b.vid] - b.length_m / 2.0) - (xs[a.vid] + a.length_m / 2.0)
-            behind_at_start = xs[a.vid][0] < xs[b.vid][0]
-            hit = np.where(same_lane & (gap <= 0) & behind_at_start)[0]
+            gap = d * (xs[b.vid] - xs[a.vid]) - (a.length_m + b.length_m) / 2.0
+            if not d * (xs[b.vid][0] - xs[a.vid][0]) > 0:
+                continue
+            hit = np.where(same_lane & (gap <= 0))[0]
             if len(hit):
                 k = hit[0]
-                # sub-frame refinement by linear interpolation of the gap
                 if k > 0:
                     g0, g1 = gap[k - 1], gap[k]
                     tc = t[k - 1] + (t[k] - t[k - 1]) * g0 / (g0 - g1) if g0 != g1 else t[k]
@@ -404,14 +410,15 @@ def render_scenario(sc: Scenario, out_dir: str, write_video=True):
         k0 = int(np.searchsorted(t, tc))
         if k0 < n:
             vf = {v.vid: v for v in sc.vehicles}
+            d = vf[lid].direction
             v_common = 0.5 * (vs[fid][k0] + vs[lid][k0])
             x_lead = xs[lid][k0 - 1] if k0 > 0 else xs[lid][0]
             for k in range(k0, n):
                 v_common = max(0.0, v_common - sc.post_collision_decel_mps2 / sc.fps)
-                x_lead = x_lead + v_common / sc.fps
+                x_lead = x_lead + d * v_common / sc.fps
                 xs[lid][k] = x_lead
                 vs[lid][k] = v_common
-                xs[fid][k] = x_lead - vf[lid].length_m / 2.0 - vf[fid].length_m / 2.0
+                xs[fid][k] = x_lead - d * (vf[lid].length_m / 2.0 + vf[fid].length_m / 2.0)
                 vs[fid][k] = v_common
 
     static_bg = None
@@ -428,11 +435,17 @@ def render_scenario(sc: Scenario, out_dir: str, write_video=True):
 
     frames_gt = []
     cam_x = s.x_m
+    cam_x_track = None
+    cam_v_track = None
+    if s.speed_mps > 0:
+        cam_spec = VehicleSpec("camera", x0_m=s.x_m, v0_mps=s.speed_mps, lane_y_m=s.y_m,
+                               segments=[MotionSegment(a, b) for a, b in (s.accel_segments or [(0.0, 0.0)])])
+        cam_x_track, cam_v_track, _ = simulate_vehicle(cam_spec, t)
     for k in range(n):
         if s.speed_mps > 0 or s.shake_deg > 0:
             jitter_p = rng.normal(0, s.shake_deg) if s.shake_deg > 0 else 0.0
             jitter_r = rng.normal(0, s.shake_deg) if s.shake_deg > 0 else 0.0
-            cam_x = s.x_m + s.speed_mps * t[k]
+            cam_x = float(cam_x_track[k]) if cam_x_track is not None else s.x_m
             cam.set_pose(cam_x, s.pitch_deg + jitter_p, s.roll_deg + jitter_r, s.yaw_deg)
             frame = render_road(cam, sc.road, rng)
             if sc.degradation.fog_visibility_m > 0:
@@ -445,16 +458,21 @@ def render_scenario(sc: Scenario, out_dir: str, write_video=True):
         for v in order:
             y = float(lateral_offset(v, t[k]))
             bbox = draw_vehicle(frame, cam, xs[v.vid][k], y, v)
-            rear = cam.project(np.array([[xs[v.vid][k] - v.length_m / 2.0, y, 0.0]]))[0][0]
-            front = cam.project(np.array([[xs[v.vid][k] + v.length_m / 2.0, y, 0.0]]))[0][0]
+            rear = cam.project(np.array([[xs[v.vid][k] - v.direction * v.length_m / 2.0, y, 0.0]]))[0][0]
+            front = cam.project(np.array([[xs[v.vid][k] + v.direction * v.length_m / 2.0, y, 0.0]]))[0][0]
             vgt[v.vid] = {"x_m": float(xs[v.vid][k]), "y_m": y, "speed_mps": float(vs[v.vid][k]),
                           "rear_contact_uv": [float(rear[0]), float(rear[1])],
                           "front_contact_uv": [float(front[0]), float(front[1])],
                           "bbox": bbox}
+        if s.hood_frac > 0:
+            hy = int(s.image_h * (1 - s.hood_frac))
+            frame[hy:] = (18, 18, 20)
         frame = apply_degradation(frame, sc.degradation, rng, depth)
         if writer is not None:
             writer.write(frame)
-        frames_gt.append({"frame": k, "t_s": float(t[k]), "camera_x_m": float(cam_x), "vehicles": vgt})
+        frames_gt.append({"frame": k, "t_s": float(t[k]), "camera_x_m": float(cam_x),
+                          "camera_speed_mps": float(cam_v_track[k]) if cam_v_track is not None else 0.0,
+                          "vehicles": vgt})
     if writer is not None:
         writer.release()
 

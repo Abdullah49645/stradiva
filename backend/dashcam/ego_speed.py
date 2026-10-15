@@ -93,6 +93,8 @@ class EgoSpeedConfig:
     periodicity_min_snr: float = 6.0
     pair_mad_max_rel: float = 0.25
     near_far_period_max_rel: float = 0.12
+    max_dash_resid_px: float = 2.0
+    max_period_spread: float = 0.08
     min_valid_pair_frac: float = 0.5
     max_shift_frac_of_period: float = 0.45
     n_boot: int = 400
@@ -231,6 +233,73 @@ def _profile(gray, maps):
     return (p / sd) if sd > 1e-6 else p
 
 
+def _raw_profile(gray, maps):
+    mx, my, s, d = maps
+    strip = cv2.remap(gray, mx, my, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+    return strip.astype(np.float32).max(axis=0)
+
+
+def _normalise(p):
+    q = p - p.mean()
+    sd = q.std()
+    return q / sd if sd > 1e-6 else q
+
+
+def _side_level(gray, vp, ang, v_limit, w, h, cfg):
+    vals = []
+    for off in (-3.0, 3.0):
+        m = _strip_maps(vp, ang + off, v_limit, w, h, cfg)
+        if m is not None:
+            mx, my, s, d = m
+            strip = cv2.remap(gray, mx, my, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+            v = strip[strip > 0]
+            if v.size:
+                vals.append(float(np.median(v)))
+    return float(np.median(vals)) if vals else None
+
+
+def _dash_centres(prof, s_vals, asphalt):
+    lo = asphalt if asphalt is not None else np.percentile(prof, 30)
+    hi = np.percentile(prof, 97)
+    if hi - lo < 15:
+        return []
+    thr = 0.5 * (lo + hi)
+    above = prof > thr
+    cen, i, n = [], 0, len(prof)
+    while i < n:
+        if above[i]:
+            j = i
+            while j + 1 < n and above[j + 1]:
+                j += 1
+            if i > 0 and j < n - 1:                     # complete dashes only
+                fi = (i - 1) + (thr - prof[i - 1]) / (prof[i] - prof[i - 1] + 1e-9)
+                fj = j + (prof[j] - thr) / (prof[j] - prof[j + 1] + 1e-9)
+                cen.append(float(np.interp(0.5 * (fi + fj), np.arange(n), s_vals)))
+            i = j + 1
+        else:
+            i += 1
+    return sorted(cen)
+
+
+def _period_from_centres(cen):
+    """Base spacing of dash centres in s (tolerates a missing dash), and the
+    RMS residual of the centres from an equally spaced pattern, in pixels."""
+    cen = np.asarray(cen)
+    gaps = np.diff(cen)
+    if len(gaps) == 0:
+        return None, None
+    g = np.sort(gaps)
+    base = np.median(g[: max(1, len(g) // 2 + 1)])
+    mult = np.maximum(1, np.round(gaps / base))
+    base = float(np.sum(gaps) / np.sum(mult))
+    k = np.concatenate([[0], np.cumsum(np.round(gaps / base))])
+    A = np.column_stack([np.ones_like(k), k])
+    wts = 1.0 / np.maximum(cen, 1e-9) ** 2
+    coef, *_ = np.linalg.lstsq(A * wts[:, None], cen * wts, rcond=None)
+    r_px = (cen - A @ coef) / np.maximum(cen, 1e-9) ** 2
+    return float(abs(coef[1])), float(np.sqrt(np.mean(r_px ** 2)))
+
+
 def _period_from_profiles(profiles):
     """Averaged power spectrum peak. Returns (period_in_samples, snr)."""
     P = np.array(profiles)
@@ -305,34 +374,50 @@ def estimate_window(frames_gray, fps, t_start_s, prior: MarkingPrior, cfg: EgoSp
         res.reasons.append("lane-line directions not consistent across the window")
         return res
 
-    # 2) per line: profiles, periodicity, shifts
+    # 2) per line: dash segmentation in s = 1/d (period from dash-centre spacing, as for the static
+    #    camera), frame-to-frame shift from phase correlation of the resampled profiles
     win2d = cv2.createHanningWindow((cfg.n_samples, 16), cv2.CV_32F)
     line_results = []
     for ang in lines:
         maps = _strip_maps(vp, ang, v_limit, w, h, cfg)
         if maps is None:
             continue
-        profs = [_profile(g, maps) for g in frames_gray]
-        T, snr = _period_from_profiles(profs)
-        if T is None or snr < cfg.periodicity_min_snr:
-            line_results.append({"angle_deg": ang, "dashed": False, "snr": snr})
+        s_vals = maps[2]
+        raw = [_raw_profile(g, maps) for g in frames_gray]
+        side = _side_level(frames_gray[len(frames_gray) // 2], vp, ang, v_limit, w, h, cfg)
+        periods, resids, n_d = [], [], []
+        for prof in raw:
+            cen = _dash_centres(prof, s_vals, side)
+            if len(cen) < 2:
+                continue
+            T, rpx = _period_from_centres(cen)
+            if T is not None:
+                periods.append(T)
+                if len(cen) >= 3:
+                    resids.append(rpx)       # spacing residual only testable with >= 3 dashes
+                n_d.append(len(cen))
+        frac_frames = len(periods) / max(1, len(raw))
+        if frac_frames < 0.5:
+            line_results.append({"angle_deg": ang, "dashed": False, "frames_with_dashes": frac_frames})
             continue
-        half = cfg.n_samples // 2
-        T_far, _ = _period_from_profiles([p[:half] for p in profs])
-        T_near, _ = _period_from_profiles([p[half:] for p in profs])
-        near_far = (abs(T_near - T_far) / T) if (T_far and T_near) else None
-        shifts, resps = [], []
+        T_s = float(np.median(periods))                       # period in s units (s decreases towards the camera)
+        T_idx = T_s / abs(s_vals[1] - s_vals[0])              # period in profile samples
+        profs = [_normalise(p) for p in raw]
+        shifts = []
         for p0, p1 in zip(profs[:-1], profs[1:]):
-            dx, r = _shift(p0, p1, win2d)
+            dx, _r = _shift(p0, p1, win2d)
             shifts.append(dx)
-            resps.append(r)
         shifts = np.array(shifts)
-        # pattern moves toward the camera (towards larger d = smaller s = larger index): positive dx
-        valid = np.abs(shifts) < cfg.max_shift_frac_of_period * T
-        speeds = prior.cycle_m * fps * shifts[valid] / T
-        line_results.append({"angle_deg": ang, "dashed": True, "snr": snr, "period_samples": T,
-                             "near_far_period_rel_diff": near_far, "speeds": speeds,
-                             "valid_pair_frac": float(valid.mean()) if len(valid) else 0.0})
+        valid = np.abs(shifts) < cfg.max_shift_frac_of_period * T_idx
+        speeds = prior.cycle_m * fps * shifts[valid] / T_idx
+        pair_t = (np.arange(len(shifts))[valid] + 0.5) / fps
+        line_results.append({"angle_deg": ang, "dashed": True, "frames_with_dashes": frac_frames,
+                             "period_samples": T_idx,
+                             "period_rel_spread": float(1.4826 * np.median(np.abs(np.array(periods) - T_s)) / T_s),
+                             "dash_resid_px_median": float(np.median(resids)) if resids else 0.0,
+                             "frames_with_3_dashes": len(resids) / max(1, len(raw)), "speeds": speeds, "pair_t": pair_t,
+                             "valid_pair_frac": float(valid.mean()) if len(valid) else 0.0,
+                             "near_far_period_rel_diff": float(np.median(resids)) if resids else None})
 
     dashed = [lr for lr in line_results if lr.get("dashed")]
     res.diagnostics["lines"] = [{k: (v if k != "speeds" else None) for k, v in lr.items()} for lr in line_results]
@@ -348,15 +433,24 @@ def estimate_window(frames_gray, fps, t_start_s, prior: MarkingPrior, cfg: EgoSp
         if lr["valid_pair_frac"] < cfg.min_valid_pair_frac or len(sp) < 5:
             why.append("too few valid frame pairs")
         else:
-            med = float(np.median(sp))
-            mad = float(np.median(np.abs(sp - med))) * 1.4826
-            scale = max(abs(med), 1.0)
+            # residual spread around a robust linear trend (the camera may genuinely accelerate)
+            tp = lr["pair_t"]
+            slope = np.median([(sp[j] - sp[i]) / (tp[j] - tp[i]) for i in range(len(sp)) for j in range(i + 1, len(sp))
+                               if tp[j] > tp[i]]) if len(sp) > 2 else 0.0
+            inter = np.median(sp - slope * tp)
+            resid_tr = sp - (inter + slope * tp)
+            mad = float(np.median(np.abs(resid_tr))) * 1.4826
+            scale = max(abs(float(np.median(sp))), 1.0)
+            lr["trend_mps2"] = float(slope)
             if mad / scale > cfg.pair_mad_max_rel:
-                why.append(f"frame-pair speeds disagree (robust spread {mad/scale:.0%})")
-        nf = lr["near_far_period_rel_diff"]
-        if nf is None or nf > cfg.near_far_period_max_rel:
-            why.append("dash period differs between near and far halves of the line "
-                       "(vanishing point or straight-road assumption violated)")
+                why.append(f"frame-pair speeds disagree (robust spread {mad/scale:.0%} around the trend)")
+        if lr["frames_with_3_dashes"] < 0.2:
+            why.append("too few frames show three complete dashes to test the equal-spacing assumption")
+        elif lr["dash_resid_px_median"] > cfg.max_dash_resid_px:
+            why.append(f"dash centres are not equally spaced along the line (median residual "
+                       f"{lr['dash_resid_px_median']:.1f}px): vanishing point or straight-road assumption violated")
+        if lr["period_rel_spread"] > cfg.max_period_spread:
+            why.append(f"marking period unstable across frames ({lr['period_rel_spread']:.0%})")
         lr["gate_failures"] = why
         if not why:
             passing.append(lr)
