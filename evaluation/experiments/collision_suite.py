@@ -1,0 +1,264 @@
+"""
+Collision evaluation suite: randomized rear-end scenarios on simulator v2,
+an INDEPENDENT ground-truth counterfactual, and the full production pipeline
+(backend/pipeline/analyze.py) with no access to ground truth.
+
+Splits (fixed before any test-split result was looked at):
+  dev    seeds 1000+i  standard ranges   -- the ONLY split used to set thresholds/parameters
+  test   seeds 5000+i  standard ranges   -- held out, i.i.d. with dev
+  shift  seeds 9000+i  harder ranges     -- held out, distribution shift (more roll/yaw, worse
+                                            image quality, larger marking-prior mismatch,
+                                            more oncoming-traffic scenes)
+
+Ground truth (computed here, not by CARAI code):
+  * hazard onset = the instant the lead's scripted braking begins;
+  * counterfactual: follower follows its true (free) motion until onset +
+    reaction time, then brakes at a constant a to rest; lead follows its
+    true scripted motion (as if it had not been hit);
+  * same reaction/deceleration grid and envelope as CARAI ->
+    AVOIDABLE / NOT_AVOIDABLE / ASSUMPTION_DEPENDENT, and t_r*(a).
+
+Run:  python3 collision_suite.py --split dev --n 30 --workers 2
+"""
+import argparse
+import json
+import os
+import sys
+import time
+import traceback
+from multiprocessing import Pool
+
+import numpy as np
+
+from common import ROOT, CACHE_DIR, RESULTS_DIR  # noqa: F401
+from evaluation.sim.world import (Scenario, CameraSpec, RoadSpec, VehicleSpec, MotionSegment, Degradation,
+                                  render_scenario, simulate_vehicle)
+
+REACTION_GRID = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5]
+DECEL_GRID = [4.0, 5.0, 6.0, 7.0, 8.0]
+ENV_R, ENV_A = (0.75, 2.0), (5.0, 8.0)
+ASSUMED_CYCLE = 12.0
+ASSUMED_EDGE = 1.85
+
+
+# ----------------------------------------------------------------- sampler --
+
+def sample_scenario(split, i):
+    base = {"dev": 1000, "test": 5000, "shift": 9000}[split]
+    seed = base + i
+    rng = np.random.default_rng(seed)
+    hard = split == "shift"
+    facing = rng.random() < (0.45 if hard else 0.3)
+    roadside = rng.random() < 0.45
+    if roadside:
+        # pole-mounted camera beside the road, aimed along it (the commonest real CCTV setup)
+        side = float(rng.choice([-1.0, 1.0]))
+        off = float(rng.uniform(4.0, 9.0))
+        aim = float(np.degrees(np.arctan(off / rng.uniform(40, 70))))
+        cam = CameraSpec(height_m=float(rng.uniform(6.0, 10.0)), pitch_deg=float(rng.uniform(12, 20)),
+                         roll_deg=float(rng.uniform(-10, 10) if hard else rng.uniform(-4, 4)),
+                         yaw_deg=float(side * aim + rng.uniform(-2, 2)), y_m=-side * off,
+                         focal_px=float(rng.uniform(800, 1100)))
+    else:
+        cam = CameraSpec(
+            height_m=float(rng.uniform(5.0, 9.0)), pitch_deg=float(rng.uniform(15, 26)),
+            roll_deg=float(rng.uniform(-10, 10) if hard else rng.uniform(-5, 5)),
+            yaw_deg=float(rng.uniform(-8, 8) if hard else rng.uniform(-3, 3)),
+            focal_px=float(rng.uniform(800, 1100)))
+    prior_sd = 0.05 if hard else 0.03
+    cyc = ASSUMED_CYCLE * (1 + rng.normal(0, prior_sd))
+    road = RoadSpec(topology="centerline", edge_half_width_m=float(ASSUMED_EDGE * (1 + rng.normal(0, 0.03))),
+                    dash_len_m=float(cyc * 0.25), dash_gap_m=float(cyc * 0.75),
+                    dash_phase_m=float(rng.uniform(0, cyc)), wear_prob=float(rng.uniform(0, 0.25 if hard else 0.12)),
+                    paint_level=int(rng.uniform(150 if hard else 185, 240)))
+    deg = Degradation(noise_std=float(rng.uniform(2, 8 if hard else 5)),
+                      blur_px=float(rng.uniform(0, 1.4 if hard else 0.8)),
+                      fog_visibility_m=float(rng.uniform(150, 300)) if rng.random() < (0.3 if hard else 0.1) else 0.0,
+                      brightness=float(rng.uniform(0.55, 1.0) if hard else rng.uniform(0.8, 1.05)))
+    lane_y = -road.edge_half_width_m / 2.0 + float(rng.uniform(-0.15, 0.15))
+    v_f = float(rng.uniform(12, 27))
+    v_l = float(np.clip(v_f + rng.uniform(-4, 1.5), 6, 30))
+    gap0 = float(rng.uniform(14, 38))
+    t_b = float(rng.uniform(0.6, 1.8))
+    a_l = float(rng.uniform(4.5, 8.0))
+    brakes = rng.random() > 0.15
+    r_true = float(rng.uniform(0.5, 2.6))
+    a_f = float(rng.uniform(3.0, 8.0))
+    L_f, L_l = float(rng.uniform(4.2, 4.9)), float(rng.uniform(4.2, 4.9))
+    palette = [(30, 40, 190), (40, 150, 40), (160, 120, 40), (90, 90, 95), (200, 200, 205), (40, 40, 45), (20, 140, 200)]
+    cf, cl = rng.choice(len(palette), 2, replace=False)
+    d = -1 if facing else 1
+    if not facing:
+        x_f0 = float(rng.uniform(10, 18))
+        x_l0 = x_f0 + gap0 + (L_f + L_l) / 2.0
+    else:
+        x_l0 = float(rng.uniform(22, 32))
+        x_f0 = x_l0 + gap0 + (L_f + L_l) / 2.0
+    lead = VehicleSpec("lead", x0_m=x_l0, v0_mps=v_l, lane_y_m=lane_y, length_m=L_l, color_bgr=palette[cl],
+                       segments=[MotionSegment(0, 0.0), MotionSegment(t_b, -a_l)], direction=d)
+    fsegs = [MotionSegment(0, 0.0)]
+    if brakes:
+        fsegs.append(MotionSegment(t_b + r_true, -a_f))
+    fol = VehicleSpec("follow", x0_m=x_f0, v0_mps=v_f, lane_y_m=lane_y, length_m=L_f, color_bgr=palette[cf],
+                      segments=fsegs, direction=d)
+    sc = Scenario(name=f"{split}_{i:03d}", seed=seed, fps=30.0, duration_s=6.0, camera=cam, road=road,
+                  vehicles=[lead, fol], degradation=deg)
+    meta = {"family": ("roadside_" if roadside else "overhead_") + ("facing" if facing else "behind"),
+            "hazard_onset_s": t_b, "true_cycle_m": cyc,
+            "follower_brakes": bool(brakes), "follower_reaction_true_s": r_true if brakes else None}
+    return sc, meta
+
+
+# ------------------------------------------------------- ground truth (indep.) --
+
+def _free(spec, t):
+    return simulate_vehicle(spec, np.atleast_1d(t))
+
+
+def gt_counterfactual(sc: Scenario, meta, t_contact):
+    lead = next(v for v in sc.vehicles if v.vid == "lead")
+    fol = next(v for v in sc.vehicles if v.vid == "follow")
+    d = lead.direction
+    t_h = meta["hazard_onset_s"]
+    tt = np.arange(0.0, sc.duration_s + 10.0, 0.004)
+    xl, vl, _ = _free(lead, tt)
+    xf, vf, _ = _free(fol, tt)
+    half = (lead.length_m + fol.length_m) / 2.0
+
+    def avoided(r, a):
+        tr = t_h + r
+        if t_contact is not None and tr >= t_contact:
+            return False
+        k = int(np.searchsorted(tt, tr))
+        x0, v0 = xf[k], vf[k]
+        tau = tt[k:] - tt[k]
+        ts = v0 / a
+        s = np.where(tau < ts, v0 * tau - 0.5 * a * tau ** 2, v0 * ts - 0.5 * a * ts ** 2)
+        gap = d * (xl[k:] - (x0 + d * s)) - half
+        # before the reaction instant the follower moves as it really did, and the real contact
+        # had not happened yet (tr < t_contact), so only the braking phase can produce contact
+        return bool(np.min(gap) > 0)
+
+    cells = [[avoided(r, a) for r in REACTION_GRID] for a in DECEL_GRID]
+    env = [cells[i][j] for i, a in enumerate(DECEL_GRID) for j, r in enumerate(REACTION_GRID)
+           if ENV_A[0] <= a <= ENV_A[1] and ENV_R[0] <= r <= ENV_R[1]]
+    verdict = "AVOIDABLE" if all(env) else ("NOT_AVOIDABLE" if not any(env) else "ASSUMPTION_DEPENDENT")
+    crit = {}
+    for a in DECEL_GRID:
+        lo, hi = 0.0, 4.0
+        if not avoided(lo, a):
+            crit[f"{a:g}"] = 0.0
+            continue
+        if avoided(hi, a):
+            crit[f"{a:g}"] = hi
+            continue
+        while hi - lo > 0.005:
+            mid = 0.5 * (lo + hi)
+            lo, hi = (mid, hi) if avoided(mid, a) else (lo, mid)
+        crit[f"{a:g}"] = lo
+    k_h = int(np.searchsorted(tt, t_h))
+    return {"verdict": verdict, "cells": cells, "critical_reaction_s": crit,
+            "follower_speed_at_onset_mps": float(vf[k_h]), "lead_speed_at_onset_mps": float(vl[k_h])}
+
+
+# ------------------------------------------------------------------ scoring --
+
+def classify(carai_verdict, gt_verdict):
+    definite = {"AVOIDABLE", "NOT_AVOIDABLE"}
+    if carai_verdict == gt_verdict:
+        return "correct"
+    if carai_verdict in definite and gt_verdict in definite:
+        return "catastrophic"          # opposite definite verdicts
+    if carai_verdict in definite and gt_verdict == "ASSUMPTION_DEPENDENT":
+        return "overconfident"         # claims robustness the physics does not have
+    return "abstained"                 # CARAI qualified/withheld where GT was definite
+
+
+def run_one(args):
+    split, i = args
+    from backend.pipeline.analyze import analyze_video
+    out_dir = os.path.join(CACHE_DIR, "collision_suite", split)
+    sc, meta = sample_scenario(split, i)
+    row = {"split": split, "i": i, "name": sc.name, **meta}
+    try:
+        t0 = time.time()
+        vp, gp, gt = render_scenario(sc, out_dir)
+        row["render_s"] = round(time.time() - t0, 1)
+        gtc = gt.get("collision")
+        row["gt_collision_t_s"] = gtc["t_s"] if gtc else None
+        row["gt"] = gt_counterfactual(sc, meta, gtc["t_s"] if gtc else None)
+        t0 = time.time()
+        case = analyze_video(vp, seed=i)
+        row["pipeline_s"] = round(time.time() - t0, 1)
+        row["status"] = case.get("status")
+        v = (case.get("verdict") or {}).get("value")
+        if case.get("status") in ("NOT_RECONSTRUCTABLE", "INVALID_INPUT", "MOVING_CAMERA"):
+            v = "NOT_RECONSTRUCTABLE"
+        row["carai_verdict"] = v
+        row["skeptic_disputed"] = (case.get("skeptic") or {}).get("disputed_checks")
+        row["stages"] = case.get("stages")
+        col = case.get("collision") or {}
+        row["carai_contact_t_s"] = col.get("t_contact_s")
+        row["carai_contact_ci90"] = col.get("t_contact_ci90_s")
+        row["contact_source"] = col.get("source")
+        hz = case.get("hazard_onset") or {}
+        row["carai_hazard"] = {k: hz.get(k) for k in ("source", "t_s", "t_lo_s", "t_hi_s")}
+        cf = case.get("counterfactual")
+        if cf:
+            row["carai_cf_verdict"] = cf["verdict"]
+            row["carai_crit"] = cf["critical_reaction_s"]
+            row["carai_p_avoid"] = cf["p_avoid"]
+            # point-assumption baseline: the single (7.0 m/s^2, 1.25 s) cell, majority over MC samples
+            p = cf["p_avoid"][DECEL_GRID.index(7.0)][REACTION_GRID.index(1.25)]
+            row["point_assumption_verdict"] = "AVOIDABLE" if p >= 0.5 else "NOT_AVOIDABLE"
+        row["follower_speed_at_onset"] = case.get("follower_speed_at_hazard_onset")
+        g = case.get("geometry") or {}
+        row["geometry_ok"] = bool(g.get("ok"))
+        row["roll_est_deg"] = g.get("roll_deg")
+        row["true_roll_deg"] = sc.camera.roll_deg
+        if row["gt"]["verdict"] and v:
+            row["outcome"] = classify(v, row["gt"]["verdict"]) if v not in ("NOT_RECONSTRUCTABLE", "INSUFFICIENT_EVIDENCE") \
+                else "abstained"
+        # legacy pipeline on the same clip (ablation)
+        try:
+            from backend.api.process_video import process_video as legacy
+            t0 = time.time()
+            lr, _ = legacy(vp)
+            row["legacy_s"] = round(time.time() - t0, 1)
+            row["legacy_status"] = lr.get("status")
+            row["legacy_verdict"] = (lr.get("causality") or {}).get("verdict")
+        except Exception as e:  # noqa: BLE001
+            row["legacy_error"] = str(e)[:200]
+    except Exception as e:  # noqa: BLE001
+        row["error"] = traceback.format_exc()[-1500:]
+    return row
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--split", default="dev")
+    ap.add_argument("--n", type=int, default=30)
+    ap.add_argument("--start", type=int, default=0)
+    ap.add_argument("--workers", type=int, default=2)
+    args = ap.parse_args()
+    out = os.path.join(RESULTS_DIR, f"collision_suite_{args.split}.jsonl")
+    done = set()
+    if os.path.exists(out):
+        with open(out) as f:
+            for line in f:
+                try:
+                    done.add(json.loads(line)["i"])
+                except Exception:  # noqa: BLE001
+                    pass
+    todo = [(args.split, i) for i in range(args.start, args.start + args.n) if i not in done]
+    with Pool(args.workers) as pool, open(out, "a") as f:
+        for row in pool.imap_unordered(run_one, todo):
+            f.write(json.dumps(row, default=float) + "\n")
+            f.flush()
+            print(f"{row['name']}: gt={row.get('gt', {}).get('verdict')} carai={row.get('carai_verdict')} "
+                  f"outcome={row.get('outcome')} legacy={row.get('legacy_verdict')} "
+                  f"t={row.get('pipeline_s')}s err={'Y' if 'error' in row else ''}", flush=True)
+
+
+if __name__ == "__main__":
+    main()

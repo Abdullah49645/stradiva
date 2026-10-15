@@ -371,6 +371,7 @@
       "est": null,
       "ci": null,
       "reasons": [
+        "marking proportions differ from the assumed standard (dash covers 16% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
         "too few frames show three complete dashes to test the equal-spacing assumption"
       ]
     },

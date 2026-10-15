@@ -1,0 +1,645 @@
+{
+ "fps_from_sensor_timestamps": {
+  "summary": {
+   "fps_used": 20.0,
+   "fps_source": "override (supplied by the user / sensor timestamps)",
+   "fps_container": 25.0,
+   "fps_from_sensor_timestamps": 20.00028023745571,
+   "n_windows": 30,
+   "n_answered": 16,
+   "median_ape": 1.089952478523109,
+   "max_ape": 1.2144110603056584,
+   "ci90_coverage": 0.0,
+   "catastrophic_windows_gt25pct": 16,
+   "speed_range_true_mps": [
+    9.539743567086253,
+    19.718587652026592
+   ]
+  },
+  "windows": [
+   {
+    "frame0": 0,
+    "true": 9.539743567086253,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "speed inconsistent with neighbouring windows (physically implausible jump)"
+    ]
+   },
+   {
+    "frame0": 40,
+    "true": 12.032439859190239,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "speed inconsistent with neighbouring windows (physically implausible jump)"
+    ]
+   },
+   {
+    "frame0": 80,
+    "true": 14.60125279436192,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 3.1px): vanishing point or straight-road assumption violated",
+     "dash centres are not equally spaced along the line (median residual 5.0px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (72%)",
+     "marking period unstable across frames (83%)",
+     "marking proportions differ from the assumed standard (dash covers 20% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)"
+    ]
+   },
+   {
+    "frame0": 120,
+    "true": 17.549526531598623,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "marking period unstable across frames (13%)",
+     "marking period unstable across frames (9%)"
+    ]
+   },
+   {
+    "frame0": 160,
+    "true": 19.555750941243865,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 2.5px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (10%)",
+     "marking period unstable across frames (11%)",
+     "marking period unstable across frames (29%)",
+     "marking period unstable across frames (8%)"
+    ]
+   },
+   {
+    "frame0": 200,
+    "true": 19.718587652026592,
+    "status": "OK",
+    "est": 41.653473517560336,
+    "ci": [
+     39.303206735471775,
+     44.003740299648896
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 240,
+    "true": 19.359267235616255,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "frame-pair speeds disagree (robust spread 51% around the trend)",
+     "marking period unstable across frames (21%)",
+     "marking proportions differ from the assumed standard (dash covers 22% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "too few frames show three complete dashes to test the equal-spacing assumption"
+    ]
+   },
+   {
+    "frame0": 280,
+    "true": 19.000422645469307,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 4.9px): vanishing point or straight-road assumption violated",
+     "dash centres are not equally spaced along the line (median residual 5.6px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (14%)"
+    ]
+   },
+   {
+    "frame0": 320,
+    "true": 18.662052556436873,
+    "status": "OK",
+    "est": 39.02367377915422,
+    "ci": [
+     37.00180062791774,
+     41.04554693039071
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 360,
+    "true": 18.56013872456895,
+    "status": "OK",
+    "est": 38.993612916982116,
+    "ci": [
+     36.77475660190764,
+     41.21246923205659
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 400,
+    "true": 18.804059467171886,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "marking period unstable across frames (10%)",
+     "marking period unstable across frames (11%)",
+     "marking period unstable across frames (8%)"
+    ]
+   },
+   {
+    "frame0": 440,
+    "true": 18.835934359845936,
+    "status": "OK",
+    "est": 38.71378584356694,
+    "ci": [
+     36.72242915771607,
+     40.705142529417806
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 480,
+    "true": 17.89889929115535,
+    "status": "OK",
+    "est": 38.23773243158788,
+    "ci": [
+     35.62612021073599,
+     40.84934465243977
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 520,
+    "true": 17.49942367641705,
+    "status": "OK",
+    "est": 36.52891054211919,
+    "ci": [
+     34.68989288953588,
+     38.36792819470251
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 560,
+    "true": 17.220542110621114,
+    "status": "OK",
+    "est": 34.9629654854609,
+    "ci": [
+     32.99114300604845,
+     36.934787964873344
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 600,
+    "true": 15.876706986195359,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "no periodic (dashed) lane marking found -- metric scale unavailable"
+    ]
+   },
+   {
+    "frame0": 640,
+    "true": 14.091028532123588,
+    "status": "OK",
+    "est": 29.606341709719292,
+    "ci": [
+     27.916456607911854,
+     31.29622681152673
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 680,
+    "true": 13.836831119423977,
+    "status": "OK",
+    "est": 30.64043187043398,
+    "ci": [
+     28.931700593109635,
+     32.34916314775832
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 720,
+    "true": 14.321960337145914,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 3.4px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (108%)",
+     "marking period unstable across frames (112%)",
+     "marking period unstable across frames (77%)",
+     "marking period unstable across frames (79%)",
+     "marking proportions differ from the assumed standard (dash covers 35% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "marking proportions differ from the assumed standard (dash covers 57% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "marking proportions differ from the assumed standard (dash covers 66% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "marking proportions differ from the assumed standard (dash covers 82% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)"
+    ]
+   },
+   {
+    "frame0": 760,
+    "true": 15.727420089560685,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "no stable road vanishing point (lane lines not found)"
+    ]
+   },
+   {
+    "frame0": 800,
+    "true": 17.04306687399197,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "marking period unstable across frames (15%)"
+    ]
+   },
+   {
+    "frame0": 840,
+    "true": 17.484063044765172,
+    "status": "OK",
+    "est": 35.9508696097761,
+    "ci": [
+     34.1379090015953,
+     37.7638302179569
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 880,
+    "true": 17.552410019090495,
+    "status": "OK",
+    "est": 36.70852009559192,
+    "ci": [
+     34.85386946163567,
+     38.563170729548176
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 920,
+    "true": 17.668236853303434,
+    "status": "OK",
+    "est": 36.63556391900962,
+    "ci": [
+     34.79587428196584,
+     38.4752535560534
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 960,
+    "true": 17.836251671666293,
+    "status": "OK",
+    "est": 36.15226225686665,
+    "ci": [
+     34.32257366893572,
+     37.98195084479758
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 1000,
+    "true": 17.715518381208234,
+    "status": "OK",
+    "est": 37.00477932507961,
+    "ci": [
+     35.16112325563502,
+     38.8484353945242
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 1040,
+    "true": 17.301833443065085,
+    "status": "OK",
+    "est": 35.29919470528722,
+    "ci": [
+     33.499373661472454,
+     37.09901574910199
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 1080,
+    "true": 17.007380595140145,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 2.2px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (11%)"
+    ]
+   },
+   {
+    "frame0": 1120,
+    "true": 16.15906171941814,
+    "status": "OK",
+    "est": 34.97367897195509,
+    "ci": [
+     33.01167820858147,
+     36.935679735328705
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 1160,
+    "true": 13.411354024205474,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "speed inconsistent with neighbouring windows (physically implausible jump)"
+    ]
+   }
+  ]
+ },
+ "fps_from_container_unverified": {
+  "summary": {
+   "fps_used": 25.0,
+   "fps_source": "container metadata (unverified)",
+   "fps_container": 25.0,
+   "fps_from_sensor_timestamps": 20.00028023745571,
+   "n_windows": 24,
+   "n_answered": 16,
+   "median_ape": 1.5948757568142082,
+   "max_ape": 1.7718972827127433,
+   "ci90_coverage": 0.0,
+   "catastrophic_windows_gt25pct": 16,
+   "speed_range_true_mps": [
+    9.886486333978544,
+    19.675829731484022
+   ]
+  },
+  "windows": [
+   {
+    "frame0": 0,
+    "true": 9.886486333978544,
+    "status": "OK",
+    "est": 24.718945464753464,
+    "ci": [
+     23.128266844988392,
+     26.309624084518536
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 50,
+    "true": 12.902386357493096,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 2.1px): vanishing point or straight-road assumption violated",
+     "dash centres are not equally spaced along the line (median residual 2.5px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (13%)",
+     "marking period unstable across frames (48%)"
+    ]
+   },
+   {
+    "frame0": 100,
+    "true": 16.481740427773232,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "no stable road vanishing point (lane lines not found)"
+    ]
+   },
+   {
+    "frame0": 150,
+    "true": 19.35235783553985,
+    "status": "OK",
+    "est": 50.89028336774697,
+    "ci": [
+     48.06767355289334,
+     53.712893182600595
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 200,
+    "true": 19.675829731484022,
+    "status": "OK",
+    "est": 51.300351714749794,
+    "ci": [
+     48.373766718134114,
+     54.226936711365475
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 250,
+    "true": 19.21976650736519,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "no stable road vanishing point (lane lines not found)"
+    ]
+   },
+   {
+    "frame0": 300,
+    "true": 18.78820178883734,
+    "status": "OK",
+    "est": 46.80164768207972,
+    "ci": [
+     44.362200028723976,
+     49.24109533543546
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 350,
+    "true": 18.556577023607833,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "marking period unstable across frames (12%)"
+    ]
+   },
+   {
+    "frame0": 400,
+    "true": 18.840159582119373,
+    "status": "OK",
+    "est": 47.80551492545893,
+    "ci": [
+     45.108974464161875,
+     50.502055386755984
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 450,
+    "true": 18.523784584475262,
+    "status": "OK",
+    "est": 48.865611003133516,
+    "ci": [
+     46.32080202413851,
+     51.41041998212852
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 500,
+    "true": 17.585638680259116,
+    "status": "OK",
+    "est": 45.12278978053436,
+    "ci": [
+     42.789140460205765,
+     47.45643910086296
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 550,
+    "true": 17.257504277315316,
+    "status": "OK",
+    "est": 45.051576843587725,
+    "ci": [
+     42.743421061986304,
+     47.359732625189146
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 600,
+    "true": 15.613717563988963,
+    "status": "OK",
+    "est": 39.72710329896737,
+    "ci": [
+     37.6923231713672,
+     41.76188342656754
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 650,
+    "true": 13.852121890274397,
+    "status": "OK",
+    "est": 38.39665902745731,
+    "ci": [
+     36.24212777035852,
+     40.5511902845561
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 700,
+    "true": 14.092067239240077,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 3.2px): vanishing point or straight-road assumption violated",
+     "dash centres are not equally spaced along the line (median residual 4.8px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (66%)",
+     "marking period unstable across frames (85%)"
+    ]
+   },
+   {
+    "frame0": 750,
+    "true": 15.525250958056175,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "no stable road vanishing point (lane lines not found)"
+    ]
+   },
+   {
+    "frame0": 800,
+    "true": 17.111405699321438,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "no stable road vanishing point (lane lines not found)"
+    ]
+   },
+   {
+    "frame0": 850,
+    "true": 17.5250852566814,
+    "status": "OK",
+    "est": 45.321507408801224,
+    "ci": [
+     43.042235484292604,
+     47.600779333309845
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 900,
+    "true": 17.613485868464224,
+    "status": "OK",
+    "est": 45.59961504857367,
+    "ci": [
+     43.31071347724971,
+     47.88851661989762
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 950,
+    "true": 17.817245945786826,
+    "status": "OK",
+    "est": 45.68661957450225,
+    "ci": [
+     43.39931031316759,
+     47.973928835836915
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 1000,
+    "true": 17.66488803209791,
+    "status": "OK",
+    "est": 46.130616185882516,
+    "ci": [
+     43.78833284781252,
+     48.47289952395251
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 1050,
+    "true": 17.17221250710272,
+    "status": "OK",
+    "est": 44.66231494810103,
+    "ci": [
+     42.37089727498814,
+     46.953732621213916
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 1100,
+    "true": 16.62097119849453,
+    "status": "OK",
+    "est": 43.41697504417896,
+    "ci": [
+     40.8823087417712,
+     45.951641346586726
+    ],
+    "reasons": []
+   },
+   {
+    "frame0": 1150,
+    "true": 13.8180467927345,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "reasons": [
+     "speed inconsistent with neighbouring windows (physically implausible jump)"
+    ]
+   }
+  ]
+ }
+}

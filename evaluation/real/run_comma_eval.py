@@ -44,6 +44,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--max-frames", type=int, default=None)
     ap.add_argument("--prior", default="california_freeway", choices=["california_freeway", "us_federal"])
+    ap.add_argument("--tag", default="")
     args = ap.parse_args()
     video = os.path.join(DATA, "train.mp4")
     prior = MarkingPrior.preset(args.prior)
@@ -79,7 +80,7 @@ def main():
             reasons[key] = reasons.get(key, 0) + 1
     summary["abstention_reasons"] = reasons
     os.makedirs(OUT, exist_ok=True)
-    tag = f"comma_eval_{args.prior}"
+    tag = f"comma_eval_{args.prior}{args.tag}"
     with open(os.path.join(OUT, tag + ".json"), "w") as f:
         json.dump({"summary": summary, "windows": rows}, f, indent=1)
     print(json.dumps({k: summary[k] for k in ("all", "freeway", "city", "abstention_reasons", "runtime_s")}, indent=1))

@@ -1,0 +1,814 @@
+{
+ "caltrans_freeway_48ft": {
+  "summary": {
+   "answered": 0,
+   "n": 30,
+   "implied_cycle_median_m": 7.393068785824636,
+   "n_rejected_by_scale_check": 19
+  },
+  "windows": [
+   {
+    "frame0": 0,
+    "true": 9.539743567086253,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.320369514130816,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.3 m (range 6.1-8.8 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 40,
+    "true": 12.032439859190239,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.105427860658996,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.1 m (range 5.9-8.5 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 80,
+    "true": 14.60125279436192,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 3.1px): vanishing point or straight-road assumption violated",
+     "dash centres are not equally spaced along the line (median residual 5.0px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (72%)",
+     "marking period unstable across frames (83%)",
+     "marking proportions differ from the assumed standard (dash covers 20% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)"
+    ]
+   },
+   {
+    "frame0": 120,
+    "true": 17.549526531598623,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "marking period unstable across frames (13%)",
+     "marking period unstable across frames (9%)"
+    ]
+   },
+   {
+    "frame0": 160,
+    "true": 19.555750941243865,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 2.5px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (10%)",
+     "marking period unstable across frames (11%)",
+     "marking period unstable across frames (29%)",
+     "marking period unstable across frames (8%)"
+    ]
+   },
+   {
+    "frame0": 200,
+    "true": 19.718587652026592,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 6.368624151074654,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 6.4 m (range 5.3-7.6 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 240,
+    "true": 19.359267235616255,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "frame-pair speeds disagree (robust spread 51% around the trend)",
+     "marking period unstable across frames (21%)",
+     "marking proportions differ from the assumed standard (dash covers 22% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "too few frames show three complete dashes to test the equal-spacing assumption"
+    ]
+   },
+   {
+    "frame0": 280,
+    "true": 19.000422645469307,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 4.9px): vanishing point or straight-road assumption violated",
+     "dash centres are not equally spaced along the line (median residual 5.6px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (14%)"
+    ]
+   },
+   {
+    "frame0": 320,
+    "true": 18.662052556436873,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.245277347608413,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.2 m (range 6.0-8.7 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 360,
+    "true": 18.56013872456895,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.5225193825397065,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.5 m (range 6.3-9.0 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 400,
+    "true": 18.804059467171886,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "marking period unstable across frames (10%)",
+     "marking period unstable across frames (11%)",
+     "marking period unstable across frames (8%)"
+    ]
+   },
+   {
+    "frame0": 440,
+    "true": 18.835934359845936,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 8.074476404753053,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 8.1 m (range 6.7-9.7 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 480,
+    "true": 17.89889929115535,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.091780938403061,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.1 m (range 5.9-8.5 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 520,
+    "true": 17.49942367641705,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.218763565599585,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.2 m (range 6.0-8.7 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 560,
+    "true": 17.220542110621114,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.200720980593986,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.2 m (range 6.0-8.6 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 600,
+    "true": 15.876706986195359,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "no periodic (dashed) lane marking found -- metric scale unavailable"
+    ]
+   },
+   {
+    "frame0": 640,
+    "true": 14.091028532123588,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.582780003117652,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.6 m (range 6.3-9.1 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 680,
+    "true": 13.836831119423977,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.41468039954614,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.4 m (range 6.2-8.9 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 720,
+    "true": 14.321960337145914,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 3.4px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (108%)",
+     "marking period unstable across frames (112%)",
+     "marking period unstable across frames (77%)",
+     "marking period unstable across frames (79%)",
+     "marking proportions differ from the assumed standard (dash covers 35% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "marking proportions differ from the assumed standard (dash covers 57% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "marking proportions differ from the assumed standard (dash covers 66% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "marking proportions differ from the assumed standard (dash covers 82% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)"
+    ]
+   },
+   {
+    "frame0": 760,
+    "true": 15.727420089560685,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "no stable road vanishing point (lane lines not found)"
+    ]
+   },
+   {
+    "frame0": 800,
+    "true": 17.04306687399197,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "marking period unstable across frames (15%)"
+    ]
+   },
+   {
+    "frame0": 840,
+    "true": 17.484063044765172,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.344332381922467,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.3 m (range 6.1-8.8 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 880,
+    "true": 17.552410019090495,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.393068785824636,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.4 m (range 6.2-8.9 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 920,
+    "true": 17.668236853303434,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.244610885665937,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.2 m (range 6.0-8.7 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 960,
+    "true": 17.836251671666293,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.4598522934080975,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.5 m (range 6.2-9.0 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 1000,
+    "true": 17.715518381208234,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.517471133509273,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.5 m (range 6.3-9.0 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 1040,
+    "true": 17.301833443065085,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.411619295789464,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.4 m (range 6.2-8.9 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 1080,
+    "true": 17.007380595140145,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 2.2px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (11%)"
+    ]
+   },
+   {
+    "frame0": 1120,
+    "true": 16.15906171941814,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.669581676973866,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.7 m (range 6.4-9.2 m), the assumed standard says 14.63 m"
+    ]
+   },
+   {
+    "frame0": 1160,
+    "true": 13.411354024205474,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": 7.743297326289886,
+    "xc": "INCONSISTENT",
+    "reasons": [
+     "marking standard inconsistent with lane geometry: lane width 3.6 m and focal length 910px imply a marking cycle of 7.7 m (range 6.5-9.3 m), the assumed standard says 14.63 m"
+    ]
+   }
+  ]
+ },
+ "urban_24ft": {
+  "summary": {
+   "answered": 19,
+   "n": 30,
+   "implied_cycle_median_m": 7.393068785824636,
+   "n_rejected_by_scale_check": 0,
+   "median_ape": 0.04441706217111016,
+   "max_ape": 0.10720553015282921,
+   "coverage": 0.8421052631578947
+  },
+  "windows": [
+   {
+    "frame0": 0,
+    "true": 9.539743567086253,
+    "status": "OK",
+    "est": 9.485666038227563,
+    "ci": [
+     8.853945739921627,
+     10.1173863365335
+    ],
+    "implied_cycle_m": 7.320369514130816,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 40,
+    "true": 12.032439859190239,
+    "status": "OK",
+    "est": 12.919798206583003,
+    "ci": [
+     12.242740015176677,
+     13.59685639798933
+    ],
+    "implied_cycle_m": 7.105427860658996,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 80,
+    "true": 14.60125279436192,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 3.1px): vanishing point or straight-road assumption violated",
+     "dash centres are not equally spaced along the line (median residual 5.0px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (72%)",
+     "marking period unstable across frames (83%)",
+     "marking proportions differ from the assumed standard (dash covers 20% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)"
+    ]
+   },
+   {
+    "frame0": 120,
+    "true": 17.549526531598623,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "marking period unstable across frames (13%)",
+     "marking period unstable across frames (9%)"
+    ]
+   },
+   {
+    "frame0": 160,
+    "true": 19.555750941243865,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 2.5px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (10%)",
+     "marking period unstable across frames (11%)",
+     "marking period unstable across frames (29%)",
+     "marking period unstable across frames (8%)"
+    ]
+   },
+   {
+    "frame0": 200,
+    "true": 19.718587652026592,
+    "status": "OK",
+    "est": 20.826736758780168,
+    "ci": [
+     19.651603367735888,
+     22.001870149824448
+    ],
+    "implied_cycle_m": 6.368624151074654,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 240,
+    "true": 19.359267235616255,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "frame-pair speeds disagree (robust spread 51% around the trend)",
+     "marking period unstable across frames (21%)",
+     "marking proportions differ from the assumed standard (dash covers 22% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "too few frames show three complete dashes to test the equal-spacing assumption"
+    ]
+   },
+   {
+    "frame0": 280,
+    "true": 19.000422645469307,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 4.9px): vanishing point or straight-road assumption violated",
+     "dash centres are not equally spaced along the line (median residual 5.6px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (14%)"
+    ]
+   },
+   {
+    "frame0": 320,
+    "true": 18.662052556436873,
+    "status": "OK",
+    "est": 19.51183688957711,
+    "ci": [
+     18.50090031395887,
+     20.522773465195353
+    ],
+    "implied_cycle_m": 7.245277347608413,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 360,
+    "true": 18.56013872456895,
+    "status": "OK",
+    "est": 19.496806458491058,
+    "ci": [
+     18.38737830095382,
+     20.606234616028296
+    ],
+    "implied_cycle_m": 7.5225193825397065,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 400,
+    "true": 18.804059467171886,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "marking period unstable across frames (10%)",
+     "marking period unstable across frames (11%)",
+     "marking period unstable across frames (8%)"
+    ]
+   },
+   {
+    "frame0": 440,
+    "true": 18.835934359845936,
+    "status": "OK",
+    "est": 19.35689292178347,
+    "ci": [
+     18.361214578858036,
+     20.352571264708903
+    ],
+    "implied_cycle_m": 7.694635526412233,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 480,
+    "true": 17.89889929115535,
+    "status": "OK",
+    "est": 19.11886621579394,
+    "ci": [
+     17.813060105367995,
+     20.424672326219884
+    ],
+    "implied_cycle_m": 7.091780938403061,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 520,
+    "true": 17.49942367641705,
+    "status": "OK",
+    "est": 18.264455271059596,
+    "ci": [
+     17.34494644476794,
+     19.183964097351254
+    ],
+    "implied_cycle_m": 7.218763565599585,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 560,
+    "true": 17.220542110621114,
+    "status": "OK",
+    "est": 17.48148274273045,
+    "ci": [
+     16.495571503024227,
+     18.467393982436672
+    ],
+    "implied_cycle_m": 7.200720980593986,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 600,
+    "true": 15.876706986195359,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "no periodic (dashed) lane marking found -- metric scale unavailable"
+    ]
+   },
+   {
+    "frame0": 640,
+    "true": 14.091028532123588,
+    "status": "OK",
+    "est": 14.803170854859646,
+    "ci": [
+     13.958228303955927,
+     15.648113405763365
+    ],
+    "implied_cycle_m": 7.582780003117652,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 680,
+    "true": 13.836831119423977,
+    "status": "OK",
+    "est": 15.32021593521699,
+    "ci": [
+     14.465850296554818,
+     16.17458157387916
+    ],
+    "implied_cycle_m": 7.41468039954614,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 720,
+    "true": 14.321960337145914,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 3.4px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (108%)",
+     "marking period unstable across frames (112%)",
+     "marking period unstable across frames (77%)",
+     "marking period unstable across frames (79%)",
+     "marking proportions differ from the assumed standard (dash covers 35% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "marking proportions differ from the assumed standard (dash covers 57% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "marking proportions differ from the assumed standard (dash covers 66% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)",
+     "marking proportions differ from the assumed standard (dash covers 82% of the cycle, standard 25%): wrong standard or not lane markings (e.g. pavement joints)"
+    ]
+   },
+   {
+    "frame0": 760,
+    "true": 15.727420089560685,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "no stable road vanishing point (lane lines not found)"
+    ]
+   },
+   {
+    "frame0": 800,
+    "true": 17.04306687399197,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "marking period unstable across frames (15%)"
+    ]
+   },
+   {
+    "frame0": 840,
+    "true": 17.484063044765172,
+    "status": "OK",
+    "est": 17.97543480488805,
+    "ci": [
+     17.06895450079765,
+     18.88191510897845
+    ],
+    "implied_cycle_m": 7.344332381922467,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 880,
+    "true": 17.552410019090495,
+    "status": "OK",
+    "est": 18.35426004779596,
+    "ci": [
+     17.426934730817834,
+     19.281585364774088
+    ],
+    "implied_cycle_m": 7.393068785824636,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 920,
+    "true": 17.668236853303434,
+    "status": "OK",
+    "est": 18.31778195950481,
+    "ci": [
+     17.39793714098292,
+     19.2376267780267
+    ],
+    "implied_cycle_m": 7.244610885665937,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 960,
+    "true": 17.836251671666293,
+    "status": "OK",
+    "est": 18.076131128433325,
+    "ci": [
+     17.16128683446786,
+     18.99097542239879
+    ],
+    "implied_cycle_m": 7.4598522934080975,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 1000,
+    "true": 17.715518381208234,
+    "status": "OK",
+    "est": 18.502389662539805,
+    "ci": [
+     17.58056162781751,
+     19.4242176972621
+    ],
+    "implied_cycle_m": 7.517471133509273,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 1040,
+    "true": 17.301833443065085,
+    "status": "OK",
+    "est": 17.64959735264361,
+    "ci": [
+     16.749686830736227,
+     18.549507874550994
+    ],
+    "implied_cycle_m": 7.411619295789464,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 1080,
+    "true": 17.007380595140145,
+    "status": "ABSTAIN",
+    "est": null,
+    "ci": null,
+    "implied_cycle_m": null,
+    "xc": null,
+    "reasons": [
+     "dash centres are not equally spaced along the line (median residual 2.2px): vanishing point or straight-road assumption violated",
+     "marking period unstable across frames (11%)"
+    ]
+   },
+   {
+    "frame0": 1120,
+    "true": 16.15906171941814,
+    "status": "OK",
+    "est": 17.486839485977544,
+    "ci": [
+     16.505839104290736,
+     18.467839867664352
+    ],
+    "implied_cycle_m": 7.669581676973866,
+    "xc": "CONSISTENT",
+    "reasons": []
+   },
+   {
+    "frame0": 1160,
+    "true": 13.411354024205474,
+    "status": "OK",
+    "est": 13.584637925678777,
+    "ci": [
+     12.838842049370973,
+     14.330433801986581
+    ],
+    "implied_cycle_m": 7.743089170690181,
+    "xc": "CONSISTENT",
+    "reasons": []
+   }
+  ]
+ }
+}
