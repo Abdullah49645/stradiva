@@ -96,10 +96,30 @@ class RoadGeometry:
 
 # ------------------------------------------------------------------ helpers --
 
-def median_background(frames, n=48):
-    idx = np.linspace(0, len(frames) - 1, min(n, len(frames))).astype(int)
+def median_background(frames, n=48, portion=(0.0, 1.0)):
+    lo = int(portion[0] * (len(frames) - 1))
+    hi = int(portion[1] * (len(frames) - 1))
+    idx = np.linspace(lo, hi, min(n, hi - lo + 1)).astype(int)
     stack = np.stack([frames[i] for i in idx])
     return np.median(stack, axis=0).astype(np.uint8)
+
+
+def event_background(frames, n=48, min_frames=30):
+    """Background for event footage: temporal median of the FIRST HALF of the
+    clip. Vehicles that come to rest after a collision (later in the clip)
+    would otherwise enter a whole-clip median and leave a 'ghost' in front of
+    the moving vehicles. Also returns where the first- and second-half
+    backgrounds disagree (objects that came to rest or left), as evidence."""
+    if len(frames) < 2 * min_frames:
+        return median_background(frames, n), None
+    b1 = median_background(frames, n, (0.0, 0.5))
+    b2 = median_background(frames, n, (0.5, 1.0))
+    diff = cv2.absdiff(b1, b2).max(axis=2) > 30
+    diff = cv2.morphologyEx(diff.astype(np.uint8) * 255, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+    n_lbl, _, stats, _ = cv2.connectedComponentsWithStats(diff)
+    regions = [{"bbox": [int(v) for v in stats[i][:4]], "area_px": int(stats[i][4])}
+               for i in range(1, n_lbl) if stats[i][4] > 150]
+    return b1, regions
 
 
 def _profile_runs(prof, s, asphalt_level=None):
