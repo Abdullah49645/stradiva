@@ -158,7 +158,13 @@ def _lead_x(kin_l, a_lead, tq):
     return out
 
 
-def _extrapolate_contact(kin_f, kin_l, L_f, a_lead, horizon_s=2.0, dt=0.005):
+def _lead_v(kin_l, a_lead, t):
+    if t <= kin_l["t"][-1]:
+        return float(np.interp(t, kin_l["t"], kin_l["v"]))
+    return max(0.0, float(kin_l["v"][-1]) + a_lead * (t - kin_l["t"][-1]))
+
+
+def _extrapolate_contact(kin_f, kin_l, L_f, a_lead, horizon_s=0.2, dt=0.005):
     """First time the bumper gap x_lead - (x_follow + L_f) reaches 0. The
     follower is usually MEASURED up to contact (its ground contact stays
     visible while it occludes the lead); the lead is extrapolated from its
@@ -275,13 +281,16 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
     t0 = time.time()
     # two-pass background: rough median -> track -> median excluding tracked vehicles
     bg0 = median_background(frames)
-    tracks0 = track_vehicles(frames, bg0, TrackerConfig())
-    bg, n_refined = refine_background(frames, tracks0, bg0)
+    bg, n_refined = bg0, 0
+    for _ in range(2):          # each pass tracks better, so the next exclusion masks are better
+        tracks_k = track_vehicles(frames, bg, TrackerConfig())
+        bg, n_refined = refine_background(frames, tracks_k, bg0)
     _, rest_regions = event_background(frames)
     case["background"] = {"method": "two-pass temporal median excluding tracked vehicles",
                           "pixels_refined": n_refined, "objects_came_to_rest_or_left": rest_regions}
     timings["background"] = time.time() - t0
-    geo = estimate_road_geometry(frames, prior, GeometryConfig(seed=seed), background=bg)
+    # geometry from the plain median (markings are rarely covered most of the time); tracking from the refined one
+    geo = estimate_road_geometry(frames, prior, GeometryConfig(seed=seed), background=bg0)
     timings["geometry"] = time.time() - t0
     case["geometry"] = geo.to_json()
     if not geo.ok:
@@ -298,6 +307,22 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
     tracks = track_vehicles(frames, bg, TrackerConfig())
     timings["tracking"] = time.time() - t0
 
+    out, internals = analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skeptic_checks, timings, t_start)
+    if return_internals:
+        internals["frames_shape"] = (h, w)
+        return out, internals
+    return out
+
+
+def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skeptic_checks, timings, t_start):
+    """Stages 4-9 (kinematics -> verdict) from a list of tracks. Split out of
+    analyze_video so the evaluation can feed ORACLE tracks (true contact points
+    + pixel noise) through exactly the same reasoning code, separating
+    detection/tracking errors from reasoning errors."""
+    def stage(name, status, detail=""):
+        case["stages"].append({"stage": name, "status": status, "detail": detail,
+                               "t_s": round(time.time() - t_start, 2)})
+    h, w = frames[0].shape[:2]
     # 4. kinematics per track (vehicles = tracks with >= 6 measurements spanning >= 3 m along the road)
     t0 = time.time()
     vehicles = []
@@ -311,8 +336,10 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
                          "ended_merged": last["status"] in ("MERGED", "OCCLUDED"),
                          "occluded_from_s": next((r["frame"] / fps for r in tr["records"] if r["status"] == "OCCLUDED"), None),
                          "merge_frames": [r["frame"] for r in tr["records"] if r["status"] in ("MERGED", "OCCLUDED")]})
+    n_before = len(vehicles)
+    vehicles = _stitch_tracklets(vehicles, fps, geo.H)
     timings["kinematics"] = time.time() - t0
-    case["tracking"] = {"n_tracks_raw": len(tracks), "n_vehicles": len(vehicles),
+    case["tracking"] = {"n_tracks_raw": len(tracks), "n_tracklets": n_before, "n_vehicles": len(vehicles),
                         "vehicles": [{"id": v["track"]["id"], "n_measured": v["track"]["n_measured"],
                                       "first_frame": v["track"]["records"][0]["frame"],
                                       "last_frame": v["track"]["records"][-1]["frame"],
@@ -321,7 +348,7 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
         stage("tracking", "REJECT", "no vehicle tracked over >= 3 m")
         case.update({"status": "NOT_RECONSTRUCTABLE", "reasons": ["no vehicle could be tracked over at least 3 m of road"],
                      "identifiability": _identifiability(geo_ok=True)})
-        return _json(case)
+        return _json(case), {"geo": geo, "tracks": tracks, "vehicles": locals().get("vehicles", []), "fps": fps, "pair": None}
     stage("tracking", "OK", f"{len(vehicles)} vehicle track(s)")
 
     # 5. pair + contact + onset
@@ -340,10 +367,16 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
         case["speeds"] = _speed_summaries(vehicles, geo, prior, fps, rng, n_mc)
         case["status"] = "RECONSTRUCTED_NO_INTERACTION"
     else:
-        fol, lead = pair
-        L_f = FOLLOW_LENGTH_PRIOR[0]
+        fol, lead, direction = pair
+        fol = {**fol, "kin": _aligned(fol["kin"], direction), "direction": direction}
+        lead = {**lead, "kin": _aligned(lead["kin"], direction), "direction": direction}
+        pair = (fol, lead)
+        L_f = FOLLOW_LENGTH_PRIOR[0]   # length between the two visible contacts: follower's (receding) or lead's (approaching)
         merged = fol["ended_merged"] or lead["ended_merged"]
-        onset = hinge_onset(lead["kin"]["t"], lead["kin"]["x_raw"], lead["kin"]["sigma_x_meas"])
+        kl_ = lead["kin"]
+        slow = np.where(kl_["v"] < 1.0)[0]
+        t_stop = float(kl_["t"][slow[0]]) if len(slow) else None
+        onset = hinge_onset(kl_["t"], kl_["x_raw"], kl_["sigma_x_meas"], t_data_max=t_stop)
         lead_brakes = onset is not None and onset["identified"]
         a_lead = -onset["decel_after_mps2"] if (onset and onset["decel_after_mps2"] > 1.5) else min(0.0, float(lead["kin"]["a"][-1]))
         braking_window = (lead["kin"]["t"][-1] - onset["t0_s"]) if lead_brakes else 0.0
@@ -353,10 +386,29 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
         kink = velocity_kink(fol["kin"]["t"], fol["kin"]["x_raw"], fol["kin"]["sigma_x_meas"],
                              t_lo=(t_extrap - 1.0) if t_extrap else lead["kin"]["t"][-1],
                              t_hi=(t_extrap + 1.0) if t_extrap else fol["kin"]["t"][-1])
+        clip_end = (len(frames) - 1) / fps
+        if t_extrap is not None and t_extrap > clip_end:
+            t_extrap = None                      # would happen after the footage ends: not observed
+        if kink is not None and kink["significant"]:
+            # an impact needs the bumpers to be (nearly) touching; a hard brake onset can also look like a kink
+            g_k = float(_lead_x(lead["kin"], a_lead, np.array([kink["t_s"]]))[0]
+                        - (np.interp(kink["t_s"], fol["kin"]["t"], fol["kin"]["x"]) + L_f))
+            kink["gap_at_kink_m"] = g_k
+            if g_k > 1.0 + 2 * FOLLOW_LENGTH_PRIOR[1]:
+                kink["significant"] = False
+                kink["rejected_reason"] = f"reconstructed gap {g_k:.1f} m at the kink: a brake onset, not an impact"
         if kink is not None and kink["significant"]:
             t_contact, contact_source = kink["t_s"], "measured: sudden speed loss of the following vehicle"
         else:
             t_contact, contact_source = t_extrap, "extrapolated: lead hidden before contact"
+            if t_extrap is not None:
+                v_close = float(np.interp(t_extrap, fol["kin"]["t"], fol["kin"]["v"]) - _lead_v(lead["kin"], a_lead, t_extrap))
+                if v_close < 2.0:
+                    # vehicles came to rest (nearly) bumper to bumper: within the vehicle-length uncertainty,
+                    # a contact cannot be established without an impact signature
+                    t_contact, contact_source = None, (f"not established: closing speed {v_close:.1f} m/s at the "
+                                                       f"extrapolated contact is within vehicle-length uncertainty "
+                                                       f"and no impact signature was observed")
         lead_hidden_decel = None
         if t_contact is not None:
             # re-smooth both vehicles on PRE-IMPACT measurements only (post-contact motion must not leak
@@ -364,9 +416,9 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
             kf_pre = _kin_for(fol["track"], fps, geo.H, t_max=t_contact)
             kl_pre = _kin_for(lead["track"], fps, geo.H, t_max=t_contact)
             if kf_pre is not None:
-                fol["kin"] = kf_pre
+                fol["kin"] = _aligned(kf_pre, direction)
             if kl_pre is not None:
-                lead["kin"] = kl_pre
+                lead["kin"] = _aligned(kl_pre, direction)
             if contact_source.startswith("measured") and lead["kin"]["t"][-1] < t_contact - 0.2:
                 lead_hidden_decel = _lead_decel_from_impact(fol["kin"], lead["kin"], L_f, t_contact)
                 if lead_hidden_decel is not None:
@@ -377,9 +429,11 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
                    "description": "the lead vehicle's measured brake onset"}
                   if lead_brakes else
                   {"source": "first_observation", "t_s": float(max(fol["kin"]["t"][0], lead["kin"]["t"][0])),
-                   "description": "the first frame in which both vehicles are tracked (lead braking not observed -- "
-                                  "the true hazard onset is unknown and may be earlier)"})
+                   "hinge_fit": onset,
+                   "description": "the first frame in which both vehicles are tracked (the lead vehicle's brake onset "
+                                  "is not identifiable from its observed motion -- the true hazard onset is unknown)"})
         case["collision"] = {"detected": t_contact is not None, "t_contact_s": t_contact, "source": contact_source,
+                             "traffic_direction": "away from camera" if direction > 0 else "towards camera",
                              "lead_hidden_decel_from_impact_mps2": lead_hidden_decel,
                              "t_contact_extrapolated_s": t_extrap, "impact_kink": kink,
                              "lead_decel_rel_sigma": a_lead_rel_sigma,
@@ -417,7 +471,7 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
     kins_pre = []
     for v in vehicles:
         k = v["kin"]
-        m = k["t"] < (t_cut - 0.15) if t_cut else np.ones(len(k["t"]), bool)
+        m = k["t"] < (t_cut - 0.3) if t_cut else np.ones(len(k["t"]), bool)
         if m.sum() >= 4:
             kins_pre.append({kk: (vv[m] if isinstance(vv, np.ndarray) and len(vv) == len(m) else vv) for kk, vv in k.items()})
     skep = cross_examine(frames, geo, prior, [v["boxes"] for v in vehicles], kins_pre,
@@ -450,15 +504,71 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
                                                follower=pair[0] if pair else None)
     timings["total"] = time.time() - t_start
     case["timings_s"] = {k: round(v, 3) for k, v in timings.items()}
-    out = _json(case)
-    if return_internals:
-        return out, {"geo": geo, "tracks": tracks, "vehicles": vehicles, "frames_shape": (h, w), "fps": fps, "pair": pair}
-    return out
+    return _json(case), {"geo": geo, "tracks": tracks, "vehicles": vehicles, "fps": fps, "pair": pair}
+
+
+
+
+def _stitch_tracklets(vehicles, fps, H, max_gap_s=1.5):
+    """Link track fragments of the same vehicle (identity breaks under
+    occlusion) in ROAD coordinates: B continues A if A's end state,
+    extrapolated (deceleration allowed to bring it to rest), lands on B's
+    first positions, laterally and in speed. Greedy, best match first."""
+    changed = True
+    while changed:
+        changed = False
+        best = None
+        for a in vehicles:
+            ka = a["kin"]
+            for b in vehicles:
+                if a is b:
+                    continue
+                kb = b["kin"]
+                dt = kb["t"][0] - ka["t"][-1]
+                if dt < -0.1 or dt > max_gap_s:
+                    continue
+                v0, acc = ka["v"][-1], ka["a"][-1]
+                tau = max(dt, 0.0)
+                if acc * v0 < 0 and abs(v0 / acc) < tau:          # comes to rest first
+                    x_pred = ka["x"][-1] - 0.5 * v0 * v0 / acc
+                    v_pred = 0.0
+                else:
+                    x_pred = ka["x"][-1] + v0 * tau + 0.5 * acc * tau * tau
+                    v_pred = v0 + acc * tau
+                xb0 = float(np.median(kb["x_raw"][:3]))
+                tol_x = 1.5 + 0.3 * abs(v0) * tau + 2 * float(kb["sigma_x_meas"][0])
+                dx = abs(x_pred - xb0)
+                dy = abs(ka["y"][-1] - float(np.median(kb["y_raw"][:3])))
+                dv = abs(v_pred - kb["v"][min(3, len(kb["v"]) - 1)])
+                if dx < tol_x and dy < 1.0 and dv < 5.0:
+                    score = dx / tol_x + dy + dv / 5.0
+                    if best is None or score < best[0]:
+                        best = (score, a, b)
+        if best is not None:
+            _, a, b = best
+            frames_a = {r["frame"] for r in a["track"]["records"]}
+            recs = a["track"]["records"] + [r for r in b["track"]["records"] if r["frame"] not in frames_a]
+            recs.sort(key=lambda r: r["frame"])
+            a["track"] = {**a["track"], "records": recs,
+                          "n_measured": a["track"]["n_measured"] + b["track"]["n_measured"],
+                          "stitched_from": a["track"].get("stitched_from", [a["track"]["id"]]) + [b["track"]["id"]]}
+            k = _kin_for(a["track"], fps, H)
+            if k is not None:
+                a["kin"] = k
+                t_m, uv_m, boxes = _measured(a["track"], fps)
+                a["uv"], a["boxes"] = uv_m, boxes
+                a["ended_merged"] = b["ended_merged"]
+                vehicles.remove(b)
+                changed = True
+    return vehicles
 
 
 def _find_pair(vehicles):
-    """Same-lane pair (|dy| < 1.6 m over the overlap) where one vehicle is
-    behind the other and closing. Picks the pair with the smallest minimum gap."""
+    """Same-lane pair (|dy| < 1.6 m over the overlap), moving the same way,
+    one behind the other in the direction of travel and closing. Returns
+    (follower, lead, direction) with direction = +1 if traffic moves away
+    from the camera (visible contacts are REAR bumpers) or -1 if towards it
+    (visible contacts are FRONT bumpers). Picks the pair with the smallest gap."""
     best = None
     for i, a in enumerate(vehicles):
         for j, b in enumerate(vehicles):
@@ -468,18 +578,30 @@ def _find_pair(vehicles):
             t_lo, t_hi = max(ka["t"][0], kb["t"][0]), min(ka["t"][-1], kb["t"][-1])
             if t_hi - t_lo < 0.5:
                 continue
+            da, db = np.sign(np.median(ka["v"])), np.sign(np.median(kb["v"]))
+            if da == 0 or da != db:
+                continue
             tt = np.linspace(t_lo, t_hi, 50)
-            xa, xb = np.interp(tt, ka["t"], ka["x"]), np.interp(tt, kb["t"], kb["x"])
+            xa, xb = da * np.interp(tt, ka["t"], ka["x"]), da * np.interp(tt, kb["t"], kb["x"])
             ya, yb = np.interp(tt, ka["t"], ka["y"]), np.interp(tt, kb["t"], kb["y"])
             if np.median(np.abs(ya - yb)) > 1.6 or not np.all(xb > xa):
-                continue   # need a = follower (behind), b = lead
+                continue   # need a = follower (behind in the direction of travel), b = lead
             gap = xb - xa
-            closing = gap[0] - gap[-1]
-            if closing <= 0.5:
+            if gap[0] - gap[-1] <= 0.5:
                 continue
             if best is None or gap.min() < best[0]:
-                best = (gap.min(), a, b)
-    return (best[1], best[2]) if best else None
+                best = (gap.min(), a, b, int(da))
+    return (best[1], best[2], best[3]) if best else None
+
+
+def _aligned(kin, direction):
+    """Kinematics in 'direction of travel' coordinates (x increases along travel)."""
+    if direction > 0:
+        return kin
+    out = dict(kin)
+    for key in ("x", "v", "a", "x_raw"):
+        out[key] = -np.asarray(kin[key])
+    return out
 
 
 def _speed_summaries(vehicles, geo, prior, fps, rng, n_mc, ref_t=None):
@@ -517,6 +639,7 @@ def _mc_samples(fol, lead, geo, prior, fps, hazard, rng, n_mc, a_lead, a_lead_re
         kl = _kin_for(lead["track"], fps, Hm, sx=sx, t_max=t_contact_measured)
         if kf is None or kl is None:
             continue
+        kf, kl = _aligned(kf, fol.get("direction", 1)), _aligned(kl, fol.get("direction", 1))
         L_f = max(3.5, rng.normal(*FOLLOW_LENGTH_PRIOR))
         if hazard["source"] == "lead_brake_onset":
             th = rng.uniform(hazard["t_lo_s"], hazard["t_hi_s"] + 1e-6)

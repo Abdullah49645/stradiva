@@ -1,156 +1,114 @@
-export interface ReconstructabilityComponents {
-  geometry: number;
-  scale: number;
-  tracking: number;
-  temporal: number;
+// Shapes of the JSON produced by backend/pipeline/analyze.py (a "case").
+// Kept deliberately loose: the UI renders whatever subset a case carries.
+
+export type Verdict =
+  | "AVOIDABLE"
+  | "NOT_AVOIDABLE"
+  | "ASSUMPTION_DEPENDENT"
+  | "INSUFFICIENT_EVIDENCE"
+  | "NO_COLLISION_ANALYSED"
+  | string;
+
+export interface Check {
+  check: string;
+  status: "PASS" | "DISPUTE" | "NOT_APPLICABLE";
+  statistic: unknown;
+  threshold: unknown;
+  evidence: string;
+  catches: string;
 }
 
-export interface Reconstructability {
-  overall: number;
-  verdict: string;
-  components: ReconstructabilityComponents;
-  reasons?: string[];
-}
-
-export interface Geometry {
-  roll_correction_applied_deg?: number | null;
-  lane_width_self_consistency?: { max_abs_error_vs_assumed_m?: number } | null;
-  world_x_span_m?: number | null;
-  skeptic_disputed?: boolean;
-  skeptic_findings?: { check: string; disputed: boolean; reason: string }[];
-  [key: string]: unknown;
-}
-
-export interface ContributionFactors {
-  following_vehicle_safe_speed_for_observed_gap_mps?: number | null;
-  following_vehicle_speed_vs_safe_speed_pct?: number | null;
-  lead_vehicle_deceleration_classification?: string;
-  note?: string;
-}
-
-export interface CausalityAssessment {
-  verdict: "AVOIDABLE" | "NOT_AVOIDABLE" | "INSUFFICIENT_EVIDENCE" | string;
-  narrative: string;
-  striking_vehicle_speed_at_earliest_observed_mps?: number | null;
-  time_to_collision_at_earliest_observed_s?: number | null;
-  braking_detected?: boolean;
-  braking_onset_time_before_impact_s?: number | null;
-  steering_detected?: boolean;
-  steering_onset_time_before_impact_s?: number | null;
-  steering_direction?: string | null;
-  last_possible_avoidance_time_before_impact_s?: number | null;
-  assumptions?: { max_decel_mps2?: number; reaction_time_s?: number };
-  confidence?: string;
-  evidence?: string[];
-  contribution_factors?: ContributionFactors;
-}
-
-export interface UncertaintyInfo {
-  striking_vehicle_speed_ci90_mps?: [number, number] | null;
-  relative_uncertainty?: number;
-  dominant_sources?: string[];
-  sources?: Record<string, number>;
-}
-
-export interface AgentToolCall {
-  tool: string;
-  args: Record<string, unknown>;
-  result: Record<string, unknown>;
-  reasoning?: string;
-}
-
-export interface AgentTrace {
-  success: boolean;
-  chosen_frame_idx: number | null;
-  n_iterations: number;
-  stop_reason: string;
-  calls: AgentToolCall[];
-}
-
-export interface TrackingInfo {
-  vehicle_a_tracked: number;
-  vehicle_a_lost: number;
-  vehicle_b_tracked: number;
-  vehicle_b_lost: number;
-}
-
-export interface Trajectory {
+export interface VehicleTrack {
+  id: number;
   t_s: number[];
   x_m: number[];
-  speed_mps: number[];
+  v_mps: number[];
+  a_mps2: number[];
+  y_m: number[];
+  sv_mps: number[];
+  uv: [number, number][];
 }
 
-export interface PipelineResult {
+export interface Counterfactual {
+  verdict: Verdict;
+  narrative: string;
+  reaction_grid_s: number[];
+  decel_grid_mps2: number[];
+  p_avoid: number[][];
+  critical_reaction_s: Record<string, { median_s: number; ci90_s: [number, number] }>;
+  envelope: { reaction_s: [number, number]; decel_mps2: [number, number] };
+  n_samples: number;
+}
+
+export interface Provenance {
+  kind: "synthetic" | "real";
+  title: string;
+  summary: string;
+  source: string;
+  license?: string;
+}
+
+export interface Validation {
+  note: string;
+  rows: { label: string; truth: string; carai: string; ok?: boolean | null }[];
+}
+
+export interface CaseFile {
+  id?: string;
   status: string;
-  geometry?: Geometry;
-  agent_trace?: AgentTrace;
-  tracking?: TrackingInfo;
-  trajectories?: { vehicle_a: Trajectory; vehicle_b: Trajectory };
-  reconstructability?: Reconstructability;
-  causality?: CausalityAssessment;
-  uncertainty?: UncertaintyInfo;
-  collision_time_s?: number | null;
-  ground_truth_physics_avoidability?: {
-    required_stopping_distance_m: number;
-    available_gap_m: number;
-    physically_avoidable: boolean;
+  pipeline_version?: string;
+  verdict?: { value: Verdict; reason: string };
+  reasons?: string[];
+  input?: { file: string; fps: number; width?: number; height?: number; sha256?: string; fps_note?: string | null };
+  prior?: { name: string; dash_len_m: number; dash_gap_m: number; edge_to_centre_m: number; cycle_rel_sigma: number };
+  geometry?: {
+    ok: boolean;
+    reasons?: string[];
+    H?: number[][] | null;
+    roll_deg?: number | null;
+    calibrated_x_range_m?: [number, number] | null;
+    diagnostics?: Record<string, unknown>;
   };
-  ground_truth_collided?: boolean;
+  vehicles?: VehicleTrack[];
+  collision?: {
+    detected: boolean;
+    t_contact_s: number | null;
+    t_contact_ci90_s?: [number, number] | null;
+    source?: string;
+    follower_id?: number;
+    lead_id?: number;
+    traffic_direction?: string;
+  } | null;
+  hazard_onset?: { source: string; t_s: number; t_lo_s?: number; t_hi_s?: number; description: string };
+  follower_speed_at_hazard_onset?: { median_mps: number; ci90_mps: [number, number] } | null;
+  speeds?: { vehicle_id: number; t_ref_s: number; speed_mps: number; ci90_mps: [number, number] | null;
+             uncertainty_budget_rel_sigma?: Record<string, number | null> }[];
+  counterfactual?: Counterfactual;
+  skeptic?: { disputed: boolean; disputed_checks: string[]; checks: Check[]; untestable: string[] };
+  identifiability?: { quantity: string; status: string; basis: string }[];
+  stages?: { stage: string; status: string; detail: string; t_s: number }[];
+  timings_s?: Record<string, number>;
+  dashcam?: { fps: number; fps_source?: string; prior: { name: string; cycle_m: number }; windows: DashWindow[] };
+  // added by evaluation/demo/build_cases.py for the bundled cases only
+  provenance?: Provenance;
+  validation?: Validation;
+  video?: string;
+}
+
+export interface DashWindow {
+  t_start_s: number;
+  t_end_s: number;
+  status: "OK" | "ABSTAIN";
+  speed_mps: number | null;
+  ci90_mps: [number, number] | null;
+  reasons: string[];
+  truth_mps?: number;
 }
 
 export interface JobStatusResponse {
   job_id: string;
   status: string;
-  result?: PipelineResult;
-  report_markdown?: string;
+  stage?: string;
+  result?: CaseFile;
   error?: string;
-}
-
-export interface CameraReconstruction {
-  status: string;
-  speed_mps?: number;
-  ci90_lo?: number;
-  ci90_hi?: number;
-  event_t_local_s?: number;
-  event_gap_m?: number;
-  used_color_blob_fallback?: boolean;
-  dominant_sources?: string[];
-  stop_reason?: string;
-}
-
-export interface MultiCameraResult {
-  scenario: string;
-  camera_A: CameraReconstruction;
-  camera_B: CameraReconstruction;
-  sync?: { estimated_offset_b_to_a_s: number; true_offset_b_to_a_s: number; sync_error_s: number } | null;
-  cross_examination?: {
-    camera_a_speed_mps: number;
-    camera_b_speed_mps: number;
-    intervals_overlap: boolean;
-    verdict: string;
-  } | string;
-}
-
-export interface ErraticInterval {
-  start_s: number;
-  end_s: number;
-  type: string;
-  reason: string;
-  threshold_m?: number;
-  peak_decel_mps2?: number;
-}
-
-export interface ErraticGroundTruthSegment {
-  type: string;
-  t_start_s: number;
-  t_end_s: number;
-}
-
-export interface ErraticDrivingResult {
-  scenario: string;
-  tracking_coverage: number;
-  detected: ErraticInterval[];
-  ground_truth_erratic_segments: ErraticGroundTruthSegment[];
-  recall: number | null;
-  precision: number | null;
 }

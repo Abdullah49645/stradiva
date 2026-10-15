@@ -371,7 +371,9 @@ def estimate_road_geometry(frames, prior: RoadPrior = None, cfg: GeometryConfig 
 
     hd = harmonic_horizon_direction(vp, le["angle_deg"], centre["angle_deg"], re["angle_deg"])
     geo.horizon_dir = hd.tolist()
-    geo.roll_deg = float(np.degrees(np.arctan2(hd[1], hd[0])))
+    # sign: positive = camera rolled clockwise as seen by the camera (matches evaluation/sim/world.py);
+    # verified against simulator ground truth in evaluation/experiments (roll sweep)
+    geo.roll_deg = float(-np.degrees(np.arctan2(hd[1], hd[0])))
 
     # dashes along the centre line (s = 1/d; nearer = smaller s)
     runs = [(min(r), max(r)) for r in centre["runs"]]

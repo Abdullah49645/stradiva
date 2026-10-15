@@ -208,7 +208,7 @@ def assess(samples: List[TrajectorySample], reaction_grid=None, decel_grid=None,
                      "gap": "lead rear contact minus (follower rear contact + follower length prior)"})
 
 
-def hinge_onset(t, x, sigma_x=None, t_lo=None, t_hi=None, step=0.01):
+def hinge_onset(t, x, sigma_x=None, t_lo=None, t_hi=None, step=0.01, t_data_max=None):
     """Brake onset by least-squares hinge regression on RAW positions:
     x(t) = x0 + v0 (t - t0) + 0.5 a (t - t0)^2 [t > t0]. Scans t0, returns
     the best t0 and an approximate 1-sigma interval from the profile
@@ -217,6 +217,11 @@ def hinge_onset(t, x, sigma_x=None, t_lo=None, t_hi=None, step=0.01):
     t = np.asarray(t, float)
     x = np.asarray(x, float)
     w = 1.0 / np.asarray(sigma_x, float) ** 2 if sigma_x is not None else np.ones_like(t)
+    if t_data_max is not None:          # the model has no standstill: fit only until the vehicle (nearly) stops
+        keep = t <= t_data_max
+        t, x, w = t[keep], x[keep], w[keep]
+    if len(t) < 8:
+        return None
     t_lo = t[2] if t_lo is None else max(t_lo, t[2])
     t_hi = t[-3] if t_hi is None else min(t_hi, t[-3])
     cands = np.arange(t_lo, t_hi, step)

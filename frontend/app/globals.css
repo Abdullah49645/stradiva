@@ -1,154 +1,153 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* CARAI -- survey-sheet visual system.
+   Paper and ink for the record, road-paint yellow for the one thing that
+   needs attention (an assumption deciding the answer), survey blue for
+   measured geometry. Overpass (Highway-Gothic lineage) for headings and
+   figures, IBM Plex Sans for reading. */
 
 :root {
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  --paper: #e9ecef;
+  --sheet: #f6f7f8;
+  --ink: #1e2a33;
+  --ink-2: #4a5763;
+  --ink-3: #7a8691;
+  --rule: #c9d0d6;
+  --paint: #d9a400;
+  --paint-wash: #f6e7b4;
+  --survey: #2f5d8c;
+  --survey-wash: #dbe5ef;
+  --go: #2f6b4f;
+  --go-wash: #d6e8de;
+  --stop: #9e2a2b;
+  --stop-wash: #f1d7d4;
+  --display: "Overpass", "IBM Plex Sans", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --radius-s: 3px;
+  --radius-m: 8px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
+a { color: var(--survey); }
+:focus-visible { outline: 3px solid var(--survey); outline-offset: 2px; border-radius: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
-::selection { background: #E8A33D; color: #0B0D0E; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 640px) { .wrap { padding: 0 16px; } }
 
-:focus-visible {
-  outline: 2px solid #7FD1C6;
-  outline-offset: 2px;
-}
+/* ---- masthead ---- */
+.mast { border-bottom: 1px solid var(--rule); background: var(--sheet); }
+.mast-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; flex-wrap: wrap; }
+.brand { font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: 0.02em; }
+.brand small { font-weight: 500; color: var(--ink-3); font-size: 14px; margin-left: 10px; letter-spacing: 0; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tab { font: 600 15px var(--display); color: var(--ink-2); background: none; border: 0; padding: 8px 12px;
+       border-radius: var(--radius-s); cursor: pointer; }
+.tab[aria-selected="true"] { color: var(--ink); background: var(--paper); box-shadow: inset 0 -3px 0 var(--paint); }
+.tab:hover { color: var(--ink); }
 
-/* Signature element: viewfinder/reticle corner brackets, borrowed from the
-   tool's own CV overlay vocabulary (bounding-box corners drawn on tracked
-   vehicles). Applied via the .reticle utility class + ::before/::after
-   pseudo-corners so any panel can carry it without extra markup. */
-.reticle {
-  position: relative;
-}
-.reticle::before,
-.reticle::after {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  pointer-events: none;
-}
-.reticle::before {
-  top: -1px;
-  left: -1px;
-  border-top: 1.5px solid var(--reticle-color, #7FD1C6);
-  border-left: 1.5px solid var(--reticle-color, #7FD1C6);
-}
-.reticle::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 1.5px solid var(--reticle-color, #7FD1C6);
-  border-right: 1.5px solid var(--reticle-color, #7FD1C6);
-}
+/* ---- type ---- */
+h1, h2, h3 { font-family: var(--display); margin: 0; line-height: 1.15; }
+h2 { font-size: 24px; font-weight: 700; }
+h3 { font-size: 18px; font-weight: 700; }
+.lede { font-size: 18px; color: var(--ink-2); max-width: 68ch; }
+.muted { color: var(--ink-3); }
+.small { font-size: 14px; }
+.num { font-family: var(--display); font-variant-numeric: tabular-nums; }
+p { max-width: 72ch; }
 
-/* tick-mark ruler divider: evokes a measurement scale / protractor edge */
-.tick-rule {
-  height: 8px;
-  background-image: repeating-linear-gradient(
-    to right,
-    #2A2F33 0,
-    #2A2F33 1px,
-    transparent 1px,
-    transparent 8px
-  );
-  background-position: bottom;
-  background-size: 100% 1px;
-  background-repeat: repeat-x;
-  opacity: 0.9;
-}
+/* ---- layout ---- */
+.section { padding: 32px 0; border-bottom: 1px solid var(--rule); }
+.section:last-child { border-bottom: 0; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; align-items: start; }
+.grid-even { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+@media (max-width: 900px) { .grid-2, .grid-even { grid-template-columns: 1fr; } }
+.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius-m); padding: 20px; }
 
-@keyframes scan-reveal {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
-}
-.scan-reveal {
-  animation: scan-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
+/* ---- case picker ---- */
+.picker { display: flex; gap: 8px; flex-wrap: wrap; padding: 20px 0 0; }
+.pick { text-align: left; border: 1px solid var(--rule); background: var(--sheet); border-radius: var(--radius-m);
+        padding: 10px 14px; cursor: pointer; font: 500 14px var(--body); color: var(--ink-2); max-width: 280px; }
+.pick strong { display: block; font: 700 15px var(--display); color: var(--ink); }
+.pick[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 4px 0 0 var(--paint); color: var(--ink); }
 
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.fade-up {
-  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
+/* ---- verdict ---- */
+.provenance { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink-2);
+              border: 1px solid var(--rule); border-radius: 999px; padding: 3px 12px; background: var(--sheet); }
+.provenance .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+.provenance.real .dot { background: var(--survey); }
+.provenance.live .dot { background: var(--go); }
+.verdict-title { font: 800 40px/1.08 var(--display); margin: 14px 0 12px; letter-spacing: -0.01em; }
+@media (max-width: 640px) { .verdict-title { font-size: 30px; } }
+.verdict-title .mark { display: block; width: 72px; height: 8px; margin-bottom: 16px; border-radius: 2px; }
+.tone-avoidable .mark { background: var(--go); }
+.tone-unavoidable .mark { background: var(--stop); }
+.tone-depends .mark { background: repeating-linear-gradient(90deg, var(--paint) 0 18px, transparent 18px 30px); }
+.tone-withheld .mark, .tone-neutral .mark { background: var(--ink-3); }
+.reason { font-size: 17px; color: var(--ink-2); }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; margin-top: 22px; }
+.fact .k { font-size: 14px; color: var(--ink-3); }
+.fact .v { font: 700 22px var(--display); font-variant-numeric: tabular-nums; }
+.fact .v small { font: 500 14px var(--body); color: var(--ink-2); display: block; }
 
-/* Fixed HUD schematic backdrop: a faint grid + slow-drifting radial glow,
-   evokes a targeting/telemetry overlay without being loud enough to
-   compete with actual content. Deliberately kept to ~2-4% opacity. */
-.hud-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-color: #0B0D0E;
-  background-image:
-    radial-gradient(ellipse 900px 500px at 20% -10%, rgba(127, 209, 198, 0.07), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 100% 20%, rgba(232, 163, 61, 0.05), transparent 55%),
-    repeating-linear-gradient(to right, rgba(237, 234, 226, 0.035) 0, rgba(237, 234, 226, 0.035) 1px, transparent 1px, transparent 64px),
-    repeating-linear-gradient(to bottom, rgba(237, 234, 226, 0.035) 0, rgba(237, 234, 226, 0.035) 1px, transparent 1px, transparent 64px);
-}
+/* ---- player ---- */
+.player { position: relative; background: #000; border-radius: var(--radius-m); overflow: hidden; aspect-ratio: 16/9; }
+.player video, .player canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.player canvas { pointer-events: none; }
+.player-bar { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 10px 0 0; flex-wrap: wrap; font-size: 14px; color: var(--ink-2); }
+.toggle { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.btn { font: 600 15px var(--display); border-radius: var(--radius-s); padding: 9px 16px; cursor: pointer;
+       border: 1px solid var(--ink); background: var(--ink); color: var(--sheet); }
+.btn.secondary { background: transparent; color: var(--ink); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: var(--radius-s); overflow: hidden; }
+.seg button { border: 0; background: var(--sheet); padding: 5px 10px; font: 600 13px var(--display); cursor: pointer; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--sheet); }
 
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(127, 209, 198, 0.5); }
-  50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(127, 209, 198, 0); }
-}
-.pulse-dot {
-  animation: pulse-dot 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+/* ---- envelope map ---- */
+.envelope svg { width: 100%; height: auto; display: block; }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; color: var(--ink-2); margin-top: 10px; }
+.legend i { display: inline-block; width: 14px; height: 14px; border-radius: 2px; vertical-align: -2px; margin-right: 6px; border: 1px solid rgba(0,0,0,.08); }
 
-/* Glass panel: adds real depth to the existing flat graphite surface --
-   a soft ambient glow behind the panel plus a hairline top highlight,
-   without changing the panel's actual background color/contrast. */
-.glass-panel {
-  position: relative;
-  backdrop-filter: blur(6px);
-  box-shadow:
-    0 1px 0 0 rgba(237, 234, 226, 0.04) inset,
-    0 20px 40px -24px rgba(0, 0, 0, 0.6);
-}
-.glass-panel::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  z-index: -1;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(127, 209, 198, 0.18), transparent 30%, transparent 70%, rgba(232, 163, 61, 0.12));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.7;
-}
+/* ---- tables / lists ---- */
+table.plain { border-collapse: collapse; width: 100%; font-size: 15px; }
+table.plain th { text-align: left; font: 600 14px var(--display); color: var(--ink-3); padding: 8px 10px 8px 0; border-bottom: 1px solid var(--rule); }
+table.plain td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.plain tr:last-child td { border-bottom: 0; }
+.status { display: inline-block; font: 600 13px var(--display); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.s-measured { background: var(--survey-wash); color: var(--survey); }
+.s-assumed { background: var(--paint-wash); color: #7a5c00; }
+.s-unknown { background: #e3e6e9; color: var(--ink-2); }
+.s-pass { background: var(--go-wash); color: var(--go); }
+.s-dispute { background: var(--stop-wash); color: var(--stop); }
+.s-na { background: #e3e6e9; color: var(--ink-2); }
+.table-scroll { overflow-x: auto; }
 
-/* Verdict glow: used behind the hero avoidability verdict word so the
-   single most important word on the page carries real visual weight. */
-.verdict-glow {
-  text-shadow: 0 0 18px currentColor, 0 0 42px currentColor;
-}
+.checks { list-style: none; margin: 0; padding: 0; }
+.checks li { display: grid; grid-template-columns: 120px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.checks li:last-child { border-bottom: 0; }
+@media (max-width: 640px) { .checks li { grid-template-columns: 1fr; } }
+.callout { border-left: 4px solid var(--paint); background: var(--paint-wash); padding: 12px 16px; border-radius: 0 var(--radius-s) var(--radius-s) 0; font-size: 15px; }
+.callout.stop { border-color: var(--stop); background: var(--stop-wash); }
+.callout.info { border-color: var(--survey); background: var(--survey-wash); }
 
-@keyframes sweep {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-.hud-sweep {
-  position: relative;
-  overflow: hidden;
-}
-.hud-sweep::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, transparent 40%, rgba(127, 209, 198, 0.08) 50%, transparent 60%);
-  animation: sweep 3.5s ease-in-out infinite;
-}
+/* ---- upload ---- */
+.drop { border: 2px dashed var(--rule); border-radius: var(--radius-m); padding: 20px; background: var(--sheet); }
+.stages { list-style: none; padding: 0; margin: 12px 0 0; font-size: 14px; }
+.stages li { padding: 3px 0; color: var(--ink-2); }
+.err { color: var(--stop); font-weight: 600; }
+
+/* ---- numbers ---- */
+.bignum { font: 800 44px/1 var(--display); font-variant-numeric: tabular-nums; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+.kpi .bignum { margin-bottom: 4px; }
+.foot { padding: 32px 0 48px; font-size: 14px; color: var(--ink-3); }

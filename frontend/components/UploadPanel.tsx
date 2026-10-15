@@ -1,0 +1,67 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { apiBase, apiHealth, createJob, pollJob, uploadFile } from "@/lib/api";
+import { CaseFile } from "@/lib/types";
+
+const MAX_MB = 200;
+
+export default function UploadPanel({ onResult }: { onResult: (c: CaseFile) => void }) {
+  const [health, setHealth] = useState<{ ok: boolean; mode?: string } | null | undefined>(undefined);
+  const [file, setFile] = useState<File | null>(null);
+  const [state, setState] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { apiHealth().then(setHealth); }, []);
+
+  async function analyse() {
+    if (!file) return;
+    setError(null);
+    if (file.size > MAX_MB * 1024 * 1024) { setError(`The file is larger than ${MAX_MB} MB. Trim the clip to the event and try again.`); return; }
+    setBusy(true);
+    try {
+      setState("Creating job");
+      const { job_id, upload_url } = await createJob(file.name);
+      setState("Uploading");
+      await uploadFile(upload_url, file);
+      setState("Waiting for the analysis to start");
+      const final = await pollJob(job_id, (s) => setState(s.status === "PROCESSING" ? "Analysing (typically 20–60 s)" : s.stage ?? s.status));
+      if (final.status === "ERROR") throw new Error(final.error || "the analysis failed");
+      if (!final.result) throw new Error("the service finished without returning a result");
+      setState(null);
+      onResult(final.result);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setState(null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!apiBase()) {
+    return (
+      <div className="drop small">
+        <strong>Analyse your own clip</strong>
+        <p style={{ margin: "6px 0 0" }}>No analysis service is configured for this page, so it shows the bundled cases only.
+          Run <code>uvicorn backend.api.server:app</code> and start the page with <code>NEXT_PUBLIC_CARAI_API_BASE=http://localhost:8000</code> to analyse uploads.</p>
+      </div>
+    );
+  }
+  return (
+    <div className="drop">
+      <strong>Analyse your own clip</strong>
+      <p className="small" style={{ margin: "6px 0 10px" }}>
+        A fixed camera looking along a straight road with a dashed centre line works best. Clips are cut to the first 15 s.
+        {health === null && <span className="err"> The analysis service at {apiBase()} is not responding.</span>}
+        {health?.mode && <span className="muted"> Service: {health.mode}.</span>}
+      </p>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+        <input type="file" accept="video/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} disabled={busy} aria-label="Video file" />
+        <button className="btn" onClick={analyse} disabled={!file || busy || health === null}>{busy ? "Analysing…" : "Analyse clip"}</button>
+      </div>
+      {state && <p className="small" aria-live="polite">{state}</p>}
+      {error && <p className="small err" role="alert">{error}</p>}
+    </div>
+  );
+}

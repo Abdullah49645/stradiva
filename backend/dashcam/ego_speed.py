@@ -96,6 +96,10 @@ class EgoSpeedConfig:
     near_far_period_max_rel: float = 0.12
     max_dash_resid_px: float = 2.0
     max_period_spread: float = 0.08
+    focal_px: float = None            # camera focal length in pixels (device spec / calibration); enables the scale cross-check
+    lane_width_prior_m: float = 3.6   # ego-lane width prior for the scale cross-check (3.0-3.7 m covers US roads)
+    lane_width_rel_sigma: float = 0.10
+    scale_check_max_ratio: float = 1.35
     duty_inflation: float = 0.035     # measured duty exceeds the true duty by ~0.035 (blur), synthetic dev data
     duty_tol: float = 0.06            # |measured - (prior duty + inflation)|; dev p5-p95 spread is +-0.017
     continuity_max_jump_mps: float = 6.0   # between adjacent answered windows (~2 s apart): > 3 m/s^2 sustained
@@ -422,7 +426,7 @@ def estimate_window(frames_gray, fps, t_start_s, prior: MarkingPrior, cfg: EgoSp
         speeds = prior.cycle_m * fps * shifts[valid] / T_idx
         pair_t = (np.arange(len(shifts))[valid] + 0.5) / fps
         line_results.append({"angle_deg": ang, "dashed": True, "frames_with_dashes": frac_frames,
-                             "period_samples": T_idx,
+                             "period_samples": T_idx, "period_s": T_s,
                              "period_rel_spread": float(1.4826 * np.median(np.abs(np.array(periods) - T_s)) / T_s),
                              "dash_resid_px_median": float(np.median(resids)) if resids else 0.0,
                              "frames_with_3_dashes": len(resids) / max(1, len(raw)), "speeds": speeds, "pair_t": pair_t,
@@ -472,6 +476,23 @@ def estimate_window(frames_gray, fps, t_start_s, prior: MarkingPrior, cfg: EgoSp
         res.reasons.extend(sorted({r for lr in dashed for r in lr["gate_failures"]}))
         return res
 
+    # scale cross-check: with a known focal length, lane width implies the marking cycle in metres
+    xc = _scale_cross_check(vp, lines, passing, w, h, cfg)
+    if xc.get("status") == "COMPUTED":
+        ratio = prior.cycle_m / xc["implied_cycle_m"]
+        xc["prior_over_implied"] = float(ratio)
+        if max(ratio, 1 / ratio) > cfg.scale_check_max_ratio:
+            xc["status"] = "INCONSISTENT"
+        else:
+            xc["status"] = "CONSISTENT"
+    res.diagnostics["scale_cross_check"] = xc
+    if xc.get("status") == "INCONSISTENT":
+        res.reasons.append(f"marking standard inconsistent with lane geometry: lane width {cfg.lane_width_prior_m} m and "
+                           f"focal length {cfg.focal_px:.0f}px imply a marking cycle of {xc['implied_cycle_m']:.1f} m "
+                           f"(range {xc['implied_cycle_range_m'][0]:.1f}-{xc['implied_cycle_range_m'][1]:.1f} m), "
+                           f"the assumed standard says {prior.cycle_m:.2f} m")
+        return res
+
     all_speeds = np.concatenate([lr["speeds"] for lr in passing])
     if len(passing) > 1:
         meds = [np.median(lr["speeds"]) for lr in passing]
@@ -493,6 +514,31 @@ def estimate_window(frames_gray, fps, t_start_s, prior: MarkingPrior, cfg: EgoSp
     res.rel_sigma_prior = rel_prior
     res.diagnostics["n_pairs"] = int(len(all_speeds))
     return res
+
+
+def _scale_cross_check(vp, line_angles, passing, w, h, cfg):
+    """Implied marking cycle (metres) from lane width + focal length, for a
+    level-ish forward camera:  P = f W T_s / (cos(theta) cos(a) (tan aR - tan aL)),
+    theta = camera pitch from the vanishing point, a = angle of the dashed line
+    from vertical, aL/aR = ego-lane boundary lines (smallest |tan| on each side).
+    Independent of the marking prior; needs the focal length."""
+    if not cfg.focal_px:
+        return {"status": "NOT_APPLICABLE", "reason": "focal length unknown (supply the camera model or a calibration)"}
+    tans = np.tan(np.radians(np.array(line_angles)))
+    left, right = tans[tans < 0], tans[tans > 0]
+    if len(left) == 0 or len(right) == 0:
+        return {"status": "NOT_APPLICABLE", "reason": "ego-lane boundaries not both visible"}
+    dtan = float(right.min() - left.max())
+    theta = float(np.arctan((h / 2.0 - vp[1]) / cfg.focal_px))
+    vals = []
+    for lr in passing:
+        a = np.radians(lr["angle_deg"])
+        vals.append(cfg.focal_px * cfg.lane_width_prior_m * lr["period_s"] / (np.cos(theta) * np.cos(a) * dtan))
+    P = float(np.median(vals))
+    rs = cfg.lane_width_rel_sigma
+    rng_ = [P / (1 + 2 * rs), P * (1 + 2 * rs)]
+    return {"status": "COMPUTED", "implied_cycle_m": P, "implied_cycle_range_m": rng_,
+            "camera_height_implied_m": float(cfg.lane_width_prior_m * np.cos(theta) / dtan)}
 
 
 def detect_static_bottom(frames_gray, max_frac=0.35, std_thresh=4.0):

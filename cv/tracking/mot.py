@@ -40,6 +40,7 @@ class TrackerConfig:
     max_coast: int = 12
     merge_iou: float = 0.08
     border_px: int = 2
+    ghost_test: bool = False       # Cucchiara-style ghost suppression; off: conflicts with refined backgrounds
 
 
 def _iou(a, b):
@@ -98,7 +99,13 @@ class _Track:
         self.records.append(rec)
 
 
-def detect_foreground_blobs(sub, frame, cfg: TrackerConfig, learning_rate):
+def _grad_mag(gray):
+    gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
+    gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
+    return cv2.magnitude(gx, gy)
+
+
+def detect_foreground_blobs(sub, frame, cfg: TrackerConfig, learning_rate, bg_grad=None):
     h, w = frame.shape[:2]
     fg = sub.apply(frame, learningRate=learning_rate)
     fg = cv2.threshold(fg, 200, 255, cv2.THRESH_BINARY)[1]          # MOG2 marks shadows as 127
@@ -108,11 +115,23 @@ def detect_foreground_blobs(sub, frame, cfg: TrackerConfig, learning_rate):
     fg = cv2.morphologyEx(fg, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5)))
     n, labels, stats, _ = cv2.connectedComponentsWithStats(fg, connectivity=8)
     min_area = cfg.min_area_frac * h * w
+    cur_grad = _grad_mag(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)) if bg_grad is not None else None
     out = []
     for i in range(1, n):
         x, y, bw, bh, area = stats[i]
         if area < min_area:
             continue
+        if bg_grad is not None:
+            # ghost test (Cucchiara et al. 2003): a real object has edges along its outline in the CURRENT
+            # frame; a ghost (an object that is in the background model but not in the scene) has them only
+            # in the background image.
+            comp = (labels[y: y + bh, x: x + bw] == i).astype(np.uint8)
+            edge = (comp - cv2.erode(comp, np.ones((3, 3), np.uint8))) > 0
+            if edge.sum() >= 8:
+                gc = float(cur_grad[y: y + bh, x: x + bw][edge].mean())
+                gb = float(bg_grad[y: y + bh, x: x + bw][edge].mean())
+                if gb > 12.0 and gc < 0.6 * gb:
+                    continue
         # ground contact = the lowest row where the component is SOLID (at least half its typical row
         # width). Thin appendages -- compression ringing along a paint line, a shadow sliver -- are ignored.
         # For a fused blob these rows belong to the NEARER vehicle, which occludes the other.
@@ -159,10 +178,11 @@ def track_vehicles(frames, background, cfg: TrackerConfig = None):
     sub = cv2.createBackgroundSubtractorMOG2(history=500, varThreshold=cfg.var_threshold, detectShadows=True)
     for _ in range(30):
         sub.apply(background, learningRate=-1)
+    bg_grad = _grad_mag(cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)) if cfg.ghost_test else None
     tracks: List[_Track] = []
     finished: List[_Track] = []
     for fi, frame in enumerate(frames):
-        dets = detect_foreground_blobs(sub, frame, cfg, cfg.learning_rate)
+        dets = detect_foreground_blobs(sub, frame, cfg, cfg.learning_rate, bg_grad)
         preds = [t.predict() for t in tracks]
         # merged detections: substantially cover the predictions of >= 2 tracks
         def cover(pred, det):
@@ -287,7 +307,7 @@ def contact_point(record):
     return tuple(record.get("contact_uv") or bottom_centre(record["bbox"]))
 
 
-def refine_background(frames, tracks, base_bg, n=300, dilate_px=6, min_samples=3, border_px=4):
+def refine_background(frames, tracks, base_bg, n=300, dilate_px=6, min_samples=3, border_px=4, use_first_half_where_changed=True):
     """Second-pass background: per-pixel temporal median over sampled frames,
     EXCLUDING pixels covered by a tracked vehicle in that frame. A track that
     vanishes away from the image border is assumed to have stopped (or to be
@@ -304,8 +324,9 @@ def refine_background(frames, tracks, base_bg, n=300, dilate_px=6, min_samples=3
         recs = [r for r in tr["records"] if r.get("bbox")]
         for r in recs:
             by_frame.setdefault(r["frame"], []).append(r["bbox"])
-        if recs:
-            last = recs[-1]
+        meas = [r for r in tr["records"] if r.get("bbox") and r["status"] in ("MEASURED", "MEASURED_OCCLUDING")]
+        if meas:
+            last = meas[-1]      # last place the vehicle was actually SEEN (not where a coasting filter drifted to)
             x, y, bw, bh = last["bbox"]
             at_border = x <= border_px or y <= border_px or x + bw >= w - border_px or y + bh >= h - border_px
             if not at_border:
@@ -327,4 +348,58 @@ def refine_background(frames, tracks, base_bg, n=300, dilate_px=6, min_samples=3
     good = (~m).sum(axis=0) >= min_samples
     med = np.nanmedian(stack[:, good], axis=0)
     out[ys[good], xs[good]] = np.clip(med, 0, 255).astype(np.uint8)
+    if use_first_half_where_changed and len(idx) >= 20:
+        # where the first- and second-half medians disagree, something came to rest (or left). In
+        # event footage vehicles come to rest AFTER the event, so the earlier appearance is the road.
+        half = len(idx) // 2
+        b1 = np.median(np.stack([frames[i] for i in idx[:half]]), axis=0)
+        b2 = np.median(np.stack([frames[i] for i in idx[half:]]), axis=0)
+        changed = np.abs(b1 - b2).max(axis=2) > 30
+        changed = cv2.dilate(changed.astype(np.uint8), np.ones((7, 7), np.uint8)) > 0
+        if changed.any():
+            cy, cx = np.where(changed)
+            st = np.stack([frames[i][cy, cx] for i in idx[:half]]).astype(np.float32)
+            mm = masks[:half][:, cy, cx]
+            st[mm] = np.nan
+            ok = (~mm).sum(axis=0) >= min_samples
+            if ok.any():
+                out[cy[ok], cx[ok]] = np.clip(np.nanmedian(st[:, ok], axis=0), 0, 255).astype(np.uint8)
     return out, int(touched.sum())
+
+
+def stable_background(frames, fps, min_run_s=1.0, diff_thresh=10.0, fallback=None):
+    """Per-pixel background = mean of the EARLIEST run of >= min_run_s frames
+    in which the pixel does not change (frame-to-frame max-channel difference
+    below diff_thresh). Rationale for event footage: the road surface where
+    vehicles will end up (after braking or a collision) is visible, unchanging,
+    BEFORE they arrive; a whole-clip median would instead learn the stopped
+    vehicles. Pixels without such a run fall back to the temporal median.
+    Limitation (stated): a vehicle that never moves during the clip is
+    indistinguishable from the road and is never detected."""
+    T = len(frames)
+    h, w = frames[0].shape[:2]
+    need = max(5, int(round(min_run_s * fps)))
+    run = np.zeros((h, w), np.int32)
+    acc = np.zeros((h, w, 3), np.float32)
+    found = np.zeros((h, w), bool)
+    out = np.zeros((h, w, 3), np.float32)
+    prev = frames[0].astype(np.int16)
+    acc += prev
+    run[:] = 1
+    for t in range(1, T):
+        cur = frames[t].astype(np.int16)
+        stable = (np.abs(cur - prev).max(axis=2) < diff_thresh) & ~found
+        # continue runs where stable, restart elsewhere
+        run = np.where(stable, run + 1, 1)
+        acc = np.where(stable[..., None], acc + cur, cur.astype(np.float32))
+        done = stable & (run >= need)
+        if done.any():
+            out[done] = acc[done] / run[done][:, None]
+            found |= done
+        prev = cur
+        if found.all():
+            break
+    if fallback is None:
+        fallback = np.median(np.stack(frames[:: max(1, T // 48)]), axis=0)
+    out[~found] = fallback[~found]
+    return np.clip(out, 0, 255).astype(np.uint8), float(found.mean())

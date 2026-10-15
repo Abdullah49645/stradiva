@@ -92,7 +92,7 @@ def sample_scenario(split, i):
         x_f0 = float(rng.uniform(10, 18))
         x_l0 = x_f0 + gap0 + (L_f + L_l) / 2.0
     else:
-        x_l0 = float(rng.uniform(22, 32))
+        x_l0 = float(rng.uniform(60, 85))          # far enough that the event happens in view
         x_f0 = x_l0 + gap0 + (L_f + L_l) / 2.0
     lead = VehicleSpec("lead", x0_m=x_l0, v0_mps=v_l, lane_y_m=lane_y, length_m=L_l, color_bgr=palette[cl],
                        segments=[MotionSegment(0, 0.0), MotionSegment(t_b, -a_l)], direction=d)
@@ -163,6 +163,39 @@ def gt_counterfactual(sc: Scenario, meta, t_contact):
 
 # ------------------------------------------------------------------ scoring --
 
+def gt_observable(gt, sc, t_event):
+    """Both vehicles' visible ground contacts are inside the image at the event time."""
+    if t_event is None:
+        return True
+    k = min(len(gt["frames"]) - 1, int(round(t_event * gt["fps"])))
+    f = gt["frames"][k]["vehicles"]
+    ok = True
+    for v in sc.vehicles:
+        uv = f[v.vid]["rear_contact_uv" if v.direction > 0 else "front_contact_uv"]
+        ok &= bool(np.isfinite(uv).all() and 0 < uv[0] < sc.camera.image_w and 0 < uv[1] < sc.camera.image_h)
+    return ok
+
+
+NO_VERDICT = {"NOT_RECONSTRUCTABLE", "INSUFFICIENT_EVIDENCE", "NO_COLLISION_ANALYSED"}
+
+
+def outcome(row):
+    """Scoring categories:
+    correct / correct_abstention / abstained / overconfident / catastrophic /
+    false_collision (contact reported where none happened) / missed_no_collision."""
+    v = row.get("carai_verdict")
+    gtv = row["gt"]["verdict"]
+    if row.get("gt_collision_t_s") is None:                 # nothing happened
+        if v in ("AVOIDABLE", "NOT_AVOIDABLE", "ASSUMPTION_DEPENDENT"):
+            return "false_collision"
+        return "correct" if v == "NO_COLLISION_ANALYSED" else "abstained"
+    if not row.get("gt_observable", True):                  # the event is off-screen
+        return "correct_abstention" if v in NO_VERDICT else ("catastrophic" if v in ("AVOIDABLE", "NOT_AVOIDABLE") else "qualified_unobservable")
+    if v in NO_VERDICT or v is None:
+        return "abstained"
+    return classify(v, gtv)
+
+
 def classify(carai_verdict, gt_verdict):
     definite = {"AVOIDABLE", "NOT_AVOIDABLE"}
     if carai_verdict == gt_verdict:
@@ -174,12 +207,106 @@ def classify(carai_verdict, gt_verdict):
     return "abstained"                 # CARAI qualified/withheld where GT was definite
 
 
+def oracle_tracks(gt, sc, occluded, rng, sigma_px=0.7):
+    """Tracks built from GROUND-TRUTH ground-contact points (+ pixel noise) in
+    the pipeline's own record format. 'occluded': the lead is unmeasured in
+    frames where the follower's true box overlaps it (what a camera sees)."""
+    vids = [v.vid for v in sc.vehicles]
+    dirs = {v.vid: v.direction for v in sc.vehicles}
+    tracks = []
+    for n, vid in enumerate(vids):
+        recs = []
+        for f in gt["frames"]:
+            g = f["vehicles"][vid]
+            if g["bbox"] is None:
+                continue
+            uv = np.array(g["rear_contact_uv"] if dirs[vid] > 0 else g["front_contact_uv"]) + rng.normal(0, sigma_px, 2)
+            x, y, bw, bh = g["bbox"]
+            if not (0 < uv[0] < sc.camera.image_w - 2 and 0 < uv[1] < sc.camera.image_h - 2):
+                continue
+            status = "MEASURED"
+            if occluded and vid == "lead":
+                o = f["vehicles"]["follow"]["bbox"]
+                if o is not None:
+                    ix = max(0, min(x + bw, o[0] + o[2]) - max(x, o[0]))
+                    iy = max(0, min(y + bh, o[1] + o[3]) - max(y, o[1]))
+                    if ix * iy > 0:
+                        status = "OCCLUDED"
+            recs.append({"frame": f["frame"], "bbox": [float(v) for v in g["bbox"]], "status": status,
+                         "contact_uv": [float(uv[0]), float(uv[1])],
+                         "contact_span": [float(x), float(x + bw)] if status == "MEASURED" else None})
+        tracks.append({"id": n, "records": recs, "n_measured": sum(r["status"] == "MEASURED" for r in recs)})
+    return tracks
+
+
+def run_oracle(split, i, occluded):
+    from backend.pipeline.analyze import analyze_from_tracks, ingest, PIPELINE_VERSION
+    from backend.geometry.road_geometry import RoadPrior, GeometryConfig, estimate_road_geometry, median_background
+    from dataclasses import asdict
+    out_dir = os.path.join(CACHE_DIR, "collision_suite", split)
+    sc, meta = sample_scenario(split, i)
+    vp, gp, gt = render_scenario(sc, out_dir) if not os.path.exists(os.path.join(out_dir, sc.name + "_ground_truth.json")) else \
+        (os.path.join(out_dir, sc.name + ".mp4"), None, json.load(open(os.path.join(out_dir, sc.name + "_ground_truth.json"))))
+    fps, frames, info = ingest(vp)
+    prior = RoadPrior()
+    rng = np.random.default_rng(i)
+    geo = estimate_road_geometry(frames, prior, GeometryConfig(seed=i), background=median_background(frames))
+    case = {"pipeline_version": PIPELINE_VERSION, "input": {"file": os.path.basename(vp), **info}, "prior": asdict(prior),
+            "stages": [], "oracle_tracks": "occluded" if occluded else "clean"}
+    if not geo.ok:
+        return {"status": "NOT_RECONSTRUCTABLE", "verdict": None}, gt, sc, meta
+    case["geometry"] = geo.to_json()
+    tracks = oracle_tracks(gt, sc, occluded, rng)
+    out, _ = analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, 80, None, {}, time.time())
+    return out, gt, sc, meta
+
+
+def score_case(row, case, gt, sc, meta):
+    row["status"] = case.get("status")
+    v = (case.get("verdict") or {}).get("value")
+    if case.get("status") in ("NOT_RECONSTRUCTABLE", "INVALID_INPUT", "MOVING_CAMERA"):
+        v = "NOT_RECONSTRUCTABLE"
+    row["carai_verdict"] = v
+    row["skeptic_disputed"] = (case.get("skeptic") or {}).get("disputed_checks")
+    row["stages"] = case.get("stages")
+    col = case.get("collision") or {}
+    row["carai_contact_t_s"] = col.get("t_contact_s")
+    row["carai_contact_ci90"] = col.get("t_contact_ci90_s")
+    row["contact_source"] = col.get("source")
+    hz = case.get("hazard_onset") or {}
+    row["carai_hazard"] = {k: hz.get(k) for k in ("source", "t_s", "t_lo_s", "t_hi_s")}
+    cf = case.get("counterfactual")
+    if cf:
+        row["carai_cf_verdict"] = cf["verdict"]
+        row["carai_crit"] = cf["critical_reaction_s"]
+        row["carai_p_avoid"] = cf["p_avoid"]
+        p = cf["p_avoid"][DECEL_GRID.index(7.0)][REACTION_GRID.index(1.25)]
+        row["point_assumption_verdict"] = "AVOIDABLE" if p >= 0.5 else "NOT_AVOIDABLE"
+    row["follower_speed_at_onset"] = case.get("follower_speed_at_hazard_onset")
+    row["gt_observable"] = gt_observable(gt, sc, row.get("gt_collision_t_s"))
+    row["outcome"] = outcome(row)
+    return row
+
+
 def run_one(args):
-    split, i = args
+    split, i = args[:2]
+    mode = args[2] if len(args) > 2 else "e2e"
+    if mode in ("oracle_clean", "oracle_occluded"):
+        row = {"split": split, "i": i, "mode": mode}
+        try:
+            case, gt, sc, meta = run_oracle(split, i, mode == "oracle_occluded")
+            row.update({"name": sc.name, **meta})
+            gtc = gt.get("collision")
+            row["gt_collision_t_s"] = gtc["t_s"] if gtc else None
+            row["gt"] = gt_counterfactual(sc, meta, gtc["t_s"] if gtc else None)
+            score_case(row, case, gt, sc, meta)
+        except Exception:  # noqa: BLE001
+            row["error"] = traceback.format_exc()[-1500:]
+        return row
     from backend.pipeline.analyze import analyze_video
     out_dir = os.path.join(CACHE_DIR, "collision_suite", split)
     sc, meta = sample_scenario(split, i)
-    row = {"split": split, "i": i, "name": sc.name, **meta}
+    row = {"split": split, "i": i, "name": sc.name, "mode": "e2e", **meta}
     try:
         t0 = time.time()
         vp, gp, gt = render_scenario(sc, out_dir)
@@ -190,35 +317,11 @@ def run_one(args):
         t0 = time.time()
         case = analyze_video(vp, seed=i)
         row["pipeline_s"] = round(time.time() - t0, 1)
-        row["status"] = case.get("status")
-        v = (case.get("verdict") or {}).get("value")
-        if case.get("status") in ("NOT_RECONSTRUCTABLE", "INVALID_INPUT", "MOVING_CAMERA"):
-            v = "NOT_RECONSTRUCTABLE"
-        row["carai_verdict"] = v
-        row["skeptic_disputed"] = (case.get("skeptic") or {}).get("disputed_checks")
-        row["stages"] = case.get("stages")
-        col = case.get("collision") or {}
-        row["carai_contact_t_s"] = col.get("t_contact_s")
-        row["carai_contact_ci90"] = col.get("t_contact_ci90_s")
-        row["contact_source"] = col.get("source")
-        hz = case.get("hazard_onset") or {}
-        row["carai_hazard"] = {k: hz.get(k) for k in ("source", "t_s", "t_lo_s", "t_hi_s")}
-        cf = case.get("counterfactual")
-        if cf:
-            row["carai_cf_verdict"] = cf["verdict"]
-            row["carai_crit"] = cf["critical_reaction_s"]
-            row["carai_p_avoid"] = cf["p_avoid"]
-            # point-assumption baseline: the single (7.0 m/s^2, 1.25 s) cell, majority over MC samples
-            p = cf["p_avoid"][DECEL_GRID.index(7.0)][REACTION_GRID.index(1.25)]
-            row["point_assumption_verdict"] = "AVOIDABLE" if p >= 0.5 else "NOT_AVOIDABLE"
-        row["follower_speed_at_onset"] = case.get("follower_speed_at_hazard_onset")
+        score_case(row, case, gt, sc, meta)
         g = case.get("geometry") or {}
         row["geometry_ok"] = bool(g.get("ok"))
         row["roll_est_deg"] = g.get("roll_deg")
         row["true_roll_deg"] = sc.camera.roll_deg
-        if row["gt"]["verdict"] and v:
-            row["outcome"] = classify(v, row["gt"]["verdict"]) if v not in ("NOT_RECONSTRUCTABLE", "INSUFFICIENT_EVIDENCE") \
-                else "abstained"
         # legacy pipeline on the same clip (ablation)
         try:
             from backend.api.process_video import process_video as legacy
@@ -240,8 +343,10 @@ def main():
     ap.add_argument("--n", type=int, default=30)
     ap.add_argument("--start", type=int, default=0)
     ap.add_argument("--workers", type=int, default=2)
+    ap.add_argument("--mode", default="e2e", choices=["e2e", "oracle_clean", "oracle_occluded"])
     args = ap.parse_args()
-    out = os.path.join(RESULTS_DIR, f"collision_suite_{args.split}.jsonl")
+    suffix = "" if args.mode == "e2e" else f"_{args.mode}"
+    out = os.path.join(RESULTS_DIR, f"collision_suite_{args.split}{suffix}.jsonl")
     done = set()
     if os.path.exists(out):
         with open(out) as f:
@@ -250,12 +355,12 @@ def main():
                     done.add(json.loads(line)["i"])
                 except Exception:  # noqa: BLE001
                     pass
-    todo = [(args.split, i) for i in range(args.start, args.start + args.n) if i not in done]
+    todo = [(args.split, i, args.mode) for i in range(args.start, args.start + args.n) if i not in done]
     with Pool(args.workers) as pool, open(out, "a") as f:
         for row in pool.imap_unordered(run_one, todo):
             f.write(json.dumps(row, default=float) + "\n")
             f.flush()
-            print(f"{row['name']}: gt={row.get('gt', {}).get('verdict')} carai={row.get('carai_verdict')} "
+            print(f"{row.get('name')}: gt={row.get('gt', {}).get('verdict')} carai={row.get('carai_verdict')} "
                   f"outcome={row.get('outcome')} legacy={row.get('legacy_verdict')} "
                   f"t={row.get('pipeline_s')}s err={'Y' if 'error' in row else ''}", flush=True)
 
