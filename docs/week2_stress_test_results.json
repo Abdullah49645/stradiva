@@ -1,0 +1,67 @@
+[
+  {
+    "scenario": "A (baseline)",
+    "expected": "RECONSTRUCTABLE",
+    "verdict": "RECONSTRUCTABLE",
+    "score": 87.2,
+    "speed_error_pct": 2.2355175018310547,
+    "displacement_mae_m": 0.9496883437747043,
+    "reasons": [
+      "vanishing point stability could not be estimated",
+      "absolute position is unanchored (no independently-verified landmark); treat absolute displacement as low-confidence, relative motion/speed as the reliable output"
+    ]
+  },
+  {
+    "scenario": "B (no scale reference)",
+    "expected": "NOT_RECONSTRUCTABLE",
+    "verdict": "NOT_RECONSTRUCTABLE",
+    "score": 34.5,
+    "speed_error_pct": null,
+    "displacement_mae_m": null,
+    "reasons": [
+      "vanishing point stability could not be estimated",
+      "insufficient correspondence points for scale recovery",
+      "no frames processed",
+      "absolute position is unanchored (no independently-verified landmark); treat absolute displacement as low-confidence, relative motion/speed as the reliable output"
+    ]
+  },
+  {
+    "scenario": "C (8deg camera roll)",
+    "expected": "RECONSTRUCTABLE_LOW_CONFIDENCE or worse (assumption violated)",
+    "verdict": "RECONSTRUCTABLE",
+    "score": 79.6,
+    "speed_error_pct": 0.034084320068359375,
+    "displacement_mae_m": 1.1835710272497064,
+    "reasons": [
+      "vanishing point stability could not be estimated",
+      "low homography inlier fraction (38%)",
+      "absolute position is unanchored (no independently-verified landmark); treat absolute displacement as low-confidence, relative motion/speed as the reliable output"
+    ]
+  },
+  {
+    "scenario": "D (heavy fog)",
+    "expected": "NOT_RECONSTRUCTABLE",
+    "verdict": "NOT_RECONSTRUCTABLE",
+    "score": 15.0,
+    "speed_error_pct": null,
+    "displacement_mae_m": null,
+    "reasons": [
+      "fewer than 2 line segments on one or both lane edges",
+      "insufficient correspondence points for scale recovery",
+      "no frames processed",
+      "absolute position is unanchored (no independently-verified landmark); treat absolute displacement as low-confidence, relative motion/speed as the reliable output"
+    ]
+  },
+  {
+    "scenario": "E (faster vehicle, 32 m/s)",
+    "expected": "RECONSTRUCTABLE",
+    "verdict": "RECONSTRUCTABLE",
+    "score": 87.2,
+    "speed_error_pct": 1.867508888244629,
+    "displacement_mae_m": 0.9073603965423921,
+    "reasons": [
+      "vanishing point stability could not be estimated",
+      "absolute position is unanchored (no independently-verified landmark); treat absolute displacement as low-confidence, relative motion/speed as the reliable output"
+    ]
+  }
+]

@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::selection { background: #E8A33D; color: #0B0D0E; }
+
+:focus-visible {
+  outline: 2px solid #7FD1C6;
+  outline-offset: 2px;
+}
+
+/* Signature element: viewfinder/reticle corner brackets, borrowed from the
+   tool's own CV overlay vocabulary (bounding-box corners drawn on tracked
+   vehicles). Applied via the .reticle utility class + ::before/::after
+   pseudo-corners so any panel can carry it without extra markup. */
+.reticle {
+  position: relative;
+}
+.reticle::before,
+.reticle::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+}
+.reticle::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1.5px solid var(--reticle-color, #7FD1C6);
+  border-left: 1.5px solid var(--reticle-color, #7FD1C6);
+}
+.reticle::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1.5px solid var(--reticle-color, #7FD1C6);
+  border-right: 1.5px solid var(--reticle-color, #7FD1C6);
+}
+
+/* tick-mark ruler divider: evokes a measurement scale / protractor edge */
+.tick-rule {
+  height: 8px;
+  background-image: repeating-linear-gradient(
+    to right,
+    #2A2F33 0,
+    #2A2F33 1px,
+    transparent 1px,
+    transparent 8px
+  );
+  background-position: bottom;
+  background-size: 100% 1px;
+  background-repeat: repeat-x;
+  opacity: 0.9;
+}
+
+@keyframes scan-reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.scan-reveal {
+  animation: scan-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Fixed HUD schematic backdrop: a faint grid + slow-drifting radial glow,
+   evokes a targeting/telemetry overlay without being loud enough to
+   compete with actual content. Deliberately kept to ~2-4% opacity. */
+.hud-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: #0B0D0E;
+  background-image:
+    radial-gradient(ellipse 900px 500px at 20% -10%, rgba(127, 209, 198, 0.07), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 20%, rgba(232, 163, 61, 0.05), transparent 55%),
+    repeating-linear-gradient(to right, rgba(237, 234, 226, 0.035) 0, rgba(237, 234, 226, 0.035) 1px, transparent 1px, transparent 64px),
+    repeating-linear-gradient(to bottom, rgba(237, 234, 226, 0.035) 0, rgba(237, 234, 226, 0.035) 1px, transparent 1px, transparent 64px);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(127, 209, 198, 0.5); }
+  50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(127, 209, 198, 0); }
+}
+.pulse-dot {
+  animation: pulse-dot 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glass panel: adds real depth to the existing flat graphite surface --
+   a soft ambient glow behind the panel plus a hairline top highlight,
+   without changing the panel's actual background color/contrast. */
+.glass-panel {
+  position: relative;
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 1px 0 0 rgba(237, 234, 226, 0.04) inset,
+    0 20px 40px -24px rgba(0, 0, 0, 0.6);
+}
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(127, 209, 198, 0.18), transparent 30%, transparent 70%, rgba(232, 163, 61, 0.12));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.7;
+}
+
+/* Verdict glow: used behind the hero avoidability verdict word so the
+   single most important word on the page carries real visual weight. */
+.verdict-glow {
+  text-shadow: 0 0 18px currentColor, 0 0 42px currentColor;
+}
+
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.hud-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.hud-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 40%, rgba(127, 209, 198, 0.08) 50%, transparent 60%);
+  animation: sweep 3.5s ease-in-out infinite;
+}

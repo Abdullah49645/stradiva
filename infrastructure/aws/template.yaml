@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  CARAI (working title) - minimal, workload-justified AWS architecture.
+  See docs/aws_and_production_notes.md for the rationale on why this
+  (Lambda + S3 + DynamoDB + API Gateway) instead of ECS/Step Functions,
+  and an honest statement of what has/hasn't been deployed and tested.
+
+Globals:
+  Function:
+    Timeout: 300      # generous for OpenCV cold starts; real clips process in low single-digit seconds
+    MemorySize: 3008   # OpenCV + numpy/scipy comfortably, still well under Lambda's 10GB ceiling
+
+Resources:
+
+  CaraiBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub carai-videos-${AWS::AccountId}
+      # uploads/{job_id}/... and results/{job_id}/... prefixes, see
+      # lambda_handler.py / api_handler.py. No public access.
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireUploadsAfter30Days
+            Status: Enabled
+            Prefix: uploads/
+            ExpirationInDays: 30
+
+  JobsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: carai-jobs
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: job_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: job_id
+          KeyType: HASH
+
+  ProcessingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: carai-process-video
+      PackageType: Image
+      Environment:
+        Variables:
+          JOBS_TABLE: !Ref JobsTable
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref CaraiBucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JobsTable
+      Events:
+        VideoUploaded:
+          Type: S3
+          Properties:
+            Bucket: !Ref CaraiBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: uploads/
+    Metadata:
+      # Lets `sam build` build the image itself (Dockerfile.lambda's COPY
+      # paths are relative to the repo root, hence DockerContext: ../..
+      # from this template's own directory) and `sam deploy --guided` /
+      # `--resolve-image-repos` push it to a managed ECR repo -- no manual
+      # `docker build && docker push` or hardcoded account/region ECR URI
+      # needed. See docs/aws_deployment_runbook.md for the exact commands.
+      Dockerfile: infrastructure/docker/Dockerfile.lambda
+      DockerContext: ../..
+      DockerTag: latest
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: carai-api
+      Runtime: python3.12
+      Handler: api_handler.handler
+      CodeUri: .
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          CARAI_BUCKET: !Ref CaraiBucket
+          JOBS_TABLE: !Ref JobsTable
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref CaraiBucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JobsTable
+      Events:
+        CreateJob:
+          Type: Api
+          Properties:
+            Path: /jobs
+            Method: post
+        GetJob:
+          Type: Api
+          Properties:
+            Path: /jobs/{job_id}
+            Method: get
+
+Outputs:
+  ApiEndpoint:
+    Description: Base URL for the CARAI API
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  BucketName:
+    Value: !Ref CaraiBucket

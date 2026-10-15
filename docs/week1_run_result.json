@@ -1,0 +1,68 @@
+{
+  "ingest": {
+    "fps": 30.0,
+    "n_frames": 147,
+    "w": 1280,
+    "h": 720,
+    "frames_read": 147
+  },
+  "geometry": {
+    "n_segments_detected": 21,
+    "n_left_segments": 7,
+    "n_right_segments": 5,
+    "left_line_fit": [
+      -0.28700634837150574,
+      635.0988159179688
+    ],
+    "right_line_fit": [
+      0.30425751209259033,
+      634.9368896484375
+    ],
+    "vanishing_point": [
+      635.0202150251506,
+      0.2738646488627776
+    ],
+    "vp_stability_px_std": 4.205501061156989,
+    "n_dashes_detected": 10,
+    "n_correspondence_points": 36,
+    "homography_inlier_fraction": 0.6944444444444444,
+    "lane_width_self_consistency": {
+      "mean_width_m": 4.1602559089660645,
+      "std_width_m": 0.20736858248710632,
+      "max_abs_error_vs_assumed_m": 0.6608827114105225,
+      "consistent": false
+    },
+    "status": "OK"
+  },
+  "tracking": {
+    "n_tracked": 147,
+    "n_lost": 0
+  },
+  "scores": {
+    "position_mae_m": 27.44997713030601,
+    "position_rmse_m": 27.46912868299657,
+    "displacement_mae_m": 0.8747681857777289,
+    "displacement_rmse_m": 1.3147779026686102,
+    "speed_true_mps": 20.0,
+    "speed_estimated_mean_mps": 19.33064842224121,
+    "speed_mae_mps": 0.6816732883453369,
+    "speed_rmse_mps": 0.8819388747215271,
+    "speed_error_pct": 3.3467578887939453
+  },
+  "reconstructability": {
+    "overall": 89.4,
+    "components": {
+      "geometry": 93.0,
+      "scale": 71.8,
+      "tracking": 100.0,
+      "temporal": 100.0
+    },
+    "absolute_position_confidence": "LOW",
+    "verdict": "RECONSTRUCTABLE",
+    "reasons": [
+      "lane-width self-consistency check failed (std=0.21m, err=0.66m vs assumed)",
+      "absolute position is unanchored (no independently-verified landmark); treat absolute displacement as low-confidence, relative motion/speed as the reliable output"
+    ]
+  },
+  "status": "RECONSTRUCTABLE"
+}

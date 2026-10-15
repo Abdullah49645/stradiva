@@ -1,0 +1,404 @@
+{
+  "n_trials": 28,
+  "n_reconstructable": 19,
+  "n_not_reconstructable": 9,
+  "coverage_at_scale_1.0": 0.6842105263157895,
+  "target_coverage": 0.9,
+  "scale_sweep_coverage": {
+    "0.5": 0.631578947368421,
+    "0.75": 0.631578947368421,
+    "1.0": 0.6842105263157895,
+    "1.25": 0.7368421052631579,
+    "1.5": 0.7894736842105263,
+    "2.0": 0.8421052631578947,
+    "2.5": 0.9473684210526315,
+    "3.0": 0.9473684210526315
+  },
+  "recommended_ci90_scale": 2.5,
+  "trials": [
+    {
+      "name": "s12_rp0",
+      "speed_true_mps": 12.0,
+      "roll_deg": 0.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 11.745911598205566,
+      "ci90_lo_mps": 9.144192179203033,
+      "ci90_hi_mps": 14.3476310172081,
+      "ci90_half_width_frac": 0.2215,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "scale_calibration"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s12_rm3",
+      "speed_true_mps": 12.0,
+      "roll_deg": -3.0,
+      "status": "NOT_RECONSTRUCTABLE",
+      "reconstructable": false
+    },
+    {
+      "name": "s12_rp3",
+      "speed_true_mps": 12.0,
+      "roll_deg": 3.0,
+      "status": "NOT_RECONSTRUCTABLE",
+      "reconstructable": false
+    },
+    {
+      "name": "s12_rm6",
+      "speed_true_mps": 12.0,
+      "roll_deg": -6.0,
+      "status": "NOT_RECONSTRUCTABLE",
+      "reconstructable": false
+    },
+    {
+      "name": "s12_rp6",
+      "speed_true_mps": 12.0,
+      "roll_deg": 6.0,
+      "status": "NOT_RECONSTRUCTABLE",
+      "reconstructable": false
+    },
+    {
+      "name": "s12_rm9",
+      "speed_true_mps": 12.0,
+      "roll_deg": -9.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 29.364070892333984,
+      "ci90_lo_mps": 17.310119791030885,
+      "ci90_hi_mps": 41.41802199363708,
+      "ci90_half_width_frac": 0.4105,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "roll_correction_residual"
+      ],
+      "covered": false
+    },
+    {
+      "name": "s12_rp9",
+      "speed_true_mps": 12.0,
+      "roll_deg": 9.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 25.700483322143555,
+      "ci90_lo_mps": 13.924521863937379,
+      "ci90_hi_mps": 37.47644478034973,
+      "ci90_half_width_frac": 0.4582,
+      "dominant_sources": [
+        "homography_inliers",
+        "scale_calibration",
+        "geometry_stability"
+      ],
+      "covered": false
+    },
+    {
+      "name": "s18_rp0",
+      "speed_true_mps": 18.0,
+      "roll_deg": 0.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 17.60714340209961,
+      "ci90_lo_mps": 13.210639694595336,
+      "ci90_hi_mps": 22.003647109603882,
+      "ci90_half_width_frac": 0.2497,
+      "dominant_sources": [
+        "scale_calibration",
+        "geometry_stability",
+        "homography_inliers"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s18_rm3",
+      "speed_true_mps": 18.0,
+      "roll_deg": -3.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 19.508811950683594,
+      "ci90_lo_mps": 11.59408694229126,
+      "ci90_hi_mps": 27.42353695907593,
+      "ci90_half_width_frac": 0.4057,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "scale_calibration"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s18_rp3",
+      "speed_true_mps": 18.0,
+      "roll_deg": 3.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 19.577106475830078,
+      "ci90_lo_mps": 10.88291348991394,
+      "ci90_hi_mps": 28.271299461746217,
+      "ci90_half_width_frac": 0.4441,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "scale_calibration"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s18_rm6",
+      "speed_true_mps": 18.0,
+      "roll_deg": -6.0,
+      "status": "NOT_RECONSTRUCTABLE",
+      "reconstructable": false
+    },
+    {
+      "name": "s18_rp6",
+      "speed_true_mps": 18.0,
+      "roll_deg": 6.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 205.6033935546875,
+      "ci90_lo_mps": 123.85548427734375,
+      "ci90_hi_mps": 287.35130283203125,
+      "ci90_half_width_frac": 0.3976,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "roll_correction_residual"
+      ],
+      "covered": false
+    },
+    {
+      "name": "s18_rm9",
+      "speed_true_mps": 18.0,
+      "roll_deg": -9.0,
+      "status": "NOT_RECONSTRUCTABLE",
+      "reconstructable": false
+    },
+    {
+      "name": "s18_rp9",
+      "speed_true_mps": 18.0,
+      "roll_deg": 9.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 18.876333236694336,
+      "ci90_lo_mps": 11.26539567565918,
+      "ci90_hi_mps": 26.487270797729494,
+      "ci90_half_width_frac": 0.4032,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "scale_calibration"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s24_rp0",
+      "speed_true_mps": 24.0,
+      "roll_deg": 0.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 23.590633392333984,
+      "ci90_lo_mps": 19.349037508392335,
+      "ci90_hi_mps": 27.832229276275633,
+      "ci90_half_width_frac": 0.1798,
+      "dominant_sources": [
+        "geometry_stability",
+        "scale_calibration",
+        "homography_inliers"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s24_rm3",
+      "speed_true_mps": 24.0,
+      "roll_deg": -3.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 26.032140731811523,
+      "ci90_lo_mps": 15.335534105110169,
+      "ci90_hi_mps": 36.72874735851288,
+      "ci90_half_width_frac": 0.4109,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "roll_correction_residual"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s24_rp3",
+      "speed_true_mps": 24.0,
+      "roll_deg": 3.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 24.193016052246094,
+      "ci90_lo_mps": 13.107776097106933,
+      "ci90_hi_mps": 35.27825600738525,
+      "ci90_half_width_frac": 0.4582,
+      "dominant_sources": [
+        "homography_inliers",
+        "scale_calibration",
+        "geometry_stability"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s24_rm6",
+      "speed_true_mps": 24.0,
+      "roll_deg": -6.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 28.05742073059082,
+      "ci90_lo_mps": 16.19193750362396,
+      "ci90_hi_mps": 39.92290395755768,
+      "ci90_half_width_frac": 0.4229,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "roll_correction_residual"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s24_rp6",
+      "speed_true_mps": 24.0,
+      "roll_deg": 6.0,
+      "status": "NOT_RECONSTRUCTABLE",
+      "reconstructable": false
+    },
+    {
+      "name": "s24_rm9",
+      "speed_true_mps": 24.0,
+      "roll_deg": -9.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 151.21360778808594,
+      "ci90_lo_mps": 77.93549345397949,
+      "ci90_hi_mps": 224.49172212219239,
+      "ci90_half_width_frac": 0.4846,
+      "dominant_sources": [
+        "homography_inliers",
+        "scale_calibration",
+        "geometry_stability"
+      ],
+      "covered": false
+    },
+    {
+      "name": "s24_rp9",
+      "speed_true_mps": 24.0,
+      "roll_deg": 9.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 27.6343994140625,
+      "ci90_lo_mps": 14.712554248046875,
+      "ci90_hi_mps": 40.55624458007813,
+      "ci90_half_width_frac": 0.4676,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "roll_correction_residual"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s30_rp0",
+      "speed_true_mps": 30.0,
+      "roll_deg": 0.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 29.461654663085938,
+      "ci90_lo_mps": 22.950628982543947,
+      "ci90_hi_mps": 35.97268034362793,
+      "ci90_half_width_frac": 0.221,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s30_rm3",
+      "speed_true_mps": 30.0,
+      "roll_deg": -3.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 35.98820114135742,
+      "ci90_lo_mps": 21.524543102645875,
+      "ci90_hi_mps": 50.451859180068965,
+      "ci90_half_width_frac": 0.4019,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s30_rp3",
+      "speed_true_mps": 30.0,
+      "roll_deg": 3.0,
+      "status": "NOT_RECONSTRUCTABLE",
+      "reconstructable": false
+    },
+    {
+      "name": "s30_rm6",
+      "speed_true_mps": 30.0,
+      "roll_deg": -6.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 50.679420471191406,
+      "ci90_lo_mps": 29.662664801788328,
+      "ci90_hi_mps": 71.69617614059449,
+      "ci90_half_width_frac": 0.4147,
+      "dominant_sources": [
+        "homography_inliers",
+        "scale_calibration",
+        "geometry_stability"
+      ],
+      "covered": true
+    },
+    {
+      "name": "s30_rp6",
+      "speed_true_mps": 30.0,
+      "roll_deg": 6.0,
+      "status": "NOT_RECONSTRUCTABLE",
+      "reconstructable": false
+    },
+    {
+      "name": "s30_rm9",
+      "speed_true_mps": 30.0,
+      "roll_deg": -9.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 2.5591623783111572,
+      "ci90_lo_mps": 1.4715183675289154,
+      "ci90_hi_mps": 3.646806389093399,
+      "ci90_half_width_frac": 0.425,
+      "dominant_sources": [
+        "homography_inliers",
+        "geometry_stability",
+        "scale_calibration"
+      ],
+      "covered": false
+    },
+    {
+      "name": "s30_rp9",
+      "speed_true_mps": 30.0,
+      "roll_deg": 9.0,
+      "status": "RECONSTRUCTABLE",
+      "reconstructable": true,
+      "speed_estimated_mps": 95.81320190429688,
+      "ci90_lo_mps": 65.67036858520508,
+      "ci90_hi_mps": 125.95603522338867,
+      "ci90_half_width_frac": 0.3146,
+      "dominant_sources": [
+        "homography_inliers",
+        "scale_calibration",
+        "roll_correction_residual"
+      ],
+      "covered": false
+    }
+  ]
+}

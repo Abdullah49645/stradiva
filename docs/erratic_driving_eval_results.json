@@ -1,0 +1,9 @@
+{
+  "scenario": "sweep_pure_normal",
+  "tracking_coverage": 1.0,
+  "detected": [],
+  "ground_truth_erratic_segments": [],
+  "per_segment_recall": [],
+  "recall": null,
+  "precision": null
+}

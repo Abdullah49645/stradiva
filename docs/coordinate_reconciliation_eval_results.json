@@ -1,0 +1,12 @@
+{
+  "scenario": "collision_1",
+  "direction_sign": -1,
+  "offset_m": 28.431855684039228,
+  "overlapping_synced_window_s": [
+    0.4533025154089615,
+    2.7666666666666666
+  ],
+  "mean_position_error_m_after_reconciliation": 3.373282342094882,
+  "max_position_error_m_after_reconciliation": 4.351691655477487,
+  "mean_position_error_m_WITHOUT_reconciliation": 22.712753930609374
+}

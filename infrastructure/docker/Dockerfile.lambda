@@ -1,0 +1,23 @@
+# Container-image Lambda: OpenCV 5 + numpy/scipy don't fit comfortably
+# in a zip-based Lambda layer at a reasonable size/cold-start, so this
+# packages the processing function as a container instead. See
+# docs/aws_and_production_notes.md for what has/hasn't been verified
+# against live AWS (this image has not been built or pushed to ECR in
+# this sandbox -- no AWS network egress available here).
+
+FROM public.ecr.aws/lambda/python:3.12
+
+# system deps OpenCV needs at runtime (headless build, no GUI libs required)
+RUN dnf install -y mesa-libGL && dnf clean all
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt --target "${LAMBDA_TASK_ROOT}"
+RUN pip install --no-cache-dir boto3 --target "${LAMBDA_TASK_ROOT}"
+
+# repo code, laid out so `sys.path.insert(0, "/opt/carai")` in
+# lambda_handler.py resolves backend/, cv/ etc.
+COPY backend /opt/carai/backend
+COPY cv /opt/carai/cv
+COPY infrastructure/aws/lambda_handler.py ${LAMBDA_TASK_ROOT}/lambda_handler.py
+
+CMD ["lambda_handler.handler"]

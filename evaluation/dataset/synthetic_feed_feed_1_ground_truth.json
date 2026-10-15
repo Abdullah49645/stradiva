@@ -1,0 +1,2328 @@
+{
+  "scenario": "feed_1",
+  "fps": 30.0,
+  "n_frames": 282,
+  "duration_s": 9.4,
+  "segments": [
+    {
+      "type": "NORMAL",
+      "t_start_s": 0.0,
+      "t_end_s": 1.0,
+      "params": {
+        "type": "NORMAL"
+      }
+    },
+    {
+      "type": "WEAVING",
+      "t_start_s": 1.0,
+      "t_end_s": 2.8,
+      "params": {
+        "type": "WEAVING",
+        "amplitude_m": 0.75,
+        "period_s": 1.6
+      }
+    },
+    {
+      "type": "NORMAL",
+      "t_start_s": 2.8,
+      "t_end_s": 3.8,
+      "params": {
+        "type": "NORMAL"
+      }
+    },
+    {
+      "type": "HARSH_BRAKE_RELEASE",
+      "t_start_s": 3.8,
+      "t_end_s": 5.6,
+      "params": {
+        "type": "HARSH_BRAKE_RELEASE",
+        "decel_mps2": 4.5,
+        "brake_duration_s": 0.7
+      }
+    },
+    {
+      "type": "NORMAL",
+      "t_start_s": 5.6,
+      "t_end_s": 6.8,
+      "params": {
+        "type": "NORMAL"
+      }
+    },
+    {
+      "type": "WEAVING",
+      "t_start_s": 6.8,
+      "t_end_s": 8.4,
+      "params": {
+        "type": "WEAVING",
+        "amplitude_m": 0.5,
+        "period_s": 1.3
+      }
+    },
+    {
+      "type": "NORMAL",
+      "t_start_s": 8.4,
+      "t_end_s": 9.4,
+      "params": {
+        "type": "NORMAL"
+      }
+    }
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "t_s": 0.0,
+      "x_m": 5.0,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 1,
+      "t_s": 0.03333333333333333,
+      "x_m": 5.233333333333333,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 2,
+      "t_s": 0.06666666666666667,
+      "x_m": 5.466666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 3,
+      "t_s": 0.1,
+      "x_m": 5.7,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 4,
+      "t_s": 0.13333333333333333,
+      "x_m": 5.933333333333334,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 5,
+      "t_s": 0.16666666666666666,
+      "x_m": 6.166666666666666,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 6,
+      "t_s": 0.2,
+      "x_m": 6.4,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 7,
+      "t_s": 0.23333333333333334,
+      "x_m": 6.633333333333333,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 8,
+      "t_s": 0.26666666666666666,
+      "x_m": 6.866666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 9,
+      "t_s": 0.3,
+      "x_m": 7.1,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 10,
+      "t_s": 0.3333333333333333,
+      "x_m": 7.333333333333333,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 11,
+      "t_s": 0.36666666666666664,
+      "x_m": 7.566666666666666,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 12,
+      "t_s": 0.4,
+      "x_m": 7.800000000000001,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 13,
+      "t_s": 0.43333333333333335,
+      "x_m": 8.033333333333333,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 14,
+      "t_s": 0.4666666666666667,
+      "x_m": 8.266666666666666,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 15,
+      "t_s": 0.5,
+      "x_m": 8.5,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 16,
+      "t_s": 0.5333333333333333,
+      "x_m": 8.733333333333334,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 17,
+      "t_s": 0.5666666666666667,
+      "x_m": 8.966666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 18,
+      "t_s": 0.6,
+      "x_m": 9.2,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 19,
+      "t_s": 0.6333333333333333,
+      "x_m": 9.433333333333334,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 20,
+      "t_s": 0.6666666666666666,
+      "x_m": 9.666666666666666,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 21,
+      "t_s": 0.7,
+      "x_m": 9.899999999999999,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 22,
+      "t_s": 0.7333333333333333,
+      "x_m": 10.133333333333333,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 23,
+      "t_s": 0.7666666666666667,
+      "x_m": 10.366666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 24,
+      "t_s": 0.8,
+      "x_m": 10.600000000000001,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 25,
+      "t_s": 0.8333333333333334,
+      "x_m": 10.833333333333334,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 26,
+      "t_s": 0.8666666666666667,
+      "x_m": 11.066666666666666,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 27,
+      "t_s": 0.9,
+      "x_m": 11.3,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 28,
+      "t_s": 0.9333333333333333,
+      "x_m": 11.533333333333333,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 29,
+      "t_s": 0.9666666666666667,
+      "x_m": 11.766666666666666,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 30,
+      "t_s": 1.0,
+      "x_m": 12.0,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 31,
+      "t_s": 1.0333333333333334,
+      "x_m": 12.233333333333333,
+      "y_m": -0.8021053558349613,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 32,
+      "t_s": 1.0666666666666667,
+      "x_m": 12.466666666666667,
+      "y_m": -0.7058857161731095,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 33,
+      "t_s": 1.1,
+      "x_m": 12.7,
+      "y_m": -0.6129874257261827,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 34,
+      "t_s": 1.1333333333333333,
+      "x_m": 12.933333333333334,
+      "y_m": -0.5250000000000001,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 35,
+      "t_s": 1.1666666666666667,
+      "x_m": 13.166666666666666,
+      "y_m": -0.4434289282434596,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 36,
+      "t_s": 1.2,
+      "x_m": 13.4,
+      "y_m": -0.3696699141100894,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 37,
+      "t_s": 1.2333333333333334,
+      "x_m": 13.633333333333333,
+      "y_m": -0.3049849947815736,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 38,
+      "t_s": 1.2666666666666666,
+      "x_m": 13.866666666666667,
+      "y_m": -0.250480947161671,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 39,
+      "t_s": 1.3,
+      "x_m": 14.1,
+      "y_m": -0.20709035061653502,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 40,
+      "t_s": 1.3333333333333333,
+      "x_m": 14.333333333333332,
+      "y_m": -0.17555563028319887,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 41,
+      "t_s": 1.3666666666666667,
+      "x_m": 14.566666666666666,
+      "y_m": -0.15641635396964226,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 42,
+      "t_s": 1.4,
+      "x_m": 14.8,
+      "y_m": -0.15000000000000002,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 43,
+      "t_s": 1.4333333333333333,
+      "x_m": 15.033333333333333,
+      "y_m": -0.15641635396964226,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 44,
+      "t_s": 1.4666666666666668,
+      "x_m": 15.266666666666666,
+      "y_m": -0.17555563028319876,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 45,
+      "t_s": 1.5,
+      "x_m": 15.5,
+      "y_m": -0.20709035061653502,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 46,
+      "t_s": 1.5333333333333332,
+      "x_m": 15.733333333333334,
+      "y_m": -0.250480947161671,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 47,
+      "t_s": 1.5666666666666667,
+      "x_m": 15.966666666666667,
+      "y_m": -0.3049849947815735,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 48,
+      "t_s": 1.6,
+      "x_m": 16.2,
+      "y_m": -0.3696699141100893,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 49,
+      "t_s": 1.6333333333333333,
+      "x_m": 16.433333333333334,
+      "y_m": -0.44342892824345936,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 50,
+      "t_s": 1.6666666666666665,
+      "x_m": 16.666666666666664,
+      "y_m": -0.5249999999999998,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 51,
+      "t_s": 1.7,
+      "x_m": 16.9,
+      "y_m": -0.6129874257261826,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 52,
+      "t_s": 1.7333333333333334,
+      "x_m": 17.133333333333333,
+      "y_m": -0.7058857161731089,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 53,
+      "t_s": 1.7666666666666666,
+      "x_m": 17.366666666666667,
+      "y_m": -0.8021053558349613,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 54,
+      "t_s": 1.8,
+      "x_m": 17.6,
+      "y_m": -0.8999999999999999,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 55,
+      "t_s": 1.8333333333333335,
+      "x_m": 17.833333333333336,
+      "y_m": -0.9978946441650385,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 56,
+      "t_s": 1.8666666666666667,
+      "x_m": 18.066666666666666,
+      "y_m": -1.0941142838268907,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 57,
+      "t_s": 1.9,
+      "x_m": 18.3,
+      "y_m": -1.1870125742738173,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 58,
+      "t_s": 1.9333333333333333,
+      "x_m": 18.53333333333333,
+      "y_m": -1.275,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 59,
+      "t_s": 1.9666666666666668,
+      "x_m": 18.766666666666666,
+      "y_m": -1.3565710717565402,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 60,
+      "t_s": 2.0,
+      "x_m": 19.0,
+      "y_m": -1.4303300858899106,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 61,
+      "t_s": 2.033333333333333,
+      "x_m": 19.233333333333334,
+      "y_m": -1.4950150052184261,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 62,
+      "t_s": 2.0666666666666664,
+      "x_m": 19.46666666666667,
+      "y_m": -1.549519052838329,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 63,
+      "t_s": 2.1,
+      "x_m": 19.700000000000003,
+      "y_m": -1.5929096493834651,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 64,
+      "t_s": 2.1333333333333333,
+      "x_m": 19.933333333333334,
+      "y_m": -1.6244443697168012,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 65,
+      "t_s": 2.166666666666667,
+      "x_m": 20.166666666666668,
+      "y_m": -1.6435836460303577,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 66,
+      "t_s": 2.2,
+      "x_m": 20.4,
+      "y_m": -1.65,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 67,
+      "t_s": 2.2333333333333334,
+      "x_m": 20.633333333333333,
+      "y_m": -1.643583646030358,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 68,
+      "t_s": 2.2666666666666666,
+      "x_m": 20.866666666666667,
+      "y_m": -1.6244443697168012,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 69,
+      "t_s": 2.3,
+      "x_m": 21.1,
+      "y_m": -1.5929096493834654,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 70,
+      "t_s": 2.333333333333333,
+      "x_m": 21.333333333333332,
+      "y_m": -1.5495190528383294,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 71,
+      "t_s": 2.3666666666666667,
+      "x_m": 21.566666666666666,
+      "y_m": -1.4950150052184266,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 72,
+      "t_s": 2.4,
+      "x_m": 21.799999999999997,
+      "y_m": -1.4303300858899108,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 73,
+      "t_s": 2.4333333333333336,
+      "x_m": 22.03333333333333,
+      "y_m": -1.3565710717565413,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 74,
+      "t_s": 2.466666666666667,
+      "x_m": 22.266666666666666,
+      "y_m": -1.2750000000000008,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 75,
+      "t_s": 2.5,
+      "x_m": 22.5,
+      "y_m": -1.1870125742738178,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 76,
+      "t_s": 2.533333333333333,
+      "x_m": 22.733333333333334,
+      "y_m": -1.0941142838268905,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 77,
+      "t_s": 2.5666666666666664,
+      "x_m": 22.96666666666667,
+      "y_m": -0.9978946441650388,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 78,
+      "t_s": 2.6,
+      "x_m": 23.200000000000003,
+      "y_m": -0.9000000000000002,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 79,
+      "t_s": 2.6333333333333333,
+      "x_m": 23.433333333333334,
+      "y_m": -0.8021053558349622,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 80,
+      "t_s": 2.666666666666667,
+      "x_m": 23.666666666666668,
+      "y_m": -0.7058857161731098,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 81,
+      "t_s": 2.7,
+      "x_m": 23.9,
+      "y_m": -0.6129874257261831,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 82,
+      "t_s": 2.7333333333333334,
+      "x_m": 24.133333333333333,
+      "y_m": -0.525,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 83,
+      "t_s": 2.7666666666666666,
+      "x_m": 24.366666666666667,
+      "y_m": -0.44342892824346014,
+      "speed_mps": 7.0,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 84,
+      "t_s": 2.8,
+      "x_m": 24.6,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 85,
+      "t_s": 2.833333333333333,
+      "x_m": 24.833333333333336,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 86,
+      "t_s": 2.8666666666666667,
+      "x_m": 25.066666666666666,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 87,
+      "t_s": 2.9,
+      "x_m": 25.3,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 88,
+      "t_s": 2.933333333333333,
+      "x_m": 25.533333333333335,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 89,
+      "t_s": 2.9666666666666663,
+      "x_m": 25.76666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 90,
+      "t_s": 3.0,
+      "x_m": 26.0,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 91,
+      "t_s": 3.033333333333333,
+      "x_m": 26.233333333333334,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 92,
+      "t_s": 3.0666666666666664,
+      "x_m": 26.46666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 93,
+      "t_s": 3.0999999999999996,
+      "x_m": 26.700000000000003,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 94,
+      "t_s": 3.1333333333333333,
+      "x_m": 26.933333333333334,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 95,
+      "t_s": 3.1666666666666665,
+      "x_m": 27.166666666666668,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 96,
+      "t_s": 3.1999999999999997,
+      "x_m": 27.400000000000002,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 97,
+      "t_s": 3.2333333333333334,
+      "x_m": 27.633333333333333,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 98,
+      "t_s": 3.2666666666666666,
+      "x_m": 27.866666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 99,
+      "t_s": 3.3,
+      "x_m": 28.1,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 100,
+      "t_s": 3.333333333333333,
+      "x_m": 28.333333333333336,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 101,
+      "t_s": 3.3666666666666663,
+      "x_m": 28.56666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 102,
+      "t_s": 3.4,
+      "x_m": 28.8,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 103,
+      "t_s": 3.433333333333333,
+      "x_m": 29.033333333333335,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 104,
+      "t_s": 3.4666666666666663,
+      "x_m": 29.266666666666666,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 105,
+      "t_s": 3.5,
+      "x_m": 29.5,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 106,
+      "t_s": 3.533333333333333,
+      "x_m": 29.733333333333334,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 107,
+      "t_s": 3.5666666666666664,
+      "x_m": 29.96666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 108,
+      "t_s": 3.5999999999999996,
+      "x_m": 30.200000000000003,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 109,
+      "t_s": 3.6333333333333333,
+      "x_m": 30.433333333333337,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 110,
+      "t_s": 3.6666666666666665,
+      "x_m": 30.666666666666668,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 111,
+      "t_s": 3.6999999999999997,
+      "x_m": 30.900000000000002,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 112,
+      "t_s": 3.7333333333333334,
+      "x_m": 31.133333333333333,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 113,
+      "t_s": 3.7666666666666666,
+      "x_m": 31.366666666666667,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 114,
+      "t_s": 3.8,
+      "x_m": 31.6,
+      "y_m": -0.9,
+      "speed_mps": 7.0,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 115,
+      "t_s": 3.833333333333333,
+      "x_m": 31.830833333333334,
+      "y_m": -0.9,
+      "speed_mps": 6.85,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 116,
+      "t_s": 3.8666666666666667,
+      "x_m": 32.05666666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.7,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 117,
+      "t_s": 3.9,
+      "x_m": 32.2775,
+      "y_m": -0.9,
+      "speed_mps": 6.55,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 118,
+      "t_s": 3.933333333333333,
+      "x_m": 32.49333333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.4,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 119,
+      "t_s": 3.9666666666666663,
+      "x_m": 32.704166666666666,
+      "y_m": -0.9,
+      "speed_mps": 6.25,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 120,
+      "t_s": 4.0,
+      "x_m": 32.91,
+      "y_m": -0.9,
+      "speed_mps": 6.1,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 121,
+      "t_s": 4.033333333333333,
+      "x_m": 33.11083333333333,
+      "y_m": -0.9,
+      "speed_mps": 5.95,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 122,
+      "t_s": 4.066666666666666,
+      "x_m": 33.30666666666667,
+      "y_m": -0.9,
+      "speed_mps": 5.8,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 123,
+      "t_s": 4.1,
+      "x_m": 33.4975,
+      "y_m": -0.9,
+      "speed_mps": 5.65,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 124,
+      "t_s": 4.133333333333333,
+      "x_m": 33.68333333333334,
+      "y_m": -0.9,
+      "speed_mps": 5.5,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 125,
+      "t_s": 4.166666666666666,
+      "x_m": 33.86416666666667,
+      "y_m": -0.9,
+      "speed_mps": 5.35,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 126,
+      "t_s": 4.2,
+      "x_m": 34.04,
+      "y_m": -0.9,
+      "speed_mps": 5.2,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 127,
+      "t_s": 4.233333333333333,
+      "x_m": 34.21083333333333,
+      "y_m": -0.9,
+      "speed_mps": 5.05,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 128,
+      "t_s": 4.266666666666667,
+      "x_m": 34.376666666666665,
+      "y_m": -0.9,
+      "speed_mps": 4.9,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 129,
+      "t_s": 4.3,
+      "x_m": 34.5375,
+      "y_m": -0.9,
+      "speed_mps": 4.75,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 130,
+      "t_s": 4.333333333333333,
+      "x_m": 34.693333333333335,
+      "y_m": -0.9,
+      "speed_mps": 4.6,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 131,
+      "t_s": 4.366666666666666,
+      "x_m": 34.84416666666667,
+      "y_m": -0.9,
+      "speed_mps": 4.45,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 132,
+      "t_s": 4.3999999999999995,
+      "x_m": 34.99,
+      "y_m": -0.9,
+      "speed_mps": 4.300000000000001,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 133,
+      "t_s": 4.433333333333334,
+      "x_m": 35.13083333333333,
+      "y_m": -0.9,
+      "speed_mps": 4.15,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 134,
+      "t_s": 4.466666666666667,
+      "x_m": 35.266666666666666,
+      "y_m": -0.9,
+      "speed_mps": 4.0,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 135,
+      "t_s": 4.5,
+      "x_m": 35.3975,
+      "y_m": -0.9,
+      "speed_mps": 3.85,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 136,
+      "t_s": 4.533333333333333,
+      "x_m": 35.52694444444444,
+      "y_m": -0.9,
+      "speed_mps": 3.916666666666667,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 137,
+      "t_s": 4.566666666666666,
+      "x_m": 35.658611111111114,
+      "y_m": -0.9,
+      "speed_mps": 3.9833333333333334,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 138,
+      "t_s": 4.6,
+      "x_m": 35.7925,
+      "y_m": -0.9,
+      "speed_mps": 4.050000000000001,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 139,
+      "t_s": 4.633333333333333,
+      "x_m": 35.92861111111112,
+      "y_m": -0.9,
+      "speed_mps": 4.116666666666667,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 140,
+      "t_s": 4.666666666666666,
+      "x_m": 36.066944444444445,
+      "y_m": -0.9,
+      "speed_mps": 4.183333333333334,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 141,
+      "t_s": 4.7,
+      "x_m": 36.2075,
+      "y_m": -0.9,
+      "speed_mps": 4.25,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 142,
+      "t_s": 4.733333333333333,
+      "x_m": 36.35027777777778,
+      "y_m": -0.9,
+      "speed_mps": 4.316666666666666,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 143,
+      "t_s": 4.766666666666667,
+      "x_m": 36.49527777777777,
+      "y_m": -0.9,
+      "speed_mps": 4.383333333333334,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 144,
+      "t_s": 4.8,
+      "x_m": 36.642500000000005,
+      "y_m": -0.9,
+      "speed_mps": 4.45,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 145,
+      "t_s": 4.833333333333333,
+      "x_m": 36.79194444444445,
+      "y_m": -0.9,
+      "speed_mps": 4.5166666666666675,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 146,
+      "t_s": 4.866666666666666,
+      "x_m": 36.94361111111112,
+      "y_m": -0.9,
+      "speed_mps": 4.583333333333334,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 147,
+      "t_s": 4.9,
+      "x_m": 37.0975,
+      "y_m": -0.9,
+      "speed_mps": 4.65,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 148,
+      "t_s": 4.933333333333334,
+      "x_m": 37.25361111111111,
+      "y_m": -0.9,
+      "speed_mps": 4.716666666666667,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 149,
+      "t_s": 4.966666666666667,
+      "x_m": 37.411944444444444,
+      "y_m": -0.9,
+      "speed_mps": 4.783333333333333,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 150,
+      "t_s": 5.0,
+      "x_m": 37.5725,
+      "y_m": -0.9,
+      "speed_mps": 4.85,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 151,
+      "t_s": 5.033333333333333,
+      "x_m": 37.73527777777778,
+      "y_m": -0.9,
+      "speed_mps": 4.916666666666667,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 152,
+      "t_s": 5.066666666666666,
+      "x_m": 37.900277777777774,
+      "y_m": -0.9,
+      "speed_mps": 4.983333333333333,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 153,
+      "t_s": 5.1,
+      "x_m": 38.0675,
+      "y_m": -0.9,
+      "speed_mps": 5.050000000000001,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 154,
+      "t_s": 5.133333333333333,
+      "x_m": 38.23694444444445,
+      "y_m": -0.9,
+      "speed_mps": 5.116666666666667,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 155,
+      "t_s": 5.166666666666666,
+      "x_m": 38.408611111111114,
+      "y_m": -0.9,
+      "speed_mps": 5.183333333333334,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 156,
+      "t_s": 5.199999999999999,
+      "x_m": 38.5825,
+      "y_m": -0.9,
+      "speed_mps": 5.25,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 157,
+      "t_s": 5.233333333333333,
+      "x_m": 38.75861111111111,
+      "y_m": -0.9,
+      "speed_mps": 5.316666666666666,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 158,
+      "t_s": 5.266666666666667,
+      "x_m": 38.93694444444445,
+      "y_m": -0.9,
+      "speed_mps": 5.383333333333333,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 159,
+      "t_s": 5.3,
+      "x_m": 39.1175,
+      "y_m": -0.9,
+      "speed_mps": 5.45,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 160,
+      "t_s": 5.333333333333333,
+      "x_m": 39.30027777777778,
+      "y_m": -0.9,
+      "speed_mps": 5.5166666666666675,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 161,
+      "t_s": 5.366666666666666,
+      "x_m": 39.485277777777775,
+      "y_m": -0.9,
+      "speed_mps": 5.583333333333334,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 162,
+      "t_s": 5.4,
+      "x_m": 39.67250000000001,
+      "y_m": -0.9,
+      "speed_mps": 5.65,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 163,
+      "t_s": 5.433333333333334,
+      "x_m": 39.86194444444445,
+      "y_m": -0.9,
+      "speed_mps": 5.716666666666667,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 164,
+      "t_s": 5.466666666666667,
+      "x_m": 40.05361111111111,
+      "y_m": -0.9,
+      "speed_mps": 5.783333333333333,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 165,
+      "t_s": 5.5,
+      "x_m": 40.2475,
+      "y_m": -0.9,
+      "speed_mps": 5.85,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 166,
+      "t_s": 5.533333333333333,
+      "x_m": 40.44361111111111,
+      "y_m": -0.9,
+      "speed_mps": 5.916666666666667,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 167,
+      "t_s": 5.566666666666666,
+      "x_m": 40.64194444444445,
+      "y_m": -0.9,
+      "speed_mps": 5.983333333333333,
+      "segment_type": "HARSH_BRAKE_RELEASE"
+    },
+    {
+      "frame": 168,
+      "t_s": 5.6,
+      "x_m": 40.8425,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 169,
+      "t_s": 5.633333333333333,
+      "x_m": 41.04416666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 170,
+      "t_s": 5.666666666666666,
+      "x_m": 41.24583333333334,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 171,
+      "t_s": 5.699999999999999,
+      "x_m": 41.4475,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 172,
+      "t_s": 5.733333333333333,
+      "x_m": 41.649166666666666,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 173,
+      "t_s": 5.766666666666667,
+      "x_m": 41.850833333333334,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 174,
+      "t_s": 5.8,
+      "x_m": 42.0525,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 175,
+      "t_s": 5.833333333333333,
+      "x_m": 42.25416666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 176,
+      "t_s": 5.866666666666666,
+      "x_m": 42.45583333333334,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 177,
+      "t_s": 5.8999999999999995,
+      "x_m": 42.6575,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 178,
+      "t_s": 5.933333333333333,
+      "x_m": 42.85916666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 179,
+      "t_s": 5.966666666666666,
+      "x_m": 43.060833333333335,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 180,
+      "t_s": 6.0,
+      "x_m": 43.2625,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 181,
+      "t_s": 6.033333333333333,
+      "x_m": 43.46416666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 182,
+      "t_s": 6.066666666666666,
+      "x_m": 43.66583333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 183,
+      "t_s": 6.1,
+      "x_m": 43.8675,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 184,
+      "t_s": 6.133333333333333,
+      "x_m": 44.06916666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 185,
+      "t_s": 6.166666666666666,
+      "x_m": 44.270833333333336,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 186,
+      "t_s": 6.199999999999999,
+      "x_m": 44.472500000000004,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 187,
+      "t_s": 6.2333333333333325,
+      "x_m": 44.674166666666665,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 188,
+      "t_s": 6.266666666666667,
+      "x_m": 44.87583333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 189,
+      "t_s": 6.3,
+      "x_m": 45.0775,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 190,
+      "t_s": 6.333333333333333,
+      "x_m": 45.27916666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 191,
+      "t_s": 6.366666666666666,
+      "x_m": 45.48083333333334,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 192,
+      "t_s": 6.3999999999999995,
+      "x_m": 45.682500000000005,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 193,
+      "t_s": 6.433333333333333,
+      "x_m": 45.88416666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 194,
+      "t_s": 6.466666666666667,
+      "x_m": 46.08583333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 195,
+      "t_s": 6.5,
+      "x_m": 46.2875,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 196,
+      "t_s": 6.533333333333333,
+      "x_m": 46.48916666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 197,
+      "t_s": 6.566666666666666,
+      "x_m": 46.69083333333334,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 198,
+      "t_s": 6.6,
+      "x_m": 46.8925,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 199,
+      "t_s": 6.633333333333333,
+      "x_m": 47.094166666666666,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 200,
+      "t_s": 6.666666666666666,
+      "x_m": 47.295833333333334,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 201,
+      "t_s": 6.699999999999999,
+      "x_m": 47.4975,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 202,
+      "t_s": 6.7333333333333325,
+      "x_m": 47.69916666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 203,
+      "t_s": 6.766666666666667,
+      "x_m": 47.90083333333334,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 204,
+      "t_s": 6.8,
+      "x_m": 48.1025,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 205,
+      "t_s": 6.833333333333333,
+      "x_m": 48.30416666666667,
+      "y_m": -0.8197943595711199,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 206,
+      "t_s": 6.866666666666666,
+      "x_m": 48.505833333333335,
+      "y_m": -0.7416660030992638,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 207,
+      "t_s": 6.8999999999999995,
+      "x_m": 48.707499999999996,
+      "y_m": -0.6676384139781157,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 208,
+      "t_s": 6.933333333333334,
+      "x_m": 48.909166666666664,
+      "y_m": -0.5996288678810107,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 209,
+      "t_s": 6.966666666666667,
+      "x_m": 49.11083333333333,
+      "y_m": -0.5393987763280927,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 210,
+      "t_s": 7.0,
+      "x_m": 49.3125,
+      "y_m": -0.48850806705317185,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 211,
+      "t_s": 7.033333333333333,
+      "x_m": 49.51416666666667,
+      "y_m": -0.4482747826948089,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 212,
+      "t_s": 7.066666666666666,
+      "x_m": 49.715833333333336,
+      "y_m": -0.4197409441843139,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 213,
+      "t_s": 7.1,
+      "x_m": 49.9175,
+      "y_m": -0.40364556295097304,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 214,
+      "t_s": 7.133333333333333,
+      "x_m": 50.119166666666665,
+      "y_m": -0.4004055009142152,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 215,
+      "t_s": 7.166666666666666,
+      "x_m": 50.32083333333333,
+      "y_m": -0.41010467397886613,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 216,
+      "t_s": 7.2,
+      "x_m": 50.5225,
+      "y_m": -0.4324918786572926,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 217,
+      "t_s": 7.233333333333333,
+      "x_m": 50.72416666666667,
+      "y_m": -0.4669872981077808,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 218,
+      "t_s": 7.266666666666667,
+      "x_m": 50.92583333333333,
+      "y_m": -0.5126975190861727,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 219,
+      "t_s": 7.3,
+      "x_m": 51.1275,
+      "y_m": -0.5684386708796023,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 220,
+      "t_s": 7.333333333333333,
+      "x_m": 51.329166666666666,
+      "y_m": -0.6327670869360994,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 221,
+      "t_s": 7.366666666666666,
+      "x_m": 51.530833333333334,
+      "y_m": -0.7040166950699622,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 222,
+      "t_s": 7.3999999999999995,
+      "x_m": 51.7325,
+      "y_m": -0.780342167856221,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 223,
+      "t_s": 7.433333333333334,
+      "x_m": 51.93416666666667,
+      "y_m": -0.859766715641637,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 224,
+      "t_s": 7.466666666666667,
+      "x_m": 52.13583333333333,
+      "y_m": -0.9402332843583627,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 225,
+      "t_s": 7.5,
+      "x_m": 52.3375,
+      "y_m": -1.0196578321437788,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 226,
+      "t_s": 7.533333333333333,
+      "x_m": 52.53916666666667,
+      "y_m": -1.0959833049300371,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 227,
+      "t_s": 7.566666666666666,
+      "x_m": 52.740833333333335,
+      "y_m": -1.1672329130639005,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 228,
+      "t_s": 7.6,
+      "x_m": 52.9425,
+      "y_m": -1.2315613291203975,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 229,
+      "t_s": 7.633333333333333,
+      "x_m": 53.14416666666666,
+      "y_m": -1.2873024809138274,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 230,
+      "t_s": 7.666666666666666,
+      "x_m": 53.34583333333333,
+      "y_m": -1.3330127018922195,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 231,
+      "t_s": 7.7,
+      "x_m": 53.5475,
+      "y_m": -1.3675081213427074,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 232,
+      "t_s": 7.733333333333333,
+      "x_m": 53.74916666666667,
+      "y_m": -1.3898953260211337,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 233,
+      "t_s": 7.766666666666667,
+      "x_m": 53.950833333333335,
+      "y_m": -1.3995944990857847,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 234,
+      "t_s": 7.8,
+      "x_m": 54.1525,
+      "y_m": -1.396354437049027,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 235,
+      "t_s": 7.833333333333333,
+      "x_m": 54.354166666666664,
+      "y_m": -1.3802590558156862,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 236,
+      "t_s": 7.866666666666666,
+      "x_m": 54.55583333333333,
+      "y_m": -1.3517252173051912,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 237,
+      "t_s": 7.9,
+      "x_m": 54.7575,
+      "y_m": -1.311491932946828,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 238,
+      "t_s": 7.933333333333334,
+      "x_m": 54.95916666666667,
+      "y_m": -1.2606012236719075,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 239,
+      "t_s": 7.966666666666667,
+      "x_m": 55.160833333333336,
+      "y_m": -1.2003711321189896,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 240,
+      "t_s": 8.0,
+      "x_m": 55.3625,
+      "y_m": -1.1323615860218845,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 241,
+      "t_s": 8.033333333333333,
+      "x_m": 55.564166666666665,
+      "y_m": -1.0583339969007366,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 242,
+      "t_s": 8.066666666666666,
+      "x_m": 55.76583333333333,
+      "y_m": -0.9802056404288804,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 243,
+      "t_s": 8.1,
+      "x_m": 55.9675,
+      "y_m": -0.9000000000000001,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 244,
+      "t_s": 8.133333333333333,
+      "x_m": 56.16916666666667,
+      "y_m": -0.8197943595711203,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 245,
+      "t_s": 8.166666666666666,
+      "x_m": 56.37083333333334,
+      "y_m": -0.7416660030992638,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 246,
+      "t_s": 8.2,
+      "x_m": 56.5725,
+      "y_m": -0.6676384139781161,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 247,
+      "t_s": 8.233333333333333,
+      "x_m": 56.774166666666666,
+      "y_m": -0.5996288678810108,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 248,
+      "t_s": 8.266666666666666,
+      "x_m": 56.975833333333334,
+      "y_m": -0.5393987763280932,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 249,
+      "t_s": 8.3,
+      "x_m": 57.1775,
+      "y_m": -0.4885080670531719,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 250,
+      "t_s": 8.333333333333334,
+      "x_m": 57.37916666666667,
+      "y_m": -0.4482747826948089,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 251,
+      "t_s": 8.366666666666667,
+      "x_m": 57.58083333333333,
+      "y_m": -0.41974094418431385,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "WEAVING"
+    },
+    {
+      "frame": 252,
+      "t_s": 8.4,
+      "x_m": 57.7825,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 253,
+      "t_s": 8.433333333333334,
+      "x_m": 57.98416666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 254,
+      "t_s": 8.466666666666667,
+      "x_m": 58.185833333333335,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 255,
+      "t_s": 8.5,
+      "x_m": 58.387499999999996,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 256,
+      "t_s": 8.533333333333333,
+      "x_m": 58.589166666666664,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 257,
+      "t_s": 8.566666666666666,
+      "x_m": 58.79083333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 258,
+      "t_s": 8.6,
+      "x_m": 58.9925,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 259,
+      "t_s": 8.633333333333333,
+      "x_m": 59.19416666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 260,
+      "t_s": 8.666666666666668,
+      "x_m": 59.395833333333336,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 261,
+      "t_s": 8.700000000000001,
+      "x_m": 59.5975,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 262,
+      "t_s": 8.733333333333334,
+      "x_m": 59.799166666666665,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 263,
+      "t_s": 8.766666666666667,
+      "x_m": 60.00083333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 264,
+      "t_s": 8.8,
+      "x_m": 60.2025,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 265,
+      "t_s": 8.833333333333334,
+      "x_m": 60.40416666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 266,
+      "t_s": 8.866666666666667,
+      "x_m": 60.60583333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 267,
+      "t_s": 8.9,
+      "x_m": 60.8075,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 268,
+      "t_s": 8.933333333333334,
+      "x_m": 61.009166666666665,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 269,
+      "t_s": 8.966666666666667,
+      "x_m": 61.21083333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 270,
+      "t_s": 9.0,
+      "x_m": 61.4125,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 271,
+      "t_s": 9.033333333333333,
+      "x_m": 61.61416666666666,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 272,
+      "t_s": 9.066666666666666,
+      "x_m": 61.81583333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 273,
+      "t_s": 9.1,
+      "x_m": 62.0175,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 274,
+      "t_s": 9.133333333333333,
+      "x_m": 62.219166666666666,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 275,
+      "t_s": 9.166666666666668,
+      "x_m": 62.420833333333334,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 276,
+      "t_s": 9.200000000000001,
+      "x_m": 62.6225,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 277,
+      "t_s": 9.233333333333334,
+      "x_m": 62.82416666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 278,
+      "t_s": 9.266666666666667,
+      "x_m": 63.02583333333333,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 279,
+      "t_s": 9.3,
+      "x_m": 63.2275,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 280,
+      "t_s": 9.333333333333334,
+      "x_m": 63.42916666666667,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    },
+    {
+      "frame": 281,
+      "t_s": 9.366666666666667,
+      "x_m": 63.630833333333335,
+      "y_m": -0.9,
+      "speed_mps": 6.050000000000001,
+      "segment_type": "NORMAL"
+    }
+  ]
+}
