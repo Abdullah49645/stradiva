@@ -46,5 +46,21 @@ On frames where CARAI returns an estimate (does not abstain):
 Windows of 2 s (40 frames), non-overlapping. Labels averaged over the same window.
 No window is excluded after looking at its error.
 
-## Deviations
-(none yet)
+## Results of the pre-registered run (commit 2bf75b9 estimator, unchanged)
+See evaluation/results/comma_eval_california_freeway.json. Reported as-is in docs/EVALUATION.md.
+
+## Deviations (after the pre-registered run -- everything below is POST-HOC)
+1. Failure analysis of the pre-registered run found 8 confidently wrong windows: 4 on a freeway
+   stretch (frames 6880-7000, ~3x high; the period matches concrete-slab joints, ~4.6 m) and 4 on
+   city streets (~1.7-2.3x high; city marking standard differs from the freeway prior).
+2. Two checks were added to the estimator in response, both physically motivated and with
+   tolerances set ONLY on synthetic development clips:
+   - marking-proportion (duty-cycle) check: measured dash length / cycle must match the assumed
+     standard (0.25) after the blur inflation measured on synthetic clips (+0.035), +-0.06;
+   - continuity check: an answered window that jumps > 6 m/s from both answered neighbours within
+     4 s is withdrawn.
+   Also: frame rate can now be supplied explicitly; its source is reported.
+3. Re-running these checks on the speed-challenge video is NOT independent validation (the checks
+   were designed after seeing its failures). It is reported only as "post-hoc".
+4. Independent holdout, pre-registered here BEFORE running it: see PREREGISTRATION_HOLDOUT.md.
+

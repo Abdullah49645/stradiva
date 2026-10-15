@@ -71,6 +71,7 @@ class MarkingPrior:
     name: str
     cycle_m: float            # dash + gap
     cycle_rel_sigma: float = 0.03
+    duty: float = 0.25        # dash length / cycle (10/40 ft US federal, 12/48 ft Caltrans, 3/12 m CARAI synthetic)
 
     @staticmethod
     def preset(key: str) -> "MarkingPrior":
@@ -95,6 +96,9 @@ class EgoSpeedConfig:
     near_far_period_max_rel: float = 0.12
     max_dash_resid_px: float = 2.0
     max_period_spread: float = 0.08
+    duty_inflation: float = 0.035     # measured duty exceeds the true duty by ~0.035 (blur), synthetic dev data
+    duty_tol: float = 0.06            # |measured - (prior duty + inflation)|; dev p5-p95 spread is +-0.017
+    continuity_max_jump_mps: float = 6.0   # between adjacent answered windows (~2 s apart): > 3 m/s^2 sustained
     min_valid_pair_frac: float = 0.5
     max_shift_frac_of_period: float = 0.45
     n_boot: int = 400
@@ -258,14 +262,14 @@ def _side_level(gray, vp, ang, v_limit, w, h, cfg):
     return float(np.median(vals)) if vals else None
 
 
-def _dash_centres(prof, s_vals, asphalt):
+def _dash_centres(prof, s_vals, asphalt, return_lengths=False):
     lo = asphalt if asphalt is not None else np.percentile(prof, 30)
     hi = np.percentile(prof, 97)
     if hi - lo < 15:
-        return []
+        return ([], []) if return_lengths else []
     thr = 0.5 * (lo + hi)
     above = prof > thr
-    cen, i, n = [], 0, len(prof)
+    cen, lens, i, n = [], [], 0, len(prof)
     while i < n:
         if above[i]:
             j = i
@@ -275,10 +279,14 @@ def _dash_centres(prof, s_vals, asphalt):
                 fi = (i - 1) + (thr - prof[i - 1]) / (prof[i] - prof[i - 1] + 1e-9)
                 fj = j + (prof[j] - thr) / (prof[j] - prof[j + 1] + 1e-9)
                 cen.append(float(np.interp(0.5 * (fi + fj), np.arange(n), s_vals)))
+                lens.append(float(abs(np.interp(fj, np.arange(n), s_vals) - np.interp(fi, np.arange(n), s_vals))))
             i = j + 1
         else:
             i += 1
-    return sorted(cen)
+    order = np.argsort(cen)
+    if return_lengths:
+        return [cen[k] for k in order], [lens[k] for k in order]
+    return [cen[k] for k in order]
 
 
 def _period_from_centres(cen):
@@ -385,14 +393,16 @@ def estimate_window(frames_gray, fps, t_start_s, prior: MarkingPrior, cfg: EgoSp
         s_vals = maps[2]
         raw = [_raw_profile(g, maps) for g in frames_gray]
         side = _side_level(frames_gray[len(frames_gray) // 2], vp, ang, v_limit, w, h, cfg)
-        periods, resids, n_d = [], [], []
+        periods, resids, n_d, duties = [], [], [], []
         for prof in raw:
-            cen = _dash_centres(prof, s_vals, side)
+            cen, lens = _dash_centres(prof, s_vals, side, return_lengths=True)
             if len(cen) < 2:
                 continue
             T, rpx = _period_from_centres(cen)
             if T is not None:
                 periods.append(T)
+                # duty from the NEAREST complete dash (smallest s): least blur inflation in s
+                duties.append(lens[0] / T)
                 if len(cen) >= 3:
                     resids.append(rpx)       # spacing residual only testable with >= 3 dashes
                 n_d.append(len(cen))
@@ -416,6 +426,7 @@ def estimate_window(frames_gray, fps, t_start_s, prior: MarkingPrior, cfg: EgoSp
                              "period_rel_spread": float(1.4826 * np.median(np.abs(np.array(periods) - T_s)) / T_s),
                              "dash_resid_px_median": float(np.median(resids)) if resids else 0.0,
                              "frames_with_3_dashes": len(resids) / max(1, len(raw)), "speeds": speeds, "pair_t": pair_t,
+                             "duty_measured": float(np.median(duties)) if duties else None,
                              "valid_pair_frac": float(valid.mean()) if len(valid) else 0.0,
                              "near_far_period_rel_diff": float(np.median(resids)) if resids else None})
 
@@ -444,6 +455,9 @@ def estimate_window(frames_gray, fps, t_start_s, prior: MarkingPrior, cfg: EgoSp
             lr["trend_mps2"] = float(slope)
             if mad / scale > cfg.pair_mad_max_rel:
                 why.append(f"frame-pair speeds disagree (robust spread {mad/scale:.0%} around the trend)")
+        if lr.get("duty_measured") is not None and abs(lr["duty_measured"] - prior.duty - cfg.duty_inflation) > cfg.duty_tol:
+            why.append(f"marking proportions differ from the assumed standard (dash covers {lr['duty_measured']:.0%} of the "
+                       f"cycle, standard {prior.duty:.0%}): wrong standard or not lane markings (e.g. pavement joints)")
         if lr["frames_with_3_dashes"] < 0.2:
             why.append("too few frames show three complete dashes to test the equal-spacing assumption")
         elif lr["dash_resid_px_median"] > cfg.max_dash_resid_px:
@@ -494,10 +508,15 @@ def detect_static_bottom(frames_gray, max_frac=0.35, std_thresh=4.0):
 
 
 def estimate_ego_speed(video_path, prior: MarkingPrior, window_s=2.0, cfg: EgoSpeedConfig = None,
-                       max_frames=None, frame_stride=1):
+                       max_frames=None, frame_stride=1, fps_override=None, continuity_check=True):
+    """fps_override: the TRUE recording rate if known (sensor timestamps, device
+    specification). Container fps metadata is frequently wrong for raw dashcam
+    streams; every speed scales linearly with it, so its source is reported."""
     cfg = cfg or EgoSpeedConfig()
     cap = cv2.VideoCapture(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    fps_container = cap.get(cv2.CAP_PROP_FPS)
+    fps = fps_override or fps_container or 30.0
+    fps_source = "override (supplied by the user / sensor timestamps)" if fps_override else "container metadata (unverified)"
     eff_fps = fps / frame_stride
     win_n = int(round(window_s * eff_fps))
     results, buf, k, start_idx = [], [], 0, 0
@@ -519,5 +538,25 @@ def estimate_ego_speed(video_path, prior: MarkingPrior, window_s=2.0, cfg: EgoSp
         if max_frames and k >= max_frames:
             break
     cap.release()
-    return {"fps": fps, "prior": asdict(prior), "window_s": window_s, "v_limit": v_limit,
-            "windows": [asdict(r) for r in results]}
+    if continuity_check:
+        _continuity(results, cfg)
+    return {"fps": fps, "fps_container": fps_container, "fps_source": fps_source, "prior": asdict(prior),
+            "window_s": window_s, "v_limit": v_limit, "windows": [asdict(r) for r in results]}
+
+
+def _continuity(results, cfg):
+    """An answered window whose speed jumps by more than continuity_max_jump_mps
+    relative to BOTH answered neighbours (when it has any within 4 s) is
+    physically implausible (sustained > ~3 m/s^2 then reversed) and is withdrawn."""
+    ok = [i for i, r in enumerate(results) if r.status == "OK"]
+    flag = []
+    for k, i in enumerate(ok):
+        nb = [j for j in (ok[k - 1] if k > 0 else None, ok[k + 1] if k + 1 < len(ok) else None)
+              if j is not None and abs(results[j].t_start_s - results[i].t_start_s) <= 4.01]
+        if nb and all(abs(results[i].speed_mps - results[j].speed_mps) > cfg.continuity_max_jump_mps for j in nb):
+            flag.append(i)
+    for i in flag:
+        r = results[i]
+        r.diagnostics["withdrawn_speed_mps"] = r.speed_mps
+        r.status, r.speed_mps, r.ci90_mps = "ABSTAIN", None, None
+        r.reasons.append("speed inconsistent with neighbouring windows (physically implausible jump)")
