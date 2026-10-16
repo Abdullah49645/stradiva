@@ -200,7 +200,7 @@ def event_resolution(gt, sc, t_event):
     return {"m_per_px_along_road": m_per_row, "range_m": float(abs(fv["x_m"] - sc.camera.x_m))}
 
 
-NO_VERDICT = {"NOT_RECONSTRUCTABLE", "INSUFFICIENT_EVIDENCE", "NO_COLLISION_ANALYSED"}
+NO_VERDICT = {"NOT_RECONSTRUCTABLE", "INSUFFICIENT_EVIDENCE", "NO_COLLISION_ANALYSED", "NO_PAIR_RECONSTRUCTED"}
 CONTACT_TIME_TOL_S = 0.3     # a reported contact more than this far from the true one is a different event
 
 
@@ -212,6 +212,8 @@ def outcome(row):
     missed_unobservable (an off-screen collision reported as "no contact found") /
     wrong_contact_time (a verdict whose reported contact is > CONTACT_TIME_TOL_S from the true one)."""
     v = row.get("carai_verdict")
+    if row.get("status") == "RECONSTRUCTED_NO_INTERACTION" and v == "NO_COLLISION_ANALYSED":
+        v = "NO_PAIR_RECONSTRUCTED"     # rows written before this verdict existed: same pipeline state
     gtv = row["gt"]["verdict"]
     if row.get("gt_collision_t_s") is None:                 # nothing happened
         if v in ("AVOIDABLE", "NOT_AVOIDABLE", "ASSUMPTION_DEPENDENT"):

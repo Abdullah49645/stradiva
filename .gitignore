@@ -10,3 +10,4 @@ evaluation/_sim_cache/
 frontend/.next/
 frontend/node_modules/
 *.webm.tmp
+frontend/out/

@@ -124,10 +124,12 @@ def _sha256(path):
 
 
 OCCLUSION_GUARD_FRAMES = 3
-# background before tracking: "resolve5" = segment medians resolved region by region (cv.tracking.mot.
-# resolve_changed_regions, 5 segments), "resolve3" = 3 segments, "legacy" = whole-clip median + first-half
-# fallback in the refinement. The env var exists only for the dev-split ablation.
-BACKGROUND_MODE = os.environ.get("CARAI_BG_MODE", "resolve5")
+# background before tracking: "legacy" = whole-clip median + first-half fallback in the refinement (default);
+# "resolve3" / "resolve5" = segment medians resolved region by region (cv.tracking.mot.resolve_changed_regions).
+# Dev-split ablation, end to end (evaluation/results/dev_history/ablation_bg_*.jsonl): legacy 7/30 correct,
+# 1 harmful; resolve3 7/30, 2 harmful; resolve5 8/30, 4 harmful -> legacy kept. The env var exists only for
+# that ablation.
+BACKGROUND_MODE = os.environ.get("CARAI_BG_MODE", "legacy")
 
 
 def _measured(track, fps):
@@ -467,6 +469,14 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
         t_extrap, gap_at_lead_loss = _extrapolate_contact(fol["kin"], lead["kin"], L_f, a_lead)
         clip_end = (len(frames) - 1) / fps
         hidden = "lead" if lead["kin"]["t"][-1] < fol["kin"]["t"][-1] else "follower"
+        # only the vehicle FARTHER from the camera can be hidden behind the other (the lead when traffic
+        # recedes, the follower when it approaches). If the nearer one's track ends first, it was LOST by the
+        # tracker, and extrapolating it across the approach would invent the event.
+        far = "lead" if direction > 0 else "follower"
+        t_end_f, t_end_l = fol["kin"]["t"][-1], lead["kin"]["t"][-1]
+        near_lost_at = None
+        if hidden != far and abs(t_end_f - t_end_l) > 0.3:
+            near_lost_at = min(t_end_f, t_end_l)
         # direct evidence of impact: a sudden speed change of the vehicle that stays visible -- the follower
         # loses speed (traffic receding: the follower occludes the lead) or the lead is pushed forward
         # (traffic approaching: the lead occludes the follower)
@@ -521,7 +531,11 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
                               }[kink["vehicle"]]
         else:
             t_contact, contact_source = t_extrap, f"extrapolated: {hidden} hidden before contact"
-            if contact_length_note is not None:
+            if near_lost_at is not None and (t_extrap is None or t_extrap > near_lost_at + 0.2):
+                t_contact, contact_source = None, (f"not established: the {hidden}, the vehicle nearer the camera, "
+                                                   f"stopped being tracked at t={near_lost_at:.2f}s while the other was "
+                                                   "still in view, so the approach was not observed")
+            elif contact_length_note is not None:
                 t_contact, contact_source = None, contact_length_note
             elif t_extrap is not None:
                 _, vf_c = _follow_state(fol["kin"], [t_extrap])
@@ -671,6 +685,11 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
                                              + case["counterfactual"]["narrative"]}
             else:
                 case["verdict"] = {"value": cfv, "reason": case["counterfactual"]["narrative"]}
+        elif case["status"] == "RECONSTRUCTED_NO_INTERACTION":
+            # not a "no collision" finding: the tracker may have fused or lost vehicles
+            case["verdict"] = {"value": "NO_PAIR_RECONSTRUCTED",
+                               "reason": "no two tracked vehicles were in the same lane and closing on each other, so no "
+                                         "collision analysis was possible; the speeds of the tracked vehicles are reported"}
         elif case["status"] == "CONTACT_UNDETERMINED":
             case["verdict"] = {"value": "INSUFFICIENT_EVIDENCE", "reason": case["collision"]["source"]}
         else:

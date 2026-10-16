@@ -23,6 +23,7 @@ export const VERDICT_TEXT: Record<string, { title: string; tone: string }> = {
   ASSUMPTION_DEPENDENT: { title: "Depends on what the video cannot show", tone: "depends" },
   INSUFFICIENT_EVIDENCE: { title: "No verdict: the reconstruction was disputed", tone: "withheld" },
   NO_COLLISION_ANALYSED: { title: "No contact found while the vehicles were in view", tone: "neutral" },
+  NO_PAIR_RECONSTRUCTED: { title: "No collision analysis: no two vehicles were tracked in the same lane", tone: "neutral" },
   CONTACT_UNDETERMINED: { title: "No verdict: the footage cannot settle whether they touched", tone: "withheld" },
   NOT_RECONSTRUCTABLE: { title: "This footage cannot support measurements", tone: "withheld" },
   MOVING_CAMERA: { title: "Dashcam footage: own-vehicle speed only", tone: "neutral" },

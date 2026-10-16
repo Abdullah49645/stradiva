@@ -1,76 +1,78 @@
-# CARAI (codename) — Uncalibrated Accident-Footage Reconstruction
+# CARAI: physics from uncalibrated road footage
 
-OpenCV AI Competition 2026 submission candidate. Codename only — not final project name.
+*Codename, not the final project name.* OpenCV AI Competition 2026 entry.
 
-CARAI reconstructs vehicle motion from ordinary, uncalibrated accident footage — dashcam,
-CCTV, phone video, whatever exists — and determines, from the physics alone, whether a
-collision appears to have been avoidable. It never assigns fault: only physical facts
-(speed, gap, braking, timing) and a stated verdict about what the physics shows, not who's
-to blame. See `docs/definition_of_done.md` and `docs/week1_feasibility.md` for the original
-scope, and the docs linked below for what's actually been built and validated since.
+CARAI measures vehicle motion from ordinary, uncalibrated road footage. The
+only ruler it uses is the road's own paint. When two vehicles in the same
+lane collide, it states whether braking could have prevented contact, over
+an explicit range of reaction times and braking capabilities, and which
+assumption decides the answer. It never assigns fault. When the footage
+cannot support a claim, it says why instead of giving a number.
 
-## What makes this different from a generic CV pipeline
+**Read first:**
+* docs/technical_report.md: problem, method, OpenCV 5, AWS, limitations, responsible use.
+* docs/EVALUATION.md: how it was tested.
+* docs/EVALUATION_RESULTS.md: every number, generated from `evaluation/results/`.
 
-1. **CARAI checks itself.** A second, adversarial agent — the Skeptic — cross-examines
-   every accepted geometry/homography using evidence the primary reconstruction never looked
-   at. Not hypothetical: `docs/skeptic_agent.md` documents a real near-miss (a code change
-   that silently turned 0.03% speed error into 91%) that the Skeptic catches and the original
-   pipeline did not.
-2. **It knows what it doesn't know.** Every speed estimate ships with a calibrated 90%
-   confidence interval, not a bare number — `docs/uncertainty_calibration.md` measures actual
-   coverage against synthetic ground truth rather than asserting it.
-3. **It knows when to say no.** A dedicated reconstructability score explicitly rejects
-   footage that can't support a quantitative claim, with a stated reason — never a confident
-   wrong number.
+## What is validated, and what is not
 
-## Status
-
-Past the original Week 1–4 feasibility phases (see `docs/week1_feasibility.md` through
-`docs/week3_4_causality_assessment.md`) into an active build-out phase. Current capabilities:
-
-| Capability | Status | Doc |
+| Claim | Evidence | Status |
 |---|---|---|
-| Camera-roll active correction (not just detection) | Validated, 0.03% speed error | `docs/week2_assessment.md` |
-| Uncertainty propagation + calibrated confidence intervals | Validated (coverage measured) | `docs/uncertainty_calibration.md` |
-| Agent geometry search (neighbor-frame recovery) | Validated, measured improvement | `docs/agent_tool_upgrades.md` |
-| The Skeptic (adversarial cross-examination) | Validated against a real reverted bug | `docs/skeptic_agent.md` |
-| Multi-camera cross-examination (2 unsynchronized cameras) | Proof of concept, sync validated | `docs/multi_camera_architecture.md` |
-| Continuous-feed erratic-driving detection | Real measured 67% recall / 50% precision | `docs/erratic_driving_detection.md` |
-| AWS deployment (Lambda + API Gateway + S3 + DynamoDB) | Template + handlers tested via moto; not yet deployed live | `docs/aws_and_production_notes.md`, `docs/aws_deployment_runbook.md` |
-| COOL/Graviton benchmark | Profiled, benchmark ready, no real ARM comparison run yet | `docs/cool_graviton_assessment.md` |
-| Real (non-synthetic) footage | Harness built, no clips sourced yet | `evaluation/dataset/real/README.md` |
+| Road geometry from markings (vanishing point, closed-form horizon/roll, homography with bootstrap) | Simulator ground truth, 18-scene sweep vs v1 | Validated on simulation |
+| Collision verdicts (avoidable / not avoidable / depends) and refusals | Held-out test and shift splits, 3 layers | **Simulation only.** No legally usable real crash footage with ground truth was found. |
+| Dashcam ego speed from markings | Two real datasets, pre-registered | **Real footage.** Freeway works; a pre-registered city holdout **failed** (wrong marking prior), and a post-hoc second ruler now refuses that case. |
+| Skeptic (cross-examination) | Fault-injection benchmark with negative controls | Measured detection and false-alarm rates |
+| AWS stack | moto-mocked tests, cfn-lint | **Not deployed** from this environment (docs/aws.md) |
+| Multi-camera, erratic driving (from v1) | — | **Experimental, de-scoped** (docs/archive/README.md) |
 
-Every doc above states plainly what's validated versus what's still open — that's
-deliberate, not an oversight, and matches the project's own standard for the pipeline itself:
-never claim more confidence than the evidence supports.
-
-## Running it
+## Run it
 
 ```bash
-pip install -r requirements.txt --break-system-packages
-pip install pytest moto[s3,dynamodb] boto3 cfn-lint --break-system-packages   # test-only
+# Python 3.12+; OpenCV 5 headless, NumPy, SciPy (pinned)
+pip install -r requirements-dev.txt
 
-python3 evaluation/scripts/run_stress_tests.py               # core CV pipeline regression
-python3 evaluation/scripts/run_causality_feasibility.py       # collision + Skeptic + uncertainty demo
-python3 -m pytest tests/test_aws_handlers.py -v                # AWS logic against mocked AWS
+python3 -m pytest -q tests                       # unit, integration, AWS handlers (moto)
 
-cd frontend && npm install && npm run dev                      # web UI at localhost:3000
+# analyse a clip from the command line
+python3 -c "from backend.pipeline.analyze import analyze_video; import json; \
+print(json.dumps(analyze_video('clip.mp4'), indent=1)[:3000])"
+
+# local API (same job contract as AWS) + web UI
+uvicorn backend.api.server:app --port 8000
+cd frontend && npm ci && NEXT_PUBLIC_CARAI_API_BASE=http://localhost:8000 npm run dev   # http://localhost:3000
 ```
 
-Full command list, including the multi-camera and erratic-driving evaluation scripts and
-real AWS deployment, is in `docs/aws_deployment_runbook.md` and the scripts' own docstrings
-under `evaluation/scripts/`.
+The UI ships with case files produced by the pipeline
+(`evaluation/demo/build_cases.py`). It works without the API; the API is
+needed only to analyse your own clip.
 
-## Structure
+To rebuild every evaluation number, see docs/EVALUATION.md §7. To deploy
+to AWS, see docs/aws.md.
 
-- `backend/` — pipeline stages: video, geometry, calibration, tracking, reconstruction,
-  uncertainty, reconstructability, causality, agent (Reconstructor + Skeptic), multiview,
-  behavior (erratic-driving), reports
-- `cv/` — reusable low-level CV building blocks: lines, vanishing points, homography,
-  optical flow, tracking, roll correction
-- `evaluation/` — synthetic ground-truth dataset + generators + benchmark/evaluation scripts
-- `infrastructure/` — AWS SAM template, Lambda handlers, Dockerfile
-- `frontend/` — Next.js web UI (collision reconstruction, multi-camera, continuous
-  monitoring views)
-- `docs/` — the actual paper trail: what was built, what was measured, what was found and
-  fixed, what's still open, for every capability above
+## Repository map
+
+| Path | What |
+|---|---|
+| `backend/pipeline/analyze.py` | The v2 pipeline (ingest → geometry → tracking → kinematics → events → counterfactual → Skeptic) |
+| `backend/geometry`, `cv/geometry` | Road geometry from markings |
+| `cv/tracking/mot.py` | Background, foreground and multi-object tracking |
+| `backend/reconstruction`, `backend/causality` | Smoothing, impact and brake-onset detection, avoidance envelope |
+| `backend/verification/skeptic.py` | Cross-examination checks |
+| `backend/dashcam/ego_speed.py` | Moving-camera ego speed |
+| `backend/api/server.py`, `infrastructure/` | Local API; AWS SAM template, Lambda handlers, Dockerfile |
+| `evaluation/` | Simulator, suites, real-footage runs, results, report builder |
+| `frontend/` | Next.js case viewer and evidence pages |
+| `docs/` | Report, evaluation, architecture, AWS, assumptions, prior art, demo plan, licensing, provenance |
+
+v1 modules (`backend/agent`, `backend/api/process_video.py`,
+`backend/multiview`, `backend/behavior` and others) are kept only for the
+before/after comparison.
+
+## Licence and data
+
+Code: Apache-2.0 (`LICENSE`, `NOTICE`; see docs/licensing.md for the
+reasoning). Data: docs/data_provenance.md. One comma2k19 excerpt (MIT) is
+bundled. The comma.ai speedchallenge video was used for evaluation only and
+is not redistributed. All other footage is synthetic.
+
+Author: [Abdullah49645](https://github.com/Abdullah49645).

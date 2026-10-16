@@ -37,13 +37,28 @@ os.makedirs(OUT, exist_ok=True)
 os.makedirs(WORK, exist_ok=True)
 
 
-def to_webm(src, dst, width=960, fps=None):
+def to_webm(src, dst, width=960, fps=None, bitrate="900k"):
+    """Evidence clip for the browser (VP8 WebM). Frames are decoded with OpenCV (so the clip is exactly
+    what the pipeline read, at the frame rate it used) and piped to the ffmpeg CLI for a size-bounded
+    encode; without ffmpeg, OpenCV's own VideoWriter is used (larger files)."""
+    import shutil
+    import subprocess
     cap = cv2.VideoCapture(src)
     f0 = fps or cap.get(cv2.CAP_PROP_FPS) or 30.0
     ok, fr = cap.read()
     h0, w0 = fr.shape[:2]
     scale = width / w0
     size = (width, int(round(h0 * scale / 2) * 2))
+    if shutil.which("ffmpeg"):
+        p = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24",
+                              "-s", f"{size[0]}x{size[1]}", "-r", f"{f0}", "-i", "-", "-c:v", "libvpx",
+                              "-b:v", bitrate, "-an", dst], stdin=subprocess.PIPE)
+        while ok:
+            p.stdin.write(cv2.resize(fr, size, interpolation=cv2.INTER_AREA).tobytes())
+            ok, fr = cap.read()
+        p.stdin.close()
+        p.wait()
+        return
     wr = cv2.VideoWriter(dst, cv2.VideoWriter_fourcc(*"VP80"), f0, size)
     while ok:
         wr.write(cv2.resize(fr, size, interpolation=cv2.INTER_AREA))
@@ -149,15 +164,16 @@ def build_dashcam_real(seg_dir):
                                    "markings sliding past. Assuming freeway markings (48 ft cycle), lane width and the "
                                    "camera's documented focal length disagree with that assumption in "
                                    f"{sum('inconsistent with lane geometry' in ' '.join(w['reasons']) for w in res['windows'])} "
-                                   f"of {len(res['windows'])} windows, so CARAI refuses rather than report speeds that "
-                                   f"would be about twice too high. The lane geometry implies a marking cycle of "
+                                   f"of {len(res['windows'])} windows, so CARAI refuses rather than report speeds that, if the "
+                                   f"lane geometry is right, would be {14.63 / np.median(implied):.1f}x too high. "
+                                   f"The lane geometry implies a marking cycle of "
                                    f"{np.median(implied):.1f} m, which is a city-street pattern, not a freeway one.")},
             "input": {"file": "comma2k19 Example_1 segment 40 (video.hevc)", "fps": 20.0, "width": 1164, "height": 874,
                       "fps_note": "container reports 25 fps; sensor timestamps show 20 fps, which is used"},
             "dashcam": {"fps": 20.0, "fps_source": res["fps_source"], "prior": res["prior"],
                         "windows": [{k: w[k] for k in ("t_start_s", "t_end_s", "status", "speed_mps", "ci90_mps", "reasons", "truth_mps")}
                                     for w in res["windows"]]},
-            "provenance": {"kind": "real", "title": "Real dashcam, San Francisco",
+            "provenance": {"kind": "real", "title": "Real dashcam, California",
                            "summary": "One minute of real driving with the car's own CAN-bus speed for comparison.",
                            "source": "comma2k19 (comma.ai, MIT licence)", "license": "MIT"}}
     # a second pass with the marking cycle the lane geometry implies, shown as a comparison
@@ -176,7 +192,7 @@ def build_dashcam_real(seg_dir):
                                     "carai": f"{100 * np.median(ape):.1f} % over {len(ok2)} windows", "ok": None},
                                    {"label": "90 % intervals containing the CAN speed", "truth": "–",
                                     "carai": f"{sum(cov)} of {len(cov)}", "ok": None}]}
-    to_webm(video, os.path.join(OUT, "dashcam_real.webm"), width=960, fps=20.0)
+    to_webm(video, os.path.join(OUT, "dashcam_real.webm"), width=720, fps=20.0, bitrate="600k")
     case["video"] = "/cases/dashcam_real.webm"
     with open(os.path.join(OUT, "dashcam_real.json"), "w") as f:
         json.dump(case, f)

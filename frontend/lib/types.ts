@@ -81,7 +81,7 @@ export interface CaseFile {
   } | null;
   hazard_onset?: { source: string; t_s: number; t_lo_s?: number; t_hi_s?: number; description: string };
   follower_speed_at_hazard_onset?: { median_mps: number; ci90_mps: [number, number] } | null;
-  speeds?: { vehicle_id: number; t_ref_s: number; speed_mps: number; ci90_mps: [number, number] | null;
+  speeds?: { vehicle_id: number; t_ref_s: number; speed_mps: number; ci90_mps: [number, number] | null; withheld?: boolean; withheld_reason?: string;
              uncertainty_budget_rel_sigma?: Record<string, number | null> }[];
   counterfactual?: Counterfactual;
   skeptic?: { disputed: boolean; disputed_checks: string[]; checks: Check[]; untestable: string[] };

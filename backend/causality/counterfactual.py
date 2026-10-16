@@ -208,11 +208,14 @@ def assess(samples: List[TrajectorySample], reaction_grid=None, decel_grid=None,
                      "gap": "lead rear contact minus (follower rear contact + follower length prior)"})
 
 
+ONSET_MODEL_FLOOR_S = 0.1
+
+
 def hinge_onset(t, x, sigma_x=None, t_lo=None, t_hi=None, step=0.01, t_data_max=None):
     """Brake onset by least-squares hinge regression on RAW positions:
     x(t) = x0 + v0 (t - t0) + 0.5 a (t - t0)^2 [t > t0]. Scans t0, returns
-    the best t0 and an approximate 1-sigma interval from the profile
-    chi^2 (delta = 1). Much less lagged than thresholding a smoothed
+    the best t0 and an approximate 90 % interval from the profile chi^2
+    (delta = 2.71), widened by a model-error floor. Much less lagged than thresholding a smoothed
     acceleration."""
     t = np.asarray(t, float)
     x = np.asarray(x, float)
@@ -241,7 +244,10 @@ def hinge_onset(t, x, sigma_x=None, t_lo=None, t_hi=None, step=0.01, t_data_max=
     k = int(np.argmin(sse))
     dof = max(1, len(t) - 4)
     s2 = sse[k] / dof  # rescale chi^2 by the residual variance (robust to a mis-set sigma_x)
-    within = cands[(sse - sse[k]) / max(s2, 1e-12) <= 1.0]
+    # 90 % profile interval (delta chi^2 = 2.71 for one parameter), widened by ONSET_MODEL_FLOOR_S on each side:
+    # the hinge model (instantaneous constant deceleration) is itself an approximation of how brakes build up,
+    # and the samples feeding the verdict must not be more certain about the onset than the model is
+    within = cands[(sse - sse[k]) / max(s2, 1e-12) <= 2.71]
     # null model: one constant acceleration throughout. A gradual geometric/contact bias at long
     # range looks like gentle deceleration and is fitted just as well by the null -- then the onset
     # is NOT identified, whatever the hinge says.
@@ -250,7 +256,8 @@ def hinge_onset(t, x, sigma_x=None, t_lo=None, t_hi=None, step=0.01, t_data_max=
     c0, *_ = np.linalg.lstsq(A0 * sw[:, None], x * sw, rcond=None)
     sse0 = float(np.sum(w * (x - A0 @ c0) ** 2))
     lr = (sse0 - sse[k]) / max(s2, 1e-12)
-    return {"t0_s": float(cands[k]), "t0_lo_s": float(within.min()), "t0_hi_s": float(within.max()),
+    return {"t0_s": float(cands[k]), "t0_lo_s": float(within.min()) - ONSET_MODEL_FLOOR_S,
+            "t0_hi_s": float(within.max()) + ONSET_MODEL_FLOOR_S,
             "decel_after_mps2": float(-a_hat[k]), "lr_vs_constant_accel": float(lr),
             # a fitted deceleration beyond tyre-road limits (~1.2 g) is a measurement artefact, not a brake onset
             "identified": bool(lr > 13.8 and 1.5 < -a_hat[k] <= 12.0)}

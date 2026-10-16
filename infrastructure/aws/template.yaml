@@ -13,6 +13,11 @@ Parameters:
   MaxClipSeconds:
     Type: Number
     Default: 15
+  ProcessingArchitecture:
+    Type: String
+    Default: x86_64
+    AllowedValues: [x86_64, arm64]
+    Description: arm64 runs the processing function on Graviton (all pinned wheels exist for aarch64; not benchmarked).
 
 Globals:
   Function:
@@ -54,6 +59,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
+      Architectures: [!Ref ProcessingArchitecture]
       MemorySize: 4096
       Timeout: 900
       EphemeralStorage: {Size: 2048}

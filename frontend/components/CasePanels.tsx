@@ -65,7 +65,8 @@ export function CrossExamination({ c }: { c: CaseFile }) {
 }
 
 export function MotionChart({ c, units }: { c: CaseFile; units: Units }) {
-  const vs = c.vehicles ?? [];
+  const withheld = new Set((c.speeds ?? []).filter((s) => s.withheld).map((s) => s.vehicle_id));
+  const vs = (c.vehicles ?? []).filter((v) => !withheld.has(v.id));
   if (!vs.length) return null;
   const f = units === "metric" ? 3.6 : 2.23694;
   const names: Record<number, string> = {};
@@ -77,6 +78,8 @@ export function MotionChart({ c, units }: { c: CaseFile; units: Units }) {
   }));
   const colors = ["#2f5d8c", "#b07f00", "#9e2a2b", "#2f6b4f"];
   return (
+    <>
+    {withheld.size > 0 && <p className="small muted">{withheld.size} other vehicle{withheld.size > 1 ? "s are" : " is"} not shown: its reconstructed motion is physically impossible, which means it was mistracked.</p>}
     <div style={{ width: "100%", height: 280 }}>
       <ResponsiveContainer>
         <LineChart margin={{ top: 8, right: 16, bottom: 24, left: 0 }}>
@@ -98,6 +101,7 @@ export function MotionChart({ c, units }: { c: CaseFile; units: Units }) {
         </LineChart>
       </ResponsiveContainer>
     </div>
+    </>
   );
 }
 
@@ -127,8 +131,10 @@ export function KeyFacts({ c, units }: { c: CaseFile; units: Units }) {
   const facts: { k: string; v: string; sub?: string }[] = [];
   if (c.follower_speed_at_hazard_onset)
     facts.push({ k: "Following vehicle when the hazard began", v: speedRange(c.follower_speed_at_hazard_onset.ci90_mps, units), sub: "90 % interval" });
-  else if (c.speeds?.[0]?.ci90_mps)
-    facts.push({ k: "Vehicle speed", v: speedRange(c.speeds[0].ci90_mps, units), sub: "90 % interval" });
+  else {
+    const sp = (c.speeds ?? []).find((s) => s.ci90_mps && !s.withheld);
+    if (sp) facts.push({ k: "Vehicle speed", v: speedRange(sp.ci90_mps, units), sub: "90 % interval" });
+  }
   const cr = c.counterfactual?.critical_reaction_s?.["7"];
   if (cr) facts.push({ k: "Latest reaction that avoids contact, at 7 m/s²", v: `${cr.median_s.toFixed(2)} s`,
                        sub: `90 % interval ${cr.ci90_s[0].toFixed(2)}–${cr.ci90_s[1].toFixed(2)} s` });

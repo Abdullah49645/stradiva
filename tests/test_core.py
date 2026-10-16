@@ -178,3 +178,27 @@ def test_skeptic_kinematics_blocks_only_on_subject_vehicles():
     # no interacting pair: one bad trajectory of three is withheld, not a global dispute
     assert check_kinematics([ok, _kin(-5.0, vid=2), bad])["status"] == "ADVISORY"
     assert check_kinematics([_kin(-30.0, vid=1), _kin(-25.0, vid=2), ok])["status"] == "DISPUTE"
+
+
+# ----------------------------------------------------------------- background resolution
+
+def test_resolve_changed_regions_removes_vehicles_at_rest_and_at_start():
+    from cv.tracking.mot import resolve_changed_regions
+    rng = np.random.default_rng(5)
+    h, w, n = 120, 160, 90
+    road = np.full((h, w, 3), 80, np.uint8)
+    road[:, 78:82] = 230                                    # a lane line
+    frames = []
+    for k in range(n):
+        f = road.copy()
+        if k >= int(0.4 * n):
+            f[20:45, 20:60] = (40, 40, 190)                 # comes to rest and stays (60 % of the clip)
+        if k < int(0.6 * n):
+            f[70:95, 100:140] = (190, 160, 40)              # present at the start, leaves (60 % of the clip)
+        frames.append(np.clip(f.astype(int) + rng.normal(0, 3, f.shape), 0, 255).astype(np.uint8))
+    med = np.median(np.stack(frames), axis=0).astype(np.uint8)
+    assert np.abs(med[30, 40].astype(int) - 80).max() > 50   # the plain median keeps both vehicles
+    bg, dec = resolve_changed_regions(frames, med)
+    for (y, x) in ((30, 40), (80, 120)):
+        assert np.abs(bg[y, x].astype(int) - 80).max() < 12, (y, x, bg[y, x])
+    assert np.abs(bg[60, 80].astype(int) - 230).max() < 12   # the lane line is untouched
