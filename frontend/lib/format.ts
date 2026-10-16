@@ -22,6 +22,7 @@ export const VERDICT_TEXT: Record<string, { title: string; tone: string }> = {
   NOT_AVOIDABLE: { title: "Not avoidable under any assumption tested", tone: "unavoidable" },
   ASSUMPTION_DEPENDENT: { title: "Depends on what the video cannot show", tone: "depends" },
   INSUFFICIENT_EVIDENCE: { title: "No verdict: the reconstruction was disputed", tone: "withheld" },
+  INSUFFICIENT_EVIDENCE_OTHER: { title: "No verdict: the footage does not support one", tone: "withheld" },
   NO_COLLISION_ANALYSED: { title: "No contact found while the vehicles were in view", tone: "neutral" },
   NO_PAIR_RECONSTRUCTED: { title: "No collision analysis: no two vehicles were tracked in the same lane", tone: "neutral" },
   CONTACT_UNDETERMINED: { title: "No verdict: the footage cannot settle whether they touched", tone: "withheld" },
@@ -33,6 +34,7 @@ export function verdictKey(c: { status: string; verdict?: { value: string } }): 
   if (c.status === "NOT_RECONSTRUCTABLE" || c.status === "INVALID_INPUT") return "NOT_RECONSTRUCTABLE";
   if (c.status === "MOVING_CAMERA") return "MOVING_CAMERA";
   if (c.status === "CONTACT_UNDETERMINED") return "CONTACT_UNDETERMINED";
+  if (c.verdict?.value === "INSUFFICIENT_EVIDENCE" && c.status !== "DISPUTED") return "INSUFFICIENT_EVIDENCE_OTHER";
   return c.verdict?.value ?? "NO_COLLISION_ANALYSED";
 }
 

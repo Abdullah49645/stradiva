@@ -27,16 +27,19 @@ left at `PROCESSING`.
 
 ## Sizing (measured)
 
-Measured with `tools/timed.py` (wall time and peak RSS from `rusage`) on the
-development machine, 2 vCPU x86_64, OpenCV 5.0.0.93 headless:
+Measured by `evaluation/experiments/aws_sizing.py` (wall time and peak RSS
+of a fresh child process, from `rusage`; result in
+`evaluation/results/aws_sizing.json`) on the development machine, 2 vCPU
+x86_64, OpenCV 5.0.0.93 headless:
 
 | Input | Wall time | Peak RSS |
 |---|---|---|
-| 15 s, 1280x720, 30 fps synthetic clip, full pipeline | see `evaluation/results/aws_sizing.json` | see same |
+| 15 s, 1280x720, 30 fps synthetic clip, full pipeline (v2.1) | 24 s | 1.99 GB |
 
 Lambda allocates CPU in proportion to memory; at 4096 MB a function gets
-about 2.3 vCPUs, comparable to the machine measured. The 15 s cap
-(`MaxClipSeconds`) keeps a worst-case clip well inside the 900 s timeout.
+about 2.3 vCPUs, comparable to the machine measured. 4096 MB leaves about 2x headroom over
+the measured peak, and the 15 s cap (`MaxClipSeconds`) keeps a clip well
+inside the 900 s timeout.
 These are development-machine measurements, not Lambda measurements.
 
 ## What is verified, and how

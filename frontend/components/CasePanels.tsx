@@ -38,6 +38,9 @@ const CHECK_STATUS: Record<string, string> = {
   NOT_APPLICABLE: "Not testable here",
 };
 
+// mirrors backend/pipeline/analyze.py BLOCKING_CHECKS: a dispute on these withholds the verdict
+const BLOCKING = new Set(["held_out_markings", "temporal_stability", "marking_standard", "kinematics"]);
+
 export function CrossExamination({ c }: { c: CaseFile }) {
   const sk = c.skeptic;
   if (!sk) return null;
@@ -46,10 +49,13 @@ export function CrossExamination({ c }: { c: CaseFile }) {
       <ul className="checks">
         {sk.checks.map((k) => (
           <li key={k.check}>
-            <div><span className={`status ${checkClass(k.status)}`}>{CHECK_STATUS[k.status]}</span></div>
+            <div><span className={`status ${checkClass(k.status === "DISPUTE" && !BLOCKING.has(k.check) ? "ADVISORY" : k.status)}`}>
+              {k.status === "DISPUTE" && !BLOCKING.has(k.check) ? "Questioned" : CHECK_STATUS[k.status]}</span></div>
             <div>
               <strong>{CHECK_NAMES[k.check] ?? k.check}</strong>
               <div className="small">{k.evidence}</div>
+              {k.status === "DISPUTE" && !BLOCKING.has(k.check) &&
+                <div className="small">This check tests lateral scale only, so it does not block a verdict about speed or timing.</div>}
               <div className="small muted">Would catch: {k.catches}</div>
             </div>
           </li>
@@ -72,13 +78,16 @@ export function MotionChart({ c, units }: { c: CaseFile; units: Units }) {
   const names: Record<number, string> = {};
   if (c.collision?.follower_id != null) names[c.collision.follower_id] = "Following vehicle";
   if (c.collision?.lead_id != null) names[c.collision.lead_id] = "Lead vehicle";
+  // after a contact the two vehicles form one blob and are not reconstructed: show motion up to contact only
+  const tEnd = c.collision?.t_contact_s != null ? c.collision.t_contact_s + 0.1 : Infinity;
   const series = vs.map((v, i) => ({
     name: names[v.id] ?? `Vehicle ${i + 1}`,
-    data: v.t_s.map((t, k) => ({ t: +t.toFixed(3), v: Math.abs(v.v_mps[k]) * f })),
+    data: v.t_s.map((t, k) => ({ t: +t.toFixed(3), v: Math.abs(v.v_mps[k]) * f })).filter((p) => p.t <= tEnd),
   }));
   const colors = ["#2f5d8c", "#b07f00", "#9e2a2b", "#2f6b4f"];
   return (
     <>
+    {Number.isFinite(tEnd) && <p className="small muted">Shown up to the contact; afterwards the vehicles move as one shape and are not reconstructed.</p>}
     {withheld.size > 0 && <p className="small muted">{withheld.size} other vehicle{withheld.size > 1 ? "s are" : " is"} not shown: its reconstructed motion is physically impossible, which means it was mistracked.</p>}
     <div style={{ width: "100%", height: 280 }}>
       <ResponsiveContainer>
@@ -129,6 +138,9 @@ export function Validation({ c }: { c: CaseFile }) {
 
 export function KeyFacts({ c, units }: { c: CaseFile; units: Units }) {
   const facts: { k: string; v: string; sub?: string }[] = [];
+  if (c.status === "DISPUTED")
+    return <p className="small muted">Measured values are withheld from this summary because the cross-examination disputed the
+      reconstruction. They remain in the panels below for review.</p>;
   if (c.follower_speed_at_hazard_onset)
     facts.push({ k: "Following vehicle when the hazard began", v: speedRange(c.follower_speed_at_hazard_onset.ci90_mps, units), sub: "90 % interval" });
   else {

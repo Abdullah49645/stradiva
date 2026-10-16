@@ -2,8 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   CARAI - one upload API, one container-image processing function, one bucket, one jobs table.
-  Sized from a measured run (docs/aws.md): a 15 s 720p clip peaked at 2.2 GB RSS and took
-  about 50 s on 2 vCPUs, which fits one Lambda invocation; no queues, step functions or ECS.
+  Sized from a measured run (docs/aws.md): a 15 s 720p clip peaked at 2.0 GB RSS and took
+  about 25 s on 2 vCPUs (development machine), which fits one Lambda invocation; no queues,
+  step functions or ECS.
 
 Parameters:
   AllowedOrigin:

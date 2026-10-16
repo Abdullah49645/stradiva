@@ -1,7 +1,7 @@
 "use client";
 
 import { CaseFile } from "@/lib/types";
-import { Units, VERDICT_TEXT, verdictKey } from "@/lib/format";
+import { CHECK_NAMES, Units, VERDICT_TEXT, verdictKey } from "@/lib/format";
 import EvidencePlayer from "./EvidencePlayer";
 import EnvelopeMap from "./EnvelopeMap";
 import DashcamPanel from "./DashcamPanel";
@@ -10,10 +10,12 @@ import { CrossExamination, Establishes, KeyFacts, MotionChart, Validation } from
 export default function CaseView({ c, live, units }: { c: CaseFile; live: boolean; units: Units }) {
   const key = verdictKey(c);
   const v = VERDICT_TEXT[key] ?? { title: key, tone: "neutral" };
-  const reason =
+  let reason =
     c.status === "NOT_RECONSTRUCTABLE" || c.status === "INVALID_INPUT"
       ? (c.reasons ?? []).join(" ")
       : c.verdict?.reason ?? "";
+  for (const [id, name] of Object.entries(CHECK_NAMES)) reason = reason.split(id).join(`“${name.toLowerCase()}”`);
+  reason = reason.charAt(0).toUpperCase() + reason.slice(1);
   const prov = live ? "live" : c.provenance?.kind === "real" ? "real" : "";
   const provText = live
     ? "Analysed just now by the CARAI service"

@@ -28,7 +28,7 @@ upload separately (below) and cut it in only if it works.
 
 Upload `evaluation/_sim_cache/demo/rear_end_roadside.mp4` in the "Analyse your
 own clip" panel. Show the job going `PENDING → PROCESSING → RECONSTRUCTED_COLLISION`.
-Processing takes about a minute on Lambda (estimated from local
+Processing should take under a minute on Lambda (estimated from local
 measurements, see docs/aws.md), so cut the wait in the edit.
 
 ## Backup plan
