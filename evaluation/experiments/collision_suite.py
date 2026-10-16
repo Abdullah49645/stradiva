@@ -44,7 +44,9 @@ ASSUMED_EDGE = 1.85
 # ----------------------------------------------------------------- sampler --
 
 def sample_scenario(split, i):
-    base = {"dev": 1000, "test": 5000, "shift": 9000}[split]
+    # test2: a second held-out split with the test distribution, added (and committed) AFTER the eval-freeze
+    # run and BEFORE any post-freeze change is evaluated on it -- see docs/EVALUATION.md section 6
+    base = {"dev": 1000, "test": 5000, "shift": 9000, "test2": 13000}[split]
     seed = base + i
     rng = np.random.default_rng(seed)
     hard = split == "shift"
