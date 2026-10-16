@@ -176,13 +176,41 @@ def gt_observable(gt, sc, t_event):
     return ok
 
 
+def event_resolution(gt, sc, t_event):
+    """Ground truth only (for stratifying results, never used by CARAI):
+    along-road metres covered by one image row at the follower's visible
+    ground contact at the event time (collision, else closest approach),
+    and the follower's distance from the camera there."""
+    fr = gt["frames"]
+    if t_event is None:     # closest approach of the pair
+        d = [abs(f["vehicles"]["lead"]["x_m"] - f["vehicles"]["follow"]["x_m"]) for f in fr]
+        k = int(np.argmin(d))
+    else:
+        k = min(len(fr) - 1, int(round(t_event * gt["fps"])))
+    fv = fr[k]["vehicles"]["follow"]
+    uv = np.array(fv["rear_contact_uv" if sc.vehicles[[v.vid for v in sc.vehicles].index("follow")].direction > 0
+                     else "front_contact_uv"], float)
+    if not np.isfinite(uv).all():
+        return None
+    Hinv = np.linalg.inv(np.array(gt["true_world_to_image_H_at_t0"]))
+    def road(p):
+        q = Hinv @ np.array([p[0], p[1], 1.0])
+        return q[:2] / q[2]
+    m_per_row = float(np.linalg.norm(road(uv + [0, 0.5]) - road(uv - [0, 0.5])))
+    return {"m_per_px_along_road": m_per_row, "range_m": float(abs(fv["x_m"] - sc.camera.x_m))}
+
+
 NO_VERDICT = {"NOT_RECONSTRUCTABLE", "INSUFFICIENT_EVIDENCE", "NO_COLLISION_ANALYSED"}
+CONTACT_TIME_TOL_S = 0.3     # a reported contact more than this far from the true one is a different event
 
 
 def outcome(row):
     """Scoring categories:
     correct / correct_abstention / abstained / overconfident / catastrophic /
-    false_collision (contact reported where none happened) / missed_no_collision."""
+    false_collision (contact reported where none happened) /
+    missed_collision (a visible collision reported as "no contact found") /
+    missed_unobservable (an off-screen collision reported as "no contact found") /
+    wrong_contact_time (a verdict whose reported contact is > CONTACT_TIME_TOL_S from the true one)."""
     v = row.get("carai_verdict")
     gtv = row["gt"]["verdict"]
     if row.get("gt_collision_t_s") is None:                 # nothing happened
@@ -190,7 +218,15 @@ def outcome(row):
             return "false_collision"
         return "correct" if v == "NO_COLLISION_ANALYSED" else "abstained"
     if not row.get("gt_observable", True):                  # the event is off-screen
+        if v == "NO_COLLISION_ANALYSED":
+            return "missed_unobservable"                     # said "no contact found" -- true of the footage, still a miss
         return "correct_abstention" if v in NO_VERDICT else ("catastrophic" if v in ("AVOIDABLE", "NOT_AVOIDABLE") else "qualified_unobservable")
+    if v == "NO_COLLISION_ANALYSED":
+        return "missed_collision"                            # a visible collision reported as no contact
+    tc = row.get("carai_contact_t_s")
+    if v in ("AVOIDABLE", "NOT_AVOIDABLE", "ASSUMPTION_DEPENDENT") and tc is not None \
+            and abs(tc - row["gt_collision_t_s"]) > CONTACT_TIME_TOL_S:
+        return "wrong_contact_time"                          # a verdict about a contact that is not the real one
     if v in NO_VERDICT or v is None:
         return "abstained"
     return classify(v, gtv)
@@ -209,8 +245,8 @@ def classify(carai_verdict, gt_verdict):
 
 def oracle_tracks(gt, sc, occluded, rng, sigma_px=0.7):
     """Tracks built from GROUND-TRUTH ground-contact points (+ pixel noise) in
-    the pipeline's own record format. 'occluded': the lead is unmeasured in
-    frames where the follower's true box overlaps it (what a camera sees)."""
+    the pipeline's own record format. 'occluded': the vehicle farther from the camera is unmeasured in
+    frames where the nearer vehicle's true box overlaps it (what a camera sees)."""
     vids = [v.vid for v in sc.vehicles]
     dirs = {v.vid: v.direction for v in sc.vehicles}
     tracks = []
@@ -225,8 +261,11 @@ def oracle_tracks(gt, sc, occluded, rng, sigma_px=0.7):
             if not (0 < uv[0] < sc.camera.image_w - 2 and 0 < uv[1] < sc.camera.image_h - 2):
                 continue
             status = "MEASURED"
-            if occluded and vid == "lead":
-                o = f["vehicles"]["follow"]["bbox"]
+            # the vehicle FARTHER from the camera is the one that gets hidden: the lead when traffic recedes
+            # (direction +1), the follower when it approaches (direction -1)
+            far_vid = "lead" if dirs["lead"] > 0 else "follow"
+            if occluded and vid == far_vid:
+                o = f["vehicles"]["follow" if far_vid == "lead" else "lead"]["bbox"]
                 if o is not None:
                     ix = max(0, min(x + bw, o[0] + o[2]) - max(x, o[0]))
                     iy = max(0, min(y + bh, o[1] + o[3]) - max(y, o[1]))
@@ -284,6 +323,10 @@ def score_case(row, case, gt, sc, meta):
         row["point_assumption_verdict"] = "AVOIDABLE" if p >= 0.5 else "NOT_AVOIDABLE"
     row["follower_speed_at_onset"] = case.get("follower_speed_at_hazard_onset")
     row["gt_observable"] = gt_observable(gt, sc, row.get("gt_collision_t_s"))
+    try:
+        row["event_resolution"] = event_resolution(gt, sc, row.get("gt_collision_t_s"))
+    except Exception:  # noqa: BLE001 -- stratification only
+        row["event_resolution"] = None
     row["outcome"] = outcome(row)
     return row
 
@@ -324,6 +367,8 @@ def run_one(args):
         row["true_roll_deg"] = sc.camera.roll_deg
         # legacy pipeline on the same clip (ablation)
         try:
+            if os.environ.get("CARAI_SKIP_LEGACY"):
+                raise RuntimeError("skipped (--no-legacy)")
             from backend.api.process_video import process_video as legacy
             t0 = time.time()
             lr, _ = legacy(vp)
@@ -344,9 +389,13 @@ def main():
     ap.add_argument("--start", type=int, default=0)
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--mode", default="e2e", choices=["e2e", "oracle_clean", "oracle_occluded"])
+    ap.add_argument("--out", default=None, help="results file (default: evaluation/results/collision_suite_<split>[_<mode>].jsonl)")
+    ap.add_argument("--no-legacy", action="store_true", help="skip the v1-pipeline ablation (faster)")
     args = ap.parse_args()
+    if args.no_legacy:
+        os.environ["CARAI_SKIP_LEGACY"] = "1"
     suffix = "" if args.mode == "e2e" else f"_{args.mode}"
-    out = os.path.join(RESULTS_DIR, f"collision_suite_{args.split}{suffix}.jsonl")
+    out = args.out or os.path.join(RESULTS_DIR, f"collision_suite_{args.split}{suffix}.jsonl")
     done = set()
     if os.path.exists(out):
         with open(out) as f:

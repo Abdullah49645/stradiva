@@ -93,8 +93,8 @@ async def upload(job_id: str, request: Request):
     job = JOBS.get(job_id)
     if job is None:
         raise HTTPException(404, "job not found")
-    if job["status"] != "PENDING":
-        raise HTTPException(409, f"job already {job['status']} (uploads are accepted once)")
+    if job["status"] != "PENDING" or job.get("stage") != "awaiting upload":
+        raise HTTPException(409, f"job already {job.get('stage') or job['status']} (uploads are accepted once)")
     data = await request.body()
     if not data:
         raise HTTPException(400, "empty upload")

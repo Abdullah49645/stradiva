@@ -10,7 +10,7 @@ also disputed a correct reconstruction (3.6 % speed error), and its single
 validation was one reverted bug on one scene.
 
 Each v2 check names the failure it can catch and the evidence it uses.
-Each returns {check, status: PASS | DISPUTE | NOT_APPLICABLE, statistic,
+Each returns {check, status: PASS | DISPUTE | ADVISORY | NOT_APPLICABLE, statistic,
 threshold, evidence, catches}.
 
   held_out_markings   leave-one-dash-out prediction of each dash centre
@@ -35,8 +35,12 @@ threshold, evidence, catches}.
                       saw. Tests the lateral scale and perspective, NOT the
                       longitudinal (speed) scale.
   kinematics          reconstructed pre-impact speeds and accelerations
-                      must be physically possible (|a| <= 10 m/s^2,
-                      v <= 70 m/s). Catches gross scale or tracking errors.
+                      must be physically possible (lower 2-sigma bound of
+                      |a| averaged over 0.4 s <= 12 m/s^2, of v <= 70 m/s),
+                      per vehicle.
+                      Catches gross scale or tracking errors. Blocks only
+                      when a vehicle the verdict rests on fails; a failing
+                      bystander has its speeds withheld (ADVISORY).
 
 What no check here can establish: the true length of the marking cycle. On
 a static camera looking along the road it fixes the speed scale and is not
@@ -166,21 +170,64 @@ def check_vehicle_width(geo: RoadGeometry, tracks_spans):
                    {"width_range_m": list(THRESH["width_range_m"]), "drift_rel": THRESH["width_drift_rel"]}, ev, catches)
 
 
-def check_kinematics(kins):
+ACCEL_WINDOW_S = 0.4
+
+
+def _windowed_accel_lower_bound(t, v, sv, win=ACCEL_WINDOW_S):
+    if len(t) < 3 or t[-1] - t[0] < win:
+        return float(np.max(np.abs(np.diff(v) / np.maximum(np.diff(t), 1e-6)))) if len(t) > 1 else 0.0
+    j = np.searchsorted(t, t + win)
+    ok = j < len(t)
+    i, j = np.where(ok)[0], j[ok]
+    dt = t[j] - t[i]
+    a = (v[j] - v[i]) / dt
+    sa = np.sqrt(sv[i] ** 2 + sv[j] ** 2) / dt
+    return float(np.max(np.abs(a) - 2 * sa))
+
+
+def check_kinematics(kins, subjects=None):
+    """kins: per vehicle, smoothed kinematics (dict with t, v, a, sv, sa and
+    optionally 'vehicle_id'). subjects: ids of the vehicles the verdict rests
+    on (follower and lead), or None when there is no interacting pair.
+
+    Per-vehicle test. A physically impossible trajectory of a BYSTANDER
+    vehicle is a tracking failure on that vehicle: its speeds are withheld
+    (status ADVISORY), but it does not block a verdict about two other
+    vehicles. A failure of a subject vehicle blocks (DISPUTE). With no pair,
+    the check disputes only if most trajectories fail (a global scale error
+    moves all of them; the geometry checks cover that case independently)."""
     catches = "gross scale or tracking errors"
     if not kins:
         return _result("kinematics", "NOT_APPLICABLE", None, None, "no trajectories", catches)
-    # lower confidence bound: a smoother can overshoot at a sharp brake onset; only flag what is
-    # implausible even after allowing two standard deviations
-    worst_a = max(float(np.max(np.abs(k["a"]) - 2 * k["sa"])) for k in kins)
-    worst_v = max(float(np.max(np.abs(k["v"]) - 2 * k["sv"])) for k in kins)
-    bad = worst_a > THRESH["max_decel_mps2"] or worst_v > THRESH["max_speed_mps"]
-    return _result("kinematics", "DISPUTE" if bad else "PASS", {"max_abs_accel_mps2": worst_a, "max_speed_mps": worst_v},
-                   {"max_abs_accel_mps2": THRESH["max_decel_mps2"], "max_speed_mps": THRESH["max_speed_mps"]},
-                   f"largest reconstructed |acceleration| {worst_a:.1f} m/s^2, top speed {worst_v:.1f} m/s (pre-impact)", catches)
+    per = []
+    for n, k in enumerate(kins):
+        # acceleration AVERAGED over ACCEL_WINDOW_S (speed change / time), lower 2-sigma bound: a smoother
+        # overshoots for a frame or two at a sharp brake onset or at the end of a track, which is not
+        # evidence of impossible motion; a wrong scale or a tracking jump moves the average too
+        a = _windowed_accel_lower_bound(np.asarray(k["t"]), np.asarray(k["v"]), np.asarray(k["sv"]))
+        v = float(np.max(np.abs(k["v"]) - 2 * k["sv"]))
+        per.append({"vehicle_id": k.get("vehicle_id", n), "max_abs_accel_mps2": a, "max_speed_mps": v,
+                    "plausible": not (a > THRESH["max_decel_mps2"] or v > THRESH["max_speed_mps"])})
+    bad = [p for p in per if not p["plausible"]]
+    if subjects is not None:
+        bad_subj = [p for p in bad if p["vehicle_id"] in subjects]
+        status = "DISPUTE" if bad_subj else ("ADVISORY" if bad else "PASS")
+    else:
+        status = "DISPUTE" if len(bad) > len(per) / 2 else ("ADVISORY" if bad else "PASS")
+    worst_a = max(p["max_abs_accel_mps2"] for p in per)
+    worst_v = max(p["max_speed_mps"] for p in per)
+    ev = "; ".join(f"vehicle {p['vehicle_id']}{' (subject)' if subjects and p['vehicle_id'] in subjects else ''}: "
+                   f"|a| {p['max_abs_accel_mps2']:.1f} m/s^2, v {p['max_speed_mps']:.1f} m/s"
+                   f"{'' if p['plausible'] else ' -- implausible'}" for p in per)
+    res = _result("kinematics", status, {"max_abs_accel_mps2": worst_a, "max_speed_mps": worst_v, "vehicles": per},
+                  {"max_abs_accel_mps2": THRESH["max_decel_mps2"], "max_speed_mps": THRESH["max_speed_mps"]},
+                  ev + " (pre-impact, lower 2-sigma bounds)", catches)
+    res["withheld_vehicles"] = [p["vehicle_id"] for p in bad]
+    return res
 
 
-def cross_examine(frames, geo: RoadGeometry, prior: RoadPrior, tracks_boxes, kins, probe_uv, enabled=None):
+def cross_examine(frames, geo: RoadGeometry, prior: RoadPrior, tracks_boxes, kins, probe_uv, enabled=None,
+                  subjects=None):
     enabled = enabled or ["held_out_markings", "temporal_stability", "marking_standard", "vehicle_width", "kinematics"]
     out = []
     if "held_out_markings" in enabled:
@@ -192,7 +239,7 @@ def cross_examine(frames, geo: RoadGeometry, prior: RoadPrior, tracks_boxes, kin
     if "vehicle_width" in enabled:
         out.append(check_vehicle_width(geo, tracks_boxes))
     if "kinematics" in enabled:
-        out.append(check_kinematics(kins))
+        out.append(check_kinematics(kins, subjects))
     disputed = [c["check"] for c in out if c["status"] == "DISPUTE"]
     return {"disputed": bool(disputed), "disputed_checks": disputed, "checks": out,
             "untestable": ["marking cycle length (longitudinal / speed scale): a stated prior, not verifiable "

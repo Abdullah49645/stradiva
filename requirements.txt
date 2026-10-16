@@ -1,5 +1,4 @@
+# Runtime dependencies of the analysis pipeline (also installed into the Lambda image).
 opencv-python-headless==5.0.0.93
 numpy==2.4.4
-scipy>=1.13
-pandas>=2.2
-matplotlib>=3.9
+scipy==1.18.1

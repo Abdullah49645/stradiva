@@ -100,6 +100,8 @@ def speed_errors(case, gt):
     T = np.array([f["t_s"] for f in gt["frames"]])
     fps_true = gt["fps"]
     for sp in case.get("speeds") or []:
+        if sp.get("withheld"):
+            continue            # not reported as a measurement (bystander with implausible motion)
         veh = next((v for v in case.get("vehicles", []) if v["id"] == sp["vehicle_id"]), None)
         if veh is None:
             continue
@@ -201,7 +203,9 @@ def summarise(rows):
                 per.setdefault(c, 0)
                 per[c] += st == "DISPUTE"
         errs = [r["worst_speed_rel_error"] for r in rs if r["worst_speed_rel_error"] is not None]
+        k_b = sum(r["blocking_dispute"] or r["rejected"] for r in rs)
         out[fault] = {"n": n, "flagged_or_rejected": k_d, "flag_rate_ci90": wilson_interval(k_d, n),
+                      "blocked_or_rejected": k_b, "block_rate_ci90": wilson_interval(k_b, n),
                       "silent_failures": k_s, "per_check_disputes": per,
                       "median_worst_speed_err": float(np.median(errs)) if errs else None}
     return out

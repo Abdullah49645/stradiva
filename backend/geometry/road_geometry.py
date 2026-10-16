@@ -225,6 +225,30 @@ def _fit_dash_index(dash_runs, prior: RoadPrior, cfg: GeometryConfig):
             "X_range": [float(k.min() * P), float(k.max() * P + L)]}
 
 
+def _duty_on_line_axis(gray, vp, angle_deg, d_range, fit, prior: RoadPrior):
+    """Dash duty cycle (dash length / cycle) measured on the refined line's
+    AXIS only. The detection strip is wide (it must tolerate an imprecise
+    line) and takes the maximum across it; a dash end crosses that strip
+    obliquely, so the wide strip lengthens every dash by a perspective-
+    dependent amount and inflates the duty cycle, most for near dashes and
+    yawed cameras. A 1-2 px wide sample along the sub-pixel axis does not.
+    Nearer half of the dashes (least blur in s). None if < 2 usable dashes."""
+    dmin, dmax = d_range
+    maps = strip_along_line(vp, angle_deg, dmin, dmax, n_samples=2048, half_width_frac=0.002, n_perp=3, min_half_px=0.6)
+    prof = sample_strip(gray, maps, reduce="mean")
+    runs, lo, hi = _profile_runs(prof, maps[2])
+    if not runs or not fit.get("b"):
+        return None
+    period_s = abs(fit["b"] * prior.cycle_m)
+    lens = sorted(((r[0] + r[1]) / 2.0, r[1] - r[0]) for r in runs)
+    expected = prior.dash_len_m / prior.cycle_m * period_s
+    lens = [ln for c, ln in lens if 0.3 * expected < ln < 2.5 * expected]   # whole dashes only
+    if len(lens) < 2:
+        return None
+    near = lens[: max(2, len(lens) // 2)]
+    return float(np.median(near) / period_s)
+
+
 def refine_line(gray, vp, angle_deg, d_min, d_max, n=90):
     """Sub-pixel stripe-centre points along a candidate line, then a robust
     (Huber) cv2.fitLine. Returns (point, unit_direction_pointing_down, rms_px, n_pts) or None."""
@@ -383,8 +407,10 @@ def estimate_road_geometry(frames, prior: RoadPrior = None, cfg: GeometryConfig 
         return geo
     geo.dashes = [{"s_near": r[0], "s_far": r[1], "k": int(k)} for r, k in zip(fit["runs"], fit["k"])]
     geo.s_affine = [fit["a"], fit["b"]]
+    duty_narrow = _duty_on_line_axis(gray, vp, angs["centre"], centre["d_range"], fit, prior)
     geo.diagnostics.update({"dash_resid_px_rms": fit["resid_px_rms"], "dash_resid_px_max": fit["resid_px_max"],
-                            "duty_measured": fit["duty_measured"], "duty_prior": fit["duty_prior"],
+                            "duty_measured": duty_narrow if duty_narrow is not None else fit["duty_measured"],
+                            "duty_measured_wide_strip": fit["duty_measured"], "duty_prior": fit["duty_prior"],
                             "n_dashes": len(fit["runs"])})
     if fit["resid_px_rms"] > cfg.max_dash_resid_px:
         geo.reasons.append(f"dash centres are not equally spaced along the line (RMS residual {fit['resid_px_rms']:.1f}px): "

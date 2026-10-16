@@ -1,0 +1,27 @@
+CARAI
+Copyright 2026 the CARAI authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party software (used as dependencies, not vendored):
+  OpenCV (opencv-python-headless 5.0.0.93) ........ Apache-2.0
+  NumPy 2.4.4 ..................................... BSD-3-Clause (and bundled permissive licences)
+  SciPy 1.18.1 .................................... BSD-3-Clause
+  FastAPI, Uvicorn, httpx, pytest (dev/local API) . MIT / BSD-3-Clause
+  boto3, moto (AWS handlers, tests) ............... Apache-2.0
+  matplotlib (evaluation plots) ................... PSF-style matplotlib licence
+  Next.js, React, Recharts, Tailwind CSS (UI) ..... MIT
+  Overpass, IBM Plex Sans fonts (via @fontsource) . SIL Open Font License 1.1
+
+Third-party data (see docs/data_provenance.md):
+  frontend/public/cases/dashcam_real.* contains frames re-encoded from one
+  segment of the comma2k19 dataset, https://github.com/commaai/comma2k19,
+  used under the MIT License, Copyright (c) 2018 comma.ai; the full licence
+  text is in licenses/comma2k19-MIT.txt.
+
+  The comma.ai speedchallenge video (https://github.com/commaai/speedchallenge)
+  was used for evaluation only. That repository carries no licence file, so
+  it is NOT redistributed here; evaluation/real/fetch_comma.sh downloads it.
+
+All other footage in this repository is synthetic, rendered by
+evaluation/sim/world.py.

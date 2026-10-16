@@ -1,0 +1,465 @@
+{
+ "title": "Real dashcam footage",
+ "intro": "",
+ "blocks": [
+  {
+   "title": "Two real datasets, tested under written pre-registrations",
+   "text": "Own-vehicle speed from lane markings on real dashcam footage, compared with the speed the car itself recorded. The protocol, metrics and marking prior were committed before any real frame was analysed (evaluation/real/PREREGISTRATION*.md). The second dataset was an independent holdout. It failed, and the failure is shown first."
+  },
+  {
+   "title": "Holdout numbers",
+   "table": {
+    "columns": [
+     "Run",
+     "2 s windows",
+     "answered",
+     "median |error|",
+     "90 % interval coverage"
+    ],
+    "rows": [
+     [
+      "Pre-registered (container fps 25, unverified)",
+      24,
+      16,
+      "159 %",
+      "0 %"
+     ],
+     [
+      "Pre-registered (sensor-timestamp fps 20)",
+      30,
+      16,
+      "109 %",
+      "0 %"
+     ],
+     [
+      "Post hoc: + lane-width scale check, freeway prior",
+      30,
+      0,
+      "\u2013",
+      "\u2013"
+     ],
+     [
+      "Post hoc: + scale check, city 24 ft prior",
+      30,
+      19,
+      "4.4 %",
+      "84 %"
+     ]
+    ]
+   },
+   "callout": {
+    "tone": "stop",
+    "text": "The pre-registered holdout failed: 16 confident answers, all about 2x too high. Cause: the marking standard is the speed scale and was wrong for a city street. The scale cross-check that now refuses this case was added afterwards."
+   }
+  },
+  {
+   "title": "comma.ai speed challenge (17 minutes, freeway then city)",
+   "text": "Used for evaluation only; the video has no licence file, so it is not redistributed and not plotted here. Freeway prior (Caltrans 12 ft + 36 ft). CARAI answers only a minority of windows. On the freeway the answers are accurate, with interval coverage close to the nominal 90 %. In the city the prior is wrong and the few answers are wrong.",
+   "table": {
+    "columns": [
+     "Run",
+     "Segment",
+     "windows",
+     "answered",
+     "median |error|",
+     "90th pct |error|",
+     "90 % coverage"
+    ],
+    "rows": [
+     [
+      "Pre-registered",
+      "freeway (frames < 9000)",
+      225,
+      49,
+      "2.3 %",
+      "7.3 %",
+      "90 %"
+     ],
+     [
+      "Pre-registered",
+      "city (frames >= 9000)",
+      285,
+      5,
+      "78.3 %",
+      "117.0 %",
+      "20 %"
+     ],
+     [
+      "Post hoc v2 (duty + continuity checks)",
+      "freeway (frames < 9000)",
+      225,
+      47,
+      "2.3 %",
+      "6.0 %",
+      "91 %"
+     ],
+     [
+      "Post hoc v2 (duty + continuity checks)",
+      "city (frames >= 9000)",
+      285,
+      3,
+      "78.3 %",
+      "91.6 %",
+      "0 %"
+     ]
+    ]
+   }
+  },
+  {
+   "title": "Synthetic development set (before any real footage)",
+   "text": "18 of 30 windows answered; median |error| 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 2bf75b9)."
+  }
+ ],
+ "series": {
+  "title": "Holdout: comma2k19 segment (city street, MIT licence)",
+  "x_label": "seconds into the segment",
+  "note": "Red: the pre-registered run. The freeway marking standard was wrong for this street, so every speed is about twice the truth with tight intervals. Blue: after the post-hoc fix, a second ruler (lane width x focal length) rejects the freeway standard; rerun with the 24 ft city standard it implies. Choosing that standard after seeing the data makes the blue points a demonstration, not a validation.",
+  "truth": [
+   {
+    "t": 0.0,
+    "v": 9.539743567086253
+   },
+   {
+    "t": 2.0,
+    "v": 12.032439859190239
+   },
+   {
+    "t": 4.0,
+    "v": 14.60125279436192
+   },
+   {
+    "t": 6.0,
+    "v": 17.549526531598623
+   },
+   {
+    "t": 8.0,
+    "v": 19.555750941243865
+   },
+   {
+    "t": 10.0,
+    "v": 19.718587652026592
+   },
+   {
+    "t": 12.0,
+    "v": 19.359267235616255
+   },
+   {
+    "t": 14.0,
+    "v": 19.000422645469307
+   },
+   {
+    "t": 16.0,
+    "v": 18.662052556436873
+   },
+   {
+    "t": 18.0,
+    "v": 18.56013872456895
+   },
+   {
+    "t": 20.0,
+    "v": 18.804059467171886
+   },
+   {
+    "t": 22.0,
+    "v": 18.835934359845936
+   },
+   {
+    "t": 24.0,
+    "v": 17.89889929115535
+   },
+   {
+    "t": 26.0,
+    "v": 17.49942367641705
+   },
+   {
+    "t": 28.0,
+    "v": 17.220542110621114
+   },
+   {
+    "t": 30.0,
+    "v": 15.876706986195359
+   },
+   {
+    "t": 32.0,
+    "v": 14.091028532123588
+   },
+   {
+    "t": 34.0,
+    "v": 13.836831119423977
+   },
+   {
+    "t": 36.0,
+    "v": 14.321960337145914
+   },
+   {
+    "t": 38.0,
+    "v": 15.727420089560685
+   },
+   {
+    "t": 40.0,
+    "v": 17.04306687399197
+   },
+   {
+    "t": 42.0,
+    "v": 17.484063044765172
+   },
+   {
+    "t": 44.0,
+    "v": 17.552410019090495
+   },
+   {
+    "t": 46.0,
+    "v": 17.668236853303434
+   },
+   {
+    "t": 48.0,
+    "v": 17.836251671666293
+   },
+   {
+    "t": 50.0,
+    "v": 17.715518381208234
+   },
+   {
+    "t": 52.0,
+    "v": 17.301833443065085
+   },
+   {
+    "t": 54.0,
+    "v": 17.007380595140145
+   },
+   {
+    "t": 56.0,
+    "v": 16.15906171941814
+   },
+   {
+    "t": 58.0,
+    "v": 13.411354024205474
+   }
+  ],
+  "estimates": [
+   {
+    "name": "Pre-registered (freeway 48 ft prior): wrong standard, 2x too fast",
+    "color": "#9e2a2b",
+    "points": [
+     {
+      "t": 10.0,
+      "est": 41.653473517560336,
+      "lo": 39.303206735471775,
+      "hi": 44.003740299648896
+     },
+     {
+      "t": 16.0,
+      "est": 39.02367377915422,
+      "lo": 37.00180062791774,
+      "hi": 41.04554693039071
+     },
+     {
+      "t": 18.0,
+      "est": 38.993612916982116,
+      "lo": 36.77475660190764,
+      "hi": 41.21246923205659
+     },
+     {
+      "t": 22.0,
+      "est": 38.71378584356694,
+      "lo": 36.72242915771607,
+      "hi": 40.705142529417806
+     },
+     {
+      "t": 24.0,
+      "est": 38.23773243158788,
+      "lo": 35.62612021073599,
+      "hi": 40.84934465243977
+     },
+     {
+      "t": 26.0,
+      "est": 36.52891054211919,
+      "lo": 34.68989288953588,
+      "hi": 38.36792819470251
+     },
+     {
+      "t": 28.0,
+      "est": 34.9629654854609,
+      "lo": 32.99114300604845,
+      "hi": 36.934787964873344
+     },
+     {
+      "t": 32.0,
+      "est": 29.606341709719292,
+      "lo": 27.916456607911854,
+      "hi": 31.29622681152673
+     },
+     {
+      "t": 34.0,
+      "est": 30.64043187043398,
+      "lo": 28.931700593109635,
+      "hi": 32.34916314775832
+     },
+     {
+      "t": 42.0,
+      "est": 35.9508696097761,
+      "lo": 34.1379090015953,
+      "hi": 37.7638302179569
+     },
+     {
+      "t": 44.0,
+      "est": 36.70852009559192,
+      "lo": 34.85386946163567,
+      "hi": 38.563170729548176
+     },
+     {
+      "t": 46.0,
+      "est": 36.63556391900962,
+      "lo": 34.79587428196584,
+      "hi": 38.4752535560534
+     },
+     {
+      "t": 48.0,
+      "est": 36.15226225686665,
+      "lo": 34.32257366893572,
+      "hi": 37.98195084479758
+     },
+     {
+      "t": 50.0,
+      "est": 37.00477932507961,
+      "lo": 35.16112325563502,
+      "hi": 38.8484353945242
+     },
+     {
+      "t": 52.0,
+      "est": 35.29919470528722,
+      "lo": 33.499373661472454,
+      "hi": 37.09901574910199
+     },
+     {
+      "t": 56.0,
+      "est": 34.97367897195509,
+      "lo": 33.01167820858147,
+      "hi": 36.935679735328705
+     }
+    ]
+   },
+   {
+    "name": "Post hoc, with the city 24 ft standard the scale check points to",
+    "color": "#2f5d8c",
+    "points": [
+     {
+      "t": 0.0,
+      "est": 9.485666038227563,
+      "lo": 8.853945739921627,
+      "hi": 10.1173863365335
+     },
+     {
+      "t": 2.0,
+      "est": 12.919798206583003,
+      "lo": 12.242740015176677,
+      "hi": 13.59685639798933
+     },
+     {
+      "t": 10.0,
+      "est": 20.826736758780168,
+      "lo": 19.651603367735888,
+      "hi": 22.001870149824448
+     },
+     {
+      "t": 16.0,
+      "est": 19.51183688957711,
+      "lo": 18.50090031395887,
+      "hi": 20.522773465195353
+     },
+     {
+      "t": 18.0,
+      "est": 19.496806458491058,
+      "lo": 18.38737830095382,
+      "hi": 20.606234616028296
+     },
+     {
+      "t": 22.0,
+      "est": 19.35689292178347,
+      "lo": 18.361214578858036,
+      "hi": 20.352571264708903
+     },
+     {
+      "t": 24.0,
+      "est": 19.11886621579394,
+      "lo": 17.813060105367995,
+      "hi": 20.424672326219884
+     },
+     {
+      "t": 26.0,
+      "est": 18.264455271059596,
+      "lo": 17.34494644476794,
+      "hi": 19.183964097351254
+     },
+     {
+      "t": 28.0,
+      "est": 17.48148274273045,
+      "lo": 16.495571503024227,
+      "hi": 18.467393982436672
+     },
+     {
+      "t": 32.0,
+      "est": 14.803170854859646,
+      "lo": 13.958228303955927,
+      "hi": 15.648113405763365
+     },
+     {
+      "t": 34.0,
+      "est": 15.32021593521699,
+      "lo": 14.465850296554818,
+      "hi": 16.17458157387916
+     },
+     {
+      "t": 42.0,
+      "est": 17.97543480488805,
+      "lo": 17.06895450079765,
+      "hi": 18.88191510897845
+     },
+     {
+      "t": 44.0,
+      "est": 18.35426004779596,
+      "lo": 17.426934730817834,
+      "hi": 19.281585364774088
+     },
+     {
+      "t": 46.0,
+      "est": 18.31778195950481,
+      "lo": 17.39793714098292,
+      "hi": 19.2376267780267
+     },
+     {
+      "t": 48.0,
+      "est": 18.076131128433325,
+      "lo": 17.16128683446786,
+      "hi": 18.99097542239879
+     },
+     {
+      "t": 50.0,
+      "est": 18.502389662539805,
+      "lo": 17.58056162781751,
+      "hi": 19.4242176972621
+     },
+     {
+      "t": 52.0,
+      "est": 17.64959735264361,
+      "lo": 16.749686830736227,
+      "hi": 18.549507874550994
+     },
+     {
+      "t": 56.0,
+      "est": 17.486839485977544,
+      "lo": 16.505839104290736,
+      "hi": 18.467839867664352
+     },
+     {
+      "t": 58.0,
+      "est": 13.584637925678777,
+      "lo": 12.838842049370973,
+      "hi": 14.330433801986581
+     }
+    ]
+   }
+  ]
+ },
+ "generated": "evaluation/build_report.py on 2026-10-16"
+}

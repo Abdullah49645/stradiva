@@ -252,4 +252,5 @@ def hinge_onset(t, x, sigma_x=None, t_lo=None, t_hi=None, step=0.01, t_data_max=
     lr = (sse0 - sse[k]) / max(s2, 1e-12)
     return {"t0_s": float(cands[k]), "t0_lo_s": float(within.min()), "t0_hi_s": float(within.max()),
             "decel_after_mps2": float(-a_hat[k]), "lr_vs_constant_accel": float(lr),
-            "identified": bool(lr > 13.8 and -a_hat[k] > 1.5)}
+            # a fitted deceleration beyond tyre-road limits (~1.2 g) is a measurement artefact, not a brake onset
+            "identified": bool(lr > 13.8 and 1.5 < -a_hat[k] <= 12.0)}

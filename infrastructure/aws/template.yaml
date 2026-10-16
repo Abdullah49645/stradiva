@@ -1,116 +1,117 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  CARAI (working title) - minimal, workload-justified AWS architecture.
-  See docs/aws_and_production_notes.md for the rationale on why this
-  (Lambda + S3 + DynamoDB + API Gateway) instead of ECS/Step Functions,
-  and an honest statement of what has/hasn't been deployed and tested.
+  CARAI - one upload API, one container-image processing function, one bucket, one jobs table.
+  Sized from a measured run (docs/aws.md): a 15 s 720p clip peaked at 2.2 GB RSS and took
+  about 50 s on 2 vCPUs, which fits one Lambda invocation; no queues, step functions or ECS.
+
+Parameters:
+  AllowedOrigin:
+    Type: String
+    Default: "*"
+    Description: Web origin allowed to call the API and to PUT uploads (set to the UI's URL in production).
+  MaxClipSeconds:
+    Type: Number
+    Default: 15
 
 Globals:
   Function:
-    Timeout: 300      # generous for OpenCV cold starts; real clips process in low single-digit seconds
-    MemorySize: 3008   # OpenCV + numpy/scipy comfortably, still well under Lambda's 10GB ceiling
+    Tracing: Active
 
 Resources:
-
   CaraiBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub carai-videos-${AWS::AccountId}
-      # uploads/{job_id}/... and results/{job_id}/... prefixes, see
-      # lambda_handler.py / api_handler.py. No public access.
+      BucketName: !Sub carai-videos-${AWS::AccountId}-${AWS::Region}
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-      LifecycleConfiguration:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+      CorsConfiguration:            # the browser PUTs the video straight to S3 with the presigned URL
+        CorsRules:
+          - AllowedMethods: [PUT]
+            AllowedOrigins: [!Ref AllowedOrigin]
+            AllowedHeaders: ["*"]
+            MaxAge: 3000
+      LifecycleConfiguration:       # accident footage is sensitive: keep it no longer than needed
         Rules:
-          - Id: ExpireUploadsAfter30Days
-            Status: Enabled
-            Prefix: uploads/
-            ExpirationInDays: 30
+          - {Id: ExpireUploads, Status: Enabled, Prefix: uploads/, ExpirationInDays: 7}
+          - {Id: ExpireResults, Status: Enabled, Prefix: results/, ExpirationInDays: 30}
 
   JobsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: carai-jobs
       BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: job_id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: job_id
-          KeyType: HASH
+      AttributeDefinitions: [{AttributeName: job_id, AttributeType: S}]
+      KeySchema: [{AttributeName: job_id, KeyType: HASH}]
+      TimeToLiveSpecification: {AttributeName: expires_at, Enabled: true}
 
   ProcessingFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: carai-process-video
       PackageType: Image
+      MemorySize: 4096
+      Timeout: 900
+      EphemeralStorage: {Size: 2048}
+      ReservedConcurrentExecutions: 3      # cost ceiling for a public demo
       Environment:
         Variables:
           JOBS_TABLE: !Ref JobsTable
+          CARAI_MAX_SECONDS: !Ref MaxClipSeconds
       Policies:
-        - S3CrudPolicy:
-            BucketName: !Ref CaraiBucket
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
+        - S3CrudPolicy: {BucketName: !Sub "carai-videos-${AWS::AccountId}-${AWS::Region}"}
+        - DynamoDBCrudPolicy: {TableName: !Ref JobsTable}
       Events:
         VideoUploaded:
           Type: S3
           Properties:
             Bucket: !Ref CaraiBucket
             Events: s3:ObjectCreated:*
-            Filter:
-              S3Key:
-                Rules:
-                  - Name: prefix
-                    Value: uploads/
+            Filter: {S3Key: {Rules: [{Name: prefix, Value: uploads/}]}}
     Metadata:
-      # Lets `sam build` build the image itself (Dockerfile.lambda's COPY
-      # paths are relative to the repo root, hence DockerContext: ../..
-      # from this template's own directory) and `sam deploy --guided` /
-      # `--resolve-image-repos` push it to a managed ECR repo -- no manual
-      # `docker build && docker push` or hardcoded account/region ECR URI
-      # needed. See docs/aws_deployment_runbook.md for the exact commands.
       Dockerfile: infrastructure/docker/Dockerfile.lambda
       DockerContext: ../..
-      DockerTag: latest
+      DockerTag: carai-2.0
 
   ApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: carai-api
       Runtime: python3.12
       Handler: api_handler.handler
       CodeUri: .
       Timeout: 30
-      MemorySize: 256
+      MemorySize: 512
       Environment:
         Variables:
           CARAI_BUCKET: !Ref CaraiBucket
           JOBS_TABLE: !Ref JobsTable
+          CARAI_ALLOWED_ORIGIN: !Ref AllowedOrigin
       Policies:
-        - S3CrudPolicy:
-            BucketName: !Ref CaraiBucket
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
+        - S3CrudPolicy: {BucketName: !Ref CaraiBucket}
+        - DynamoDBCrudPolicy: {TableName: !Ref JobsTable}
       Events:
-        CreateJob:
-          Type: Api
-          Properties:
-            Path: /jobs
-            Method: post
-        GetJob:
-          Type: Api
-          Properties:
-            Path: /jobs/{job_id}
-            Method: get
+        CreateJob: {Type: Api, Properties: {Path: /jobs, Method: post, RestApiId: !Ref CaraiApi}}
+        GetJob: {Type: Api, Properties: {Path: "/jobs/{job_id}", Method: get, RestApiId: !Ref CaraiApi}}
+        Health: {Type: Api, Properties: {Path: /health, Method: get, RestApiId: !Ref CaraiApi}}
+
+  CaraiApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: !Sub "'${AllowedOrigin}'"
+      MethodSettings:
+        - {ResourcePath: "/*", HttpMethod: "*", ThrottlingRateLimit: 5, ThrottlingBurstLimit: 10}
 
 Outputs:
   ApiEndpoint:
-    Description: Base URL for the CARAI API
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+    Description: Set NEXT_PUBLIC_CARAI_API_BASE to this value for the web UI
+    Value: !Sub "https://${CaraiApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
   BucketName:
     Value: !Ref CaraiBucket

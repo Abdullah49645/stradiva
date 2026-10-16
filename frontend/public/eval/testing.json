@@ -1,0 +1,76 @@
+{
+ "title": "How it was tested",
+ "generated": "evaluation/build_report.py on 2026-10-16",
+ "intro": "Every number on this page is computed from the result files committed in evaluation/results.",
+ "blocks": [
+  {
+   "title": "What was tested, and what was not",
+   "text": "Collision verdicts are tested on a simulator whose ground truth CARAI never sees: 3D vehicles, true markings that differ from the assumed standard, camera roll, yaw and noise. Seeds for the dev, test and shift splits were fixed in advance; the code was developed on dev only, frozen, and then run once on test and shift. Each layer is tested separately: the reasoning layer with true tracks, then the full pipeline from pixels.",
+   "callout": {
+    "tone": "stop",
+    "text": "No real collision footage with ground truth was available to us under a licence that permits this use, so the collision verdicts are validated on simulation only. Real footage was used for the dashcam speed mode (see the Real dashcam footage tab)."
+   }
+  },
+  {
+   "title": "Development history on the dev split",
+   "table": {
+    "columns": [
+     "Dev iteration",
+     "Layer",
+     "n",
+     "correct",
+     "harmful"
+    ],
+    "rows": [
+     [
+      "iter1",
+      "Reasoning only (true tracks)",
+      30,
+      17,
+      5
+     ],
+     [
+      "iter1",
+      "Reasoning only (true tracks, occluded)",
+      30,
+      16,
+      6
+     ],
+     [
+      "iter1",
+      "Full pipeline (from pixels)",
+      28,
+      7,
+      4
+     ],
+     [
+      "iter2",
+      "Reasoning only (true tracks)",
+      30,
+      14,
+      0
+     ],
+     [
+      "iter2",
+      "Reasoning only (true tracks, occluded)",
+      30,
+      19,
+      3
+     ],
+     [
+      "iter2",
+      "Full pipeline (from pixels)",
+      9,
+      3,
+      2
+     ]
+    ]
+   },
+   "text": "Every scored dev run, including earlier code versions. Scoring was made stricter between iterations (missed and wrong-time collisions became harmful); all rows are re-scored with the final rules."
+  },
+  {
+   "title": "Reproduce",
+   "text": "python3 evaluation/experiments/collision_suite.py --split test --n 30 --mode e2e   (also --mode oracle_clean / oracle_occluded, --split shift); python3 evaluation/experiments/summarize_suite.py; python3 evaluation/build_report.py"
+  }
+ ]
+}

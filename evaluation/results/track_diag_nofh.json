@@ -1,0 +1,1280 @@
+[
+  {
+    "case": "dev_000",
+    "family": "overhead_behind",
+    "status": "RECONSTRUCTED_COLLISION",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "69% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "7 dashes, roll +0.16 deg, calibrated over 75 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "3 vehicle track(s)"
+      ],
+      [
+        "events",
+        "CONTACT",
+        "contact at t=4.90s; hazard onset (first_observation) t=0.00s"
+      ],
+      [
+        "skeptic",
+        "PASS",
+        "all checks passed"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 0.6333333333333333,
+        "track_ids": {
+          "1": 68,
+          "0": 46
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 2.95578589528934,
+        "contact_err_px_p90": 3.587816054151621
+      },
+      "follow": {
+        "frames_visible": 180,
+        "coverage": 0.8166666666666667,
+        "track_ids": {
+          "2": 121,
+          "0": 26
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 3.1978160319163256,
+        "contact_err_px_p90": 5.416010735878661
+      }
+    },
+    "pair_chosen": [
+      2,
+      0
+    ],
+    "pair_correct": false,
+    "skeptic_disputed": [],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "PASS",
+      "statistic": {
+        "max_abs_accel_mps2": 8.15639090697685,
+        "max_speed_mps": 28.20715517958933,
+        "vehicles": [
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": 3.7483761485015776,
+            "max_speed_mps": 11.520930952460365,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": 0.5349479625149192,
+            "max_speed_mps": 21.307073573131095,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 2,
+            "max_abs_accel_mps2": 8.15639090697685,
+            "max_speed_mps": 28.20715517958933,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 0 (subject): |a| 3.7 m/s^2, v 11.5 m/s; vehicle 1: |a| 0.5 m/s^2, v 21.3 m/s; vehicle 2 (subject): |a| 8.2 m/s^2, v 28.2 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": []
+    }
+  },
+  {
+    "case": "dev_001",
+    "family": "roadside_behind",
+    "status": "RECONSTRUCTED_NO_INTERACTION",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "85% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "11 dashes, roll -3.35 deg, calibrated over 171 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "3 vehicle track(s)"
+      ],
+      [
+        "events",
+        "NONE",
+        "no same-lane following pair; speeds reported per vehicle"
+      ],
+      [
+        "skeptic",
+        "ADVISORY",
+        "vehicle_width"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 0.8,
+        "track_ids": {
+          "0": 101,
+          "1": 13,
+          "6": 30
+        },
+        "n_tracks": 3,
+        "contact_err_px_median": 8.663225354625363,
+        "contact_err_px_p90": 12.534336444205021
+      },
+      "follow": {
+        "frames_visible": 180,
+        "coverage": 0.8888888888888888,
+        "track_ids": {
+          "1": 130,
+          "6": 30
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 3.1376229760696672,
+        "contact_err_px_p90": 12.72485995753362
+      }
+    },
+    "pair_chosen": null,
+    "pair_correct": false,
+    "skeptic_disputed": [
+      "vehicle_width"
+    ],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "ADVISORY",
+      "statistic": {
+        "max_abs_accel_mps2": 16.00458046639765,
+        "max_speed_mps": 16.386688874797677,
+        "vehicles": [
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": 9.551714027596063,
+            "max_speed_mps": 15.703828238304817,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": 16.00458046639765,
+            "max_speed_mps": 16.386688874797677,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 6,
+            "max_abs_accel_mps2": 3.487271743869469,
+            "max_speed_mps": 10.118491420535772,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 1: |a| 9.6 m/s^2, v 15.7 m/s; vehicle 0: |a| 16.0 m/s^2, v 16.4 m/s -- implausible; vehicle 6: |a| 3.5 m/s^2, v 10.1 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": [
+        0
+      ]
+    }
+  },
+  {
+    "case": "dev_002",
+    "family": "roadside_behind",
+    "status": "DISPUTED",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "71% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "13 dashes, roll -3.09 deg, calibrated over 207 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "3 vehicle track(s)"
+      ],
+      [
+        "events",
+        "CONTACT",
+        "contact at t=2.70s; hazard onset (first_observation) t=0.00s"
+      ],
+      [
+        "skeptic",
+        "DISPUTE",
+        "vehicle_width, kinematics"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 0.4111111111111111,
+        "track_ids": {
+          "0": 50,
+          "3": 24
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 7.649873562789829,
+        "contact_err_px_p90": 16.203339636218235
+      },
+      "follow": {
+        "frames_visible": 180,
+        "coverage": 0.7388888888888889,
+        "track_ids": {
+          "1": 81,
+          "0": 52
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 3.393270394605597,
+        "contact_err_px_p90": 17.670299607531923
+      }
+    },
+    "pair_chosen": [
+      1,
+      0
+    ],
+    "pair_correct": true,
+    "skeptic_disputed": [
+      "vehicle_width",
+      "kinematics"
+    ],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "DISPUTE",
+      "statistic": {
+        "max_abs_accel_mps2": 21.255580948150307,
+        "max_speed_mps": 16.261560494959998,
+        "vehicles": [
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": 21.255580948150307,
+            "max_speed_mps": 16.261560494959998,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": 1.9855503517599966,
+            "max_speed_mps": 16.134812889420058,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 0 (subject): |a| 21.3 m/s^2, v 16.3 m/s -- implausible; vehicle 1 (subject): |a| 2.0 m/s^2, v 16.1 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": [
+        0
+      ]
+    }
+  },
+  {
+    "case": "dev_003",
+    "family": "roadside_facing",
+    "status": "CONTACT_UNDETERMINED",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "100% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "13 dashes, roll +0.59 deg, calibrated over 171 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "2 vehicle track(s)"
+      ],
+      [
+        "events",
+        "UNDETERMINED",
+        "not established: no contact with the 4.6 m length prior, but a vehicle 0.7 m longer would touch at t=3.80s; the footage cannot exclude contact (at the vehicles' position one image row spans 0.03 m of road, which limits how precisely the gap can be measured)"
+      ],
+      [
+        "skeptic",
+        "PASS",
+        "all checks passed"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 68,
+        "coverage": 0.9117647058823529,
+        "track_ids": {
+          "0": 62
+        },
+        "n_tracks": 1,
+        "contact_err_px_median": 2.9271712710666327,
+        "contact_err_px_p90": 3.5445834395466274
+      },
+      "follow": {
+        "frames_visible": 89,
+        "coverage": 0.7865168539325843,
+        "track_ids": {
+          "1": 70
+        },
+        "n_tracks": 1,
+        "contact_err_px_median": 1.7322126840177516,
+        "contact_err_px_p90": 2.568555073300042
+      }
+    },
+    "pair_chosen": [
+      1,
+      0
+    ],
+    "pair_correct": true,
+    "skeptic_disputed": [],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "PASS",
+      "statistic": {
+        "max_abs_accel_mps2": 4.173447755299948,
+        "max_speed_mps": 25.89564374202992,
+        "vehicles": [
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": 4.173447755299948,
+            "max_speed_mps": 25.431448654155815,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": -2.205404413057282,
+            "max_speed_mps": 25.89564374202992,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 0 (subject): |a| 4.2 m/s^2, v 25.4 m/s; vehicle 1 (subject): |a| -2.2 m/s^2, v 25.9 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": []
+    }
+  },
+  {
+    "case": "dev_004",
+    "family": "roadside_facing",
+    "status": "RECONSTRUCTED_COLLISION",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "81% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "15 dashes, roll +0.69 deg, calibrated over 183 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "2 vehicle track(s)"
+      ],
+      [
+        "events",
+        "CONTACT",
+        "contact at t=3.80s; hazard onset (lead_brake_onset) t=0.81s"
+      ],
+      [
+        "skeptic",
+        "PASS",
+        "all checks passed"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 128,
+        "coverage": 0.84375,
+        "track_ids": {
+          "0": 108
+        },
+        "n_tracks": 1,
+        "contact_err_px_median": 2.8239969610395548,
+        "contact_err_px_p90": 3.5488622970519343
+      },
+      "follow": {
+        "frames_visible": 147,
+        "coverage": 0.5170068027210885,
+        "track_ids": {
+          "1": 76
+        },
+        "n_tracks": 1,
+        "contact_err_px_median": 2.39525452323267,
+        "contact_err_px_p90": 3.3239187630180043
+      }
+    },
+    "pair_chosen": [
+      1,
+      0
+    ],
+    "pair_correct": true,
+    "skeptic_disputed": [],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "PASS",
+      "statistic": {
+        "max_abs_accel_mps2": 4.389434775382986,
+        "max_speed_mps": 22.343579835022695,
+        "vehicles": [
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": 4.389434775382986,
+            "max_speed_mps": 20.358915825475776,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": 0.02575487658289255,
+            "max_speed_mps": 22.343579835022695,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 0 (subject): |a| 4.4 m/s^2, v 20.4 m/s; vehicle 1 (subject): |a| 0.0 m/s^2, v 22.3 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": []
+    }
+  },
+  {
+    "case": "dev_005",
+    "family": "overhead_facing",
+    "status": "RECONSTRUCTED_NO_COLLISION",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "66% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "9 dashes, roll +3.42 deg, calibrated over 135 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "8 vehicle track(s)"
+      ],
+      [
+        "events",
+        "NO_CONTACT",
+        "same-lane pair found; no contact: the reconstructed gap stays open while the vehicles are in view"
+      ],
+      [
+        "skeptic",
+        "ADVISORY",
+        "vehicle_width"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 0.18333333333333332,
+        "track_ids": {
+          "0": 2,
+          "5": 25,
+          "16": 6
+        },
+        "n_tracks": 3,
+        "contact_err_px_median": 17.006699884935976,
+        "contact_err_px_p90": 52.99286755329517
+      },
+      "follow": {
+        "frames_visible": 180,
+        "coverage": 0.21666666666666667,
+        "track_ids": {
+          "4": 4,
+          "7": 17,
+          "12": 3,
+          "18": 15
+        },
+        "n_tracks": 4,
+        "contact_err_px_median": 5.62948601360393,
+        "contact_err_px_p90": 47.126014251960505
+      }
+    },
+    "pair_chosen": [
+      16,
+      15
+    ],
+    "pair_correct": false,
+    "skeptic_disputed": [
+      "vehicle_width"
+    ],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "ADVISORY",
+      "statistic": {
+        "max_abs_accel_mps2": 37.34166764395972,
+        "max_speed_mps": 146.16710947080918,
+        "vehicles": [
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": 20.93066318939402,
+            "max_speed_mps": 12.948270410999966,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 4,
+            "max_abs_accel_mps2": 37.34166764395972,
+            "max_speed_mps": 146.16710947080918,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 5,
+            "max_abs_accel_mps2": 17.40194807230826,
+            "max_speed_mps": 13.880557639083111,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 7,
+            "max_abs_accel_mps2": 15.008223710519857,
+            "max_speed_mps": 12.942044147482346,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 10,
+            "max_abs_accel_mps2": 9.009923547991182,
+            "max_speed_mps": 30.65919341721655,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 15,
+            "max_abs_accel_mps2": 2.128209864929871,
+            "max_speed_mps": 4.733152218199193,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 16,
+            "max_abs_accel_mps2": 3.567232978112534,
+            "max_speed_mps": 5.674268659556387,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 18,
+            "max_abs_accel_mps2": 0.9613077539294972,
+            "max_speed_mps": 6.72408660734564,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 1: |a| 20.9 m/s^2, v 12.9 m/s -- implausible; vehicle 4: |a| 37.3 m/s^2, v 146.2 m/s -- implausible; vehicle 5: |a| 17.4 m/s^2, v 13.9 m/s -- implausible; vehicle 7: |a| 15.0 m/s^2, v 12.9 m/s -- implausible; vehicle 10: |a| 9.0 m/s^2, v 30.7 m/s; vehicle 15 (subject): |a| 2.1 m/s^2, v 4.7 m/s; vehicle 16 (subject): |a| 3.6 m/s^2, v 5.7 m/s; vehicle 18: |a| 1.0 m/s^2, v 6.7 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": [
+        1,
+        4,
+        5,
+        7
+      ]
+    }
+  },
+  {
+    "case": "dev_006",
+    "family": "overhead_behind",
+    "status": "DISPUTED",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "92% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "7 dashes, roll +3.07 deg, calibrated over 99 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "6 vehicle track(s)"
+      ],
+      [
+        "events",
+        "CONTACT",
+        "contact at t=2.09s; hazard onset (first_observation) t=0.47s"
+      ],
+      [
+        "skeptic",
+        "DISPUTE",
+        "vehicle_width, kinematics"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 0.2833333333333333,
+        "track_ids": {
+          "0": 14,
+          "5": 4,
+          "6": 15,
+          "10": 8,
+          "11": 10
+        },
+        "n_tracks": 5,
+        "contact_err_px_median": 7.246177291843314,
+        "contact_err_px_p90": 9.765044882388798
+      },
+      "follow": {
+        "frames_visible": 180,
+        "coverage": 0.43333333333333335,
+        "track_ids": {
+          "2": 48,
+          "5": 15,
+          "6": 12,
+          "11": 3
+        },
+        "n_tracks": 4,
+        "contact_err_px_median": 16.443661771209193,
+        "contact_err_px_p90": 34.10386735320515
+      }
+    },
+    "pair_chosen": [
+      2,
+      5
+    ],
+    "pair_correct": false,
+    "skeptic_disputed": [
+      "vehicle_width",
+      "kinematics"
+    ],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "DISPUTE",
+      "statistic": {
+        "max_abs_accel_mps2": 24.933171224708687,
+        "max_speed_mps": 26.87892854810609,
+        "vehicles": [
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": -6.99027493712735,
+            "max_speed_mps": 21.49447728003368,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 2,
+            "max_abs_accel_mps2": -0.25656617037451657,
+            "max_speed_mps": 26.87892854810609,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 5,
+            "max_abs_accel_mps2": 16.479836361873982,
+            "max_speed_mps": 15.303417270683887,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 6,
+            "max_abs_accel_mps2": 24.933171224708687,
+            "max_speed_mps": 25.308909612591798,
+            "plausible": false
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 0: |a| -7.0 m/s^2, v 21.5 m/s; vehicle 2 (subject): |a| -0.3 m/s^2, v 26.9 m/s; vehicle 5 (subject): |a| 16.5 m/s^2, v 15.3 m/s -- implausible; vehicle 6: |a| 24.9 m/s^2, v 25.3 m/s -- implausible (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": [
+        5,
+        6
+      ]
+    }
+  },
+  {
+    "case": "dev_009",
+    "family": "roadside_facing",
+    "status": "RECONSTRUCTED_NO_INTERACTION",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "82% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "13 dashes, roll +0.25 deg, calibrated over 159 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "3 vehicle track(s)"
+      ],
+      [
+        "events",
+        "NONE",
+        "no same-lane following pair; speeds reported per vehicle"
+      ],
+      [
+        "skeptic",
+        "PASS",
+        "all checks passed"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 0.25555555555555554,
+        "track_ids": {
+          "1": 7,
+          "8": 39
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 2.1502704010439797,
+        "contact_err_px_p90": 19.072343530097765
+      },
+      "follow": {
+        "frames_visible": 180,
+        "coverage": 0.7555555555555555,
+        "track_ids": {
+          "0": 135,
+          "13": 1
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 3.3710335292183475,
+        "contact_err_px_p90": 4.976234154958111
+      }
+    },
+    "pair_chosen": null,
+    "pair_correct": false,
+    "skeptic_disputed": [],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "ADVISORY",
+      "statistic": {
+        "max_abs_accel_mps2": 10.067694468860918,
+        "max_speed_mps": 143.34674001222658,
+        "vehicles": [
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": 10.067694468860918,
+            "max_speed_mps": 6.746925719048485,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": -9.894904302888737,
+            "max_speed_mps": 143.34674001222658,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 8,
+            "max_abs_accel_mps2": 9.762931036565378,
+            "max_speed_mps": 5.330395362386227,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 1: |a| 10.1 m/s^2, v 6.7 m/s; vehicle 0: |a| -9.9 m/s^2, v 143.3 m/s -- implausible; vehicle 8: |a| 9.8 m/s^2, v 5.3 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": [
+        0
+      ]
+    }
+  },
+  {
+    "case": "dev_013",
+    "family": "roadside_behind",
+    "status": "RECONSTRUCTED_NO_COLLISION",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "69% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "13 dashes, roll +0.69 deg, calibrated over 207 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "3 vehicle track(s)"
+      ],
+      [
+        "events",
+        "NO_CONTACT",
+        "same-lane pair found; no contact: the reconstructed gap stays open while the vehicles are in view"
+      ],
+      [
+        "skeptic",
+        "ADVISORY",
+        "vehicle_width"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 0.6722222222222223,
+        "track_ids": {
+          "0": 59,
+          "2": 1,
+          "5": 61
+        },
+        "n_tracks": 3,
+        "contact_err_px_median": 5.130862258874,
+        "contact_err_px_p90": 11.49028067064123
+      },
+      "follow": {
+        "frames_visible": 179,
+        "coverage": 0.6983240223463687,
+        "track_ids": {
+          "1": 29,
+          "5": 96
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 3.227197265607637,
+        "contact_err_px_p90": 10.85607355544845
+      }
+    },
+    "pair_chosen": [
+      5,
+      0
+    ],
+    "pair_correct": false,
+    "skeptic_disputed": [
+      "vehicle_width"
+    ],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "ADVISORY",
+      "statistic": {
+        "max_abs_accel_mps2": 195.03632643257203,
+        "max_speed_mps": 169.13398067312704,
+        "vehicles": [
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": 195.03632643257203,
+            "max_speed_mps": 169.13398067312704,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": 3.0956290979678776,
+            "max_speed_mps": 23.621843268150375,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 5,
+            "max_abs_accel_mps2": 10.077182115398497,
+            "max_speed_mps": 25.03841583850687,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 1: |a| 195.0 m/s^2, v 169.1 m/s -- implausible; vehicle 0 (subject): |a| 3.1 m/s^2, v 23.6 m/s; vehicle 5 (subject): |a| 10.1 m/s^2, v 25.0 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": [
+        1
+      ]
+    }
+  },
+  {
+    "case": "dev_016",
+    "family": "roadside_facing",
+    "status": "RECONSTRUCTED_NO_INTERACTION",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "73% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "15 dashes, roll +0.43 deg, calibrated over 183 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "1 vehicle track(s)"
+      ],
+      [
+        "events",
+        "NONE",
+        "no same-lane following pair; speeds reported per vehicle"
+      ],
+      [
+        "skeptic",
+        "PASS",
+        "all checks passed"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 1.0,
+        "track_ids": {
+          "0": 177,
+          "5": 3
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 2.455244111021357,
+        "contact_err_px_p90": 3.5113500289277635
+      },
+      "follow": {
+        "frames_visible": 180,
+        "coverage": 0.5666666666666667,
+        "track_ids": {
+          "0": 102
+        },
+        "n_tracks": 1,
+        "contact_err_px_median": 72.45139909973634,
+        "contact_err_px_p90": 110.06289021801838
+      }
+    },
+    "pair_chosen": null,
+    "pair_correct": false,
+    "skeptic_disputed": [],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "PASS",
+      "statistic": {
+        "max_abs_accel_mps2": 5.241121705001817,
+        "max_speed_mps": 19.260235118205323,
+        "vehicles": [
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": 5.241121705001817,
+            "max_speed_mps": 19.260235118205323,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 0: |a| 5.2 m/s^2, v 19.3 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": []
+    }
+  },
+  {
+    "case": "dev_020",
+    "family": "roadside_behind",
+    "status": "DISPUTED",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "85% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "15 dashes, roll +0.35 deg, calibrated over 207 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "4 vehicle track(s)"
+      ],
+      [
+        "events",
+        "CONTACT",
+        "contact at t=4.61s; hazard onset (lead_brake_onset) t=3.02s"
+      ],
+      [
+        "skeptic",
+        "DISPUTE",
+        "vehicle_width, kinematics"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 0.8722222222222222,
+        "track_ids": {
+          "0": 114,
+          "1": 43
+        },
+        "n_tracks": 2,
+        "contact_err_px_median": 5.844994530897624,
+        "contact_err_px_p90": 18.607873313830044
+      },
+      "follow": {
+        "frames_visible": 180,
+        "coverage": 0.9888888888888889,
+        "track_ids": {
+          "1": 178
+        },
+        "n_tracks": 1,
+        "contact_err_px_median": 4.427159687408812,
+        "contact_err_px_p90": 8.944522511095618
+      }
+    },
+    "pair_chosen": [
+      1,
+      0
+    ],
+    "pair_correct": true,
+    "skeptic_disputed": [
+      "vehicle_width",
+      "kinematics"
+    ],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "DISPUTE",
+      "statistic": {
+        "max_abs_accel_mps2": 15.62884774460096,
+        "max_speed_mps": 19.350834976167285,
+        "vehicles": [
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": 15.62884774460096,
+            "max_speed_mps": 14.269993486064877,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": 2.009912713285804,
+            "max_speed_mps": 15.956992330024226,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 5,
+            "max_abs_accel_mps2": -7.376660313026624,
+            "max_speed_mps": 19.350834976167285,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 6,
+            "max_abs_accel_mps2": -8.742882751777444,
+            "max_speed_mps": 13.515234802456554,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 0 (subject): |a| 15.6 m/s^2, v 14.3 m/s -- implausible; vehicle 1 (subject): |a| 2.0 m/s^2, v 16.0 m/s; vehicle 5: |a| -7.4 m/s^2, v 19.4 m/s; vehicle 6: |a| -8.7 m/s^2, v 13.5 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": [
+        0
+      ]
+    }
+  },
+  {
+    "case": "dev_025",
+    "family": "overhead_behind",
+    "status": "DISPUTED",
+    "stages": [
+      [
+        "ingest",
+        "OK",
+        "180 frames @ 30.00 fps, 1280x720"
+      ],
+      [
+        "camera_motion",
+        "STATIC",
+        "85% of features static"
+      ],
+      [
+        "geometry",
+        "OK",
+        "8 dashes, roll -2.29 deg, calibrated over 99 m"
+      ],
+      [
+        "tracking",
+        "OK",
+        "4 vehicle track(s)"
+      ],
+      [
+        "events",
+        "UNDETERMINED",
+        "not established: closing speed 1.4 m/s at the extrapolated contact is within vehicle-length uncertainty and no impact signature was observed (at the vehicles' position one image row spans 1.71 m of road, which limits how precisely the gap can be measured)"
+      ],
+      [
+        "skeptic",
+        "DISPUTE",
+        "kinematics"
+      ]
+    ],
+    "vehicles": {
+      "lead": {
+        "frames_visible": 180,
+        "coverage": 0.4111111111111111,
+        "track_ids": {
+          "1": 9,
+          "5": 2,
+          "7": 9,
+          "0": 54
+        },
+        "n_tracks": 4,
+        "contact_err_px_median": 7.332542850579715,
+        "contact_err_px_p90": 20.526956232596127
+      },
+      "follow": {
+        "frames_visible": 180,
+        "coverage": 0.5666666666666667,
+        "track_ids": {
+          "2": 31,
+          "7": 33,
+          "0": 38
+        },
+        "n_tracks": 3,
+        "contact_err_px_median": 3.2984114476526596,
+        "contact_err_px_p90": 8.370754037431125
+      }
+    },
+    "pair_chosen": [
+      7,
+      0
+    ],
+    "pair_correct": false,
+    "skeptic_disputed": [
+      "kinematics"
+    ],
+    "kinematics": {
+      "check": "kinematics",
+      "status": "DISPUTE",
+      "statistic": {
+        "max_abs_accel_mps2": 25.963104008918314,
+        "max_speed_mps": 37.38271929227808,
+        "vehicles": [
+          {
+            "vehicle_id": 2,
+            "max_abs_accel_mps2": 25.963104008918314,
+            "max_speed_mps": 23.220525910412,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 0,
+            "max_abs_accel_mps2": 22.033936197691077,
+            "max_speed_mps": 37.38271929227808,
+            "plausible": false
+          },
+          {
+            "vehicle_id": 1,
+            "max_abs_accel_mps2": -0.09107161997363633,
+            "max_speed_mps": 20.348374703230146,
+            "plausible": true
+          },
+          {
+            "vehicle_id": 7,
+            "max_abs_accel_mps2": 7.612189551660835,
+            "max_speed_mps": 29.207431139167756,
+            "plausible": true
+          }
+        ]
+      },
+      "threshold": {
+        "max_abs_accel_mps2": 12.0,
+        "max_speed_mps": 70.0
+      },
+      "evidence": "vehicle 2: |a| 26.0 m/s^2, v 23.2 m/s -- implausible; vehicle 0 (subject): |a| 22.0 m/s^2, v 37.4 m/s -- implausible; vehicle 1: |a| -0.1 m/s^2, v 20.3 m/s; vehicle 7 (subject): |a| 7.6 m/s^2, v 29.2 m/s (pre-impact, lower 2-sigma bounds)",
+      "catches": "gross scale or tracking errors",
+      "withheld_vehicles": [
+        2,
+        0
+      ]
+    }
+  }
+]

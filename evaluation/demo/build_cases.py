@@ -52,18 +52,23 @@ def to_webm(src, dst, width=960, fps=None):
 
 
 def rear_end_scene(name, road_kw=None):
+    """The illustrative case. Chosen BEFORE running CARAI on it, from ground-truth properties only
+    (search grid in docs/demo_plan.md): the first candidate in which the collision happens 28-48 m
+    from the camera (where one image row spans < 0.3 m of road), the lead brakes >= 1 s before
+    contact, and the true verdict is ASSUMPTION_DEPENDENT. CARAI's output on it is reported as is;
+    the aggregate results are in the "How it was tested" tab, not here."""
     rk = dict(topology="centerline", edge_half_width_m=1.82, dash_len_m=3.05, dash_gap_m=9.1, dash_phase_m=4.2, wear_prob=0.05)
     rk.update(road_kw or {})
     return Scenario(
         name=name, seed=4242, fps=30.0, duration_s=6.0,
-        camera=CameraSpec(height_m=8.0, pitch_deg=16.0, roll_deg=2.3, yaw_deg=7.5, y_m=-6.5, focal_px=960.0),
+        camera=CameraSpec(height_m=8.0, pitch_deg=16.0, roll_deg=2.3, yaw_deg=7.5, x_m=-12.0, y_m=-6.5, focal_px=960.0),
         road=RoadSpec(**rk),
-        vehicles=[VehicleSpec("lead", x0_m=46.0, v0_mps=17.0, lane_y_m=-0.95, length_m=4.6, color_bgr=(160, 120, 40),
-                              segments=[MotionSegment(0, 0.0), MotionSegment(1.2, -7.0)]),
-                  VehicleSpec("follow", x0_m=18.0, v0_mps=19.5, lane_y_m=-0.95, length_m=4.5, color_bgr=(40, 40, 185),
-                              segments=[MotionSegment(0, 0.0), MotionSegment(2.9, -6.0)])],
+        vehicles=[VehicleSpec("lead", x0_m=22.0, v0_mps=10.0, lane_y_m=-0.95, length_m=4.6, color_bgr=(160, 120, 40),
+                              segments=[MotionSegment(0, 0.0), MotionSegment(0.6, -7.5)]),
+                  VehicleSpec("follow", x0_m=3.45, v0_mps=12.0, lane_y_m=-0.95, length_m=4.5, color_bgr=(40, 40, 185),
+                              segments=[MotionSegment(0, 0.0), MotionSegment(1.8, -4.0)])],
         degradation=Degradation(noise_std=3.5, blur_px=0.5),
-        notes="lead brakes at 1.2 s (7 m/s^2); follower reacts 1.7 s later and brakes at 6 m/s^2")
+        notes="lead brakes at 0.6 s (7.5 m/s^2); follower reacts 1.2 s later and brakes at only 4 m/s^2")
 
 
 def gt_validation(sc, gt, case):

@@ -11,7 +11,7 @@ export type Verdict =
 
 export interface Check {
   check: string;
-  status: "PASS" | "DISPUTE" | "NOT_APPLICABLE";
+  status: "PASS" | "DISPUTE" | "ADVISORY" | "NOT_APPLICABLE";
   statistic: unknown;
   threshold: unknown;
   evidence: string;

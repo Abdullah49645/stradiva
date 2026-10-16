@@ -24,8 +24,10 @@ Method (OpenCV 5 throughout)
    turns the perspective-compressed dash pattern into a strictly periodic
    1D signal. Focal length, camera height, pitch and roll never need to be
    known -- they only change the affine map, which cancels below.
-4. Period T_s of the dash pattern (averaged power spectrum over the window)
-   and frame-to-frame shift ds of the pattern (cv2.phaseCorrelate on a
+4. Period T_s of the dash pattern from the spacing of the detected dash
+   CENTRES in s (gap-tolerant, so a worn-away dash does not halve the
+   period; an FFT peak was tried first and locked onto harmonics), and the
+   frame-to-frame shift ds of the pattern (cv2.phaseCorrelate on a
    Hanning-windowed strip). Then
 
         speed = dash_period_m * fps * ds / T_s
@@ -34,6 +36,9 @@ Method (OpenCV 5 throughout)
    cycle length. The ONLY metric input is the marking cycle length, a
    stated prior that depends on the jurisdiction (US federal 40 ft cycle,
    California freeway 48 ft cycle, ...). It is never hidden.
+5. Optional second ruler: with a known focal length, the ego-lane width
+   (prior 3.6 m +- 10 %) gives an independent scale; if it contradicts the
+   dash-cycle prior the window is refused (_scale_cross_check).
 
 Closest prior art: Schoepflin & Dailey resample traffic-camera images to remove
 perspective non-linearity and use autocorrelation of lane markers to calibrate
@@ -43,12 +48,14 @@ abstention and uncertainty accounting below.
 
 Abstention (the default is to refuse, not to guess)
 ---------------------------------------------------
-A window gets a number only if: a periodic dashed line is found (spectral
-peak well above the noise floor), the per-frame-pair speeds agree with each
-other, the dash period measured on the near half of the line agrees with the
-far half (a wrong vanishing point or road curvature breaks this -- an
-internal geometric consistency check), and enough frame pairs are valid.
-Otherwise the window is returned with status ABSTAIN and the reason.
+A window gets a number only if: a dashed line with at least three complete
+dashes is found; its dash centres are equally spaced in s to within a pixel
+residual (a wrong vanishing point or a curving road breaks this); the
+period is stable across frames (median absolute deviation); the per-frame-
+pair speeds agree; the measured duty cycle matches the assumed standard's;
+the speed is continuous with neighbouring windows; and, when a focal length
+is supplied, the lane-width ruler agrees with the dash-cycle ruler.
+Otherwise the window is returned with status ABSTAIN and the reasons.
 
 Uncertainty
 -----------

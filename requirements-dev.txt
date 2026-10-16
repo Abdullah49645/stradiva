@@ -1,0 +1,9 @@
+# Local API, tests, evaluation and legacy scripts.
+-r requirements.txt
+fastapi==0.115.6
+uvicorn==0.32.1
+pytest==9.1.1
+moto[s3,dynamodb]==5.2.4
+boto3==1.43.114
+matplotlib==3.11.2
+httpx==0.28.1          # FastAPI TestClient

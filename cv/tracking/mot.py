@@ -307,7 +307,7 @@ def contact_point(record):
     return tuple(record.get("contact_uv") or bottom_centre(record["bbox"]))
 
 
-def refine_background(frames, tracks, base_bg, n=300, dilate_px=6, min_samples=3, border_px=4, use_first_half_where_changed=True):
+def refine_background(frames, tracks, base_bg, n=100, dilate_px=6, min_samples=3, border_px=4, use_first_half_where_changed=True):
     """Second-pass background: per-pixel temporal median over sampled frames,
     EXCLUDING pixels covered by a tracked vehicle in that frame. A track that
     vanishes away from the image border is assumed to have stopped (or to be
@@ -365,6 +365,67 @@ def refine_background(frames, tracks, base_bg, n=300, dilate_px=6, min_samples=3
             if ok.any():
                 out[cy[ok], cx[ok]] = np.clip(np.nanmedian(st[:, ok], axis=0), 0, 255).astype(np.uint8)
     return out, int(touched.sum())
+
+
+def resolve_changed_regions(frames, base_bg, n=60, n_segments=5, diff_thresh=30, min_area=60, ring_px=3):
+    """Where the scene looks different at different times in the clip, decide
+    which appearance is the ROAD, region by region.
+
+    A whole-clip median keeps any vehicle that is present for most of the
+    clip: one that comes to rest after a collision, or one that crawls
+    through the far field at the start. That leaves a 'ghost', which fuses
+    with real vehicles. Medians of short consecutive segments of the clip
+    disagree exactly there. For each region of disagreement, the segment
+    median whose region blends into its surroundings is taken as the road.
+    That is the one with the weakest step in intensity across the region's
+    boundary: a vehicle has a strong outline, while asphalt continues into
+    asphalt. This is the ghost-edge argument of Cucchiara et al. (PAMI 2003),
+    applied to the background candidates rather than to the foreground.
+    Returns (background, list of decisions)."""
+    nF = len(frames)
+    if nF < 30:
+        return base_bg, []
+    idx = np.linspace(0, nF - 1, min(n, nF)).astype(int)
+    parts = np.array_split(idx, n_segments)
+    cands = [np.median(np.stack([frames[i] for i in p]), axis=0).astype(np.uint8) for p in parts]
+    st = np.stack([c.astype(np.int16) for c in cands])                       # (S, h, w, 3)
+    spread = (st.max(axis=0) - st.min(axis=0)).max(axis=2)
+    diff = (spread > diff_thresh).astype(np.uint8)
+    diff = cv2.morphologyEx(diff, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+    diff = cv2.dilate(diff, np.ones((5, 5), np.uint8))
+    n_lbl, lbl, stats, _ = cv2.connectedComponentsWithStats(diff)
+    out = base_bg.copy()
+    k_ring = np.ones((2 * ring_px + 1, 2 * ring_px + 1), np.uint8)
+    grays = [cv2.cvtColor(c, cv2.COLOR_BGR2GRAY).astype(np.float32) for c in cands]
+    decisions = []
+    for c in range(1, n_lbl):
+        if stats[c][4] < min_area:
+            continue
+        m = (lbl == c).astype(np.uint8)
+        inner = (m - cv2.erode(m, k_ring)).astype(bool)
+        outer = (cv2.dilate(m, k_ring) - m).astype(bool)
+        if inner.sum() < 5 or outer.sum() < 5:
+            continue
+        x, y, bw, bh = stats[c][:4]
+        y0, y1 = max(0, y - 3 * ring_px), min(m.shape[0], y + bh + 3 * ring_px)
+        x0, x1 = max(0, x - 3 * ring_px), min(m.shape[1], x + bw + 3 * ring_px)
+        inn, out_r = inner[y0:y1, x0:x1], outer[y0:y1, x0:x1]
+        wts = cv2.blur(out_r.astype(np.float32), (2 * ring_px + 3,) * 2)
+        sel = inn & (wts > 0.05)
+        if not sel.any():
+            continue
+        scores = []
+        for g in grays:
+            gc = g[y0:y1, x0:x1]
+            local_out = cv2.blur(np.where(out_r, gc, 0), (2 * ring_px + 3,) * 2) / np.maximum(wts, 1e-3)
+            scores.append(float(np.median(np.abs(gc[sel] - local_out[sel]))))
+        pick = int(np.argmin(scores))
+        mm = m.astype(bool)
+        out[mm] = cands[pick][mm]
+        decisions.append({"bbox": [int(v) for v in stats[c][:4]], "area_px": int(stats[c][4]),
+                          "road_from_segment": pick, "n_segments": n_segments,
+                          "boundary_step": [round(v, 1) for v in scores]})
+    return out, decisions
 
 
 def stable_background(frames, fps, min_run_s=1.0, diff_thresh=10.0, fallback=None):

@@ -29,9 +29,14 @@ export function Establishes({ c }: { c: CaseFile }) {
 }
 
 function checkClass(s: Check["status"]) {
-  return s === "PASS" ? "s-pass" : s === "DISPUTE" ? "s-dispute" : "s-na";
+  return s === "PASS" ? "s-pass" : s === "DISPUTE" ? "s-dispute" : s === "ADVISORY" ? "s-advisory" : "s-na";
 }
-const CHECK_STATUS: Record<string, string> = { PASS: "Holds", DISPUTE: "Disputed", NOT_APPLICABLE: "Not testable here" };
+const CHECK_STATUS: Record<string, string> = {
+  PASS: "Holds",
+  DISPUTE: "Disputed",
+  ADVISORY: "Holds for the two vehicles; a bystander's speeds are withheld",
+  NOT_APPLICABLE: "Not testable here",
+};
 
 export function CrossExamination({ c }: { c: CaseFile }) {
   const sk = c.skeptic;
