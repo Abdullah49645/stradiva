@@ -1,0 +1,559 @@
+{
+ "summary": {
+  "part": "test",
+  "t_range_s": [
+   20.0,
+   60.0
+  ],
+  "n_windows": 20,
+  "n_answered": 17,
+  "n_answered_with_radar": 17,
+  "range_offset_m_from_dev": 1.2909938902425324,
+  "camera_height_m": 1.3054900457225802,
+  "estimator_version": "lead-5",
+  "rel_speed_median_abs_err_mps": 0.5751455542720814,
+  "rel_speed_ci90_coverage": 0.8235294117647058,
+  "range_median_ape": 0.024122859725611647,
+  "range_ci90_coverage": 1.0,
+  "range_bias_rel": 0.006031219834446404,
+  "ttc_both_closing": 3,
+  "ttc_radar_inside_ci90": 3,
+  "ttc_carai_only": 0,
+  "ttc_radar_only": 5,
+  "abstention_reasons": {
+   "lead vehicle": 1,
+   "ground-plane range 24 m and vehicle-width range 35 m disagree beyond their combined uncertainty; one of the assumptions (flat road, lane width, vehicle width) is wrong": 1,
+   "ground-plane range 78 m and vehicle-width range 35 m disagree beyond their combined uncertainty; one of the assumptions (flat road, lane width, vehicle width) is wrong": 1
+  }
+ },
+ "windows": [
+  {
+   "t_start_s": 20.0,
+   "t_end_s": 22.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 47.710808459825365,
+   "range_ci90_m": [
+    42.294479785817934,
+    54.0257776896015
+   ],
+   "rel_speed_mps": -1.1902888257217281,
+   "rel_speed_ci90_mps": [
+    -5.049715670886381,
+    3.679216438421947
+   ],
+   "n_frames": 37,
+   "range_ground_plane_m": 76.5207492143049,
+   "range_ground_plane_rel_sigma": 0.3081391979070734,
+   "range_from_width_m": 46.21553594676696,
+   "lead_class": "car",
+   "radar_range_m": 47.400000000000006,
+   "radar_rel_speed_mps": -0.775,
+   "radar_ttc_s": 61.16129032258065
+  },
+  {
+   "t_start_s": 22.0,
+   "t_end_s": 24.0,
+   "status": "ABSTAIN",
+   "reasons": [
+    "lead vehicle in the ego lane tracked in 0 of 40 frames"
+   ],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "radar_range_m": 44.88000000000001,
+   "radar_rel_speed_mps": -1.6,
+   "radar_ttc_s": 28.050000000000004
+  },
+  {
+   "t_start_s": 24.0,
+   "t_end_s": 26.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 41.783613589816696,
+   "range_ci90_m": [
+    36.83366478778536,
+    48.301948128484895
+   ],
+   "rel_speed_mps": -1.016314168809068,
+   "rel_speed_ci90_mps": [
+    -2.4827818446769125,
+    0.7689606272306743
+   ],
+   "n_frames": 39,
+   "range_ground_plane_m": 43.40618299718511,
+   "range_ground_plane_rel_sigma": 0.4783016489452367,
+   "range_from_width_m": 41.73910446832667,
+   "lead_class": "car",
+   "radar_range_m": 42.06,
+   "radar_rel_speed_mps": -0.9375,
+   "radar_ttc_s": 44.864000000000004
+  },
+  {
+   "t_start_s": 26.0,
+   "t_end_s": 28.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 39.716861920363996,
+   "range_ci90_m": [
+    35.799066647319336,
+    44.920514891639286
+   ],
+   "rel_speed_mps": -0.1751274526249005,
+   "rel_speed_ci90_mps": [
+    -0.8383684244805542,
+    0.7366486801754929
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 37.920346694594045,
+   "range_ground_plane_rel_sigma": 0.1917427912148695,
+   "range_from_width_m": 40.03818077384993,
+   "lead_class": "car",
+   "radar_range_m": 39.900000000000006,
+   "radar_rel_speed_mps": -1.1375000000000002,
+   "radar_ttc_s": 35.07692307692307
+  },
+  {
+   "t_start_s": 28.0,
+   "t_end_s": 30.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 35.65821595322794,
+   "range_ci90_m": [
+    31.282277849688175,
+    40.22241247827875
+   ],
+   "rel_speed_mps": -3.180268792804897,
+   "rel_speed_ci90_mps": [
+    -4.597633128640219,
+    -1.8687666350862788
+   ],
+   "n_frames": 38,
+   "range_ground_plane_m": 35.60279676132576,
+   "range_ground_plane_rel_sigma": 0.16849209906838766,
+   "range_from_width_m": 35.67072127663392,
+   "lead_class": "car",
+   "ttc_s": 11.710220388063252,
+   "ttc_ci90_s": [
+    8.00049778696235,
+    18.56540909548188
+   ],
+   "radar_range_m": 36.86,
+   "radar_rel_speed_mps": -2.1375,
+   "radar_ttc_s": 17.244444444444444
+  },
+  {
+   "t_start_s": 30.0,
+   "t_end_s": 32.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 30.93694073168512,
+   "range_ci90_m": [
+    27.781545486141695,
+    34.99744263430588
+   ],
+   "rel_speed_mps": -2.4590114387153212,
+   "rel_speed_ci90_mps": [
+    -3.004652060600268,
+    -1.7660499207737197
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 34.82660965991749,
+   "range_ground_plane_rel_sigma": 0.16612192596373926,
+   "range_from_width_m": 30.09879882911073,
+   "lead_class": "car",
+   "ttc_s": 13.669248489583437,
+   "ttc_ci90_s": [
+    10.387167940648398,
+    17.577696156890823
+   ],
+   "radar_range_m": 31.799999999999997,
+   "radar_rel_speed_mps": -2.2625,
+   "radar_ttc_s": 14.055248618784528
+  },
+  {
+   "t_start_s": 32.0,
+   "t_end_s": 34.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 28.44603080854447,
+   "range_ci90_m": [
+    25.326689866504946,
+    31.993061161445407
+   ],
+   "rel_speed_mps": -0.09366956536581461,
+   "rel_speed_ci90_mps": [
+    -0.5910435182249578,
+    0.2138586941521024
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 29.493686327587334,
+   "range_ground_plane_rel_sigma": 0.13341130050615135,
+   "range_from_width_m": 28.078482085406236,
+   "lead_class": "car",
+   "radar_range_m": 29.28,
+   "radar_rel_speed_mps": -0.2,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 34.0,
+   "t_end_s": 36.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 29.759163567935808,
+   "range_ci90_m": [
+    26.261557938161758,
+    32.991429224259676
+   ],
+   "rel_speed_mps": 1.7824895171232433,
+   "rel_speed_ci90_mps": [
+    0.3009493410567796,
+    3.3899013572357592
+   ],
+   "n_frames": 39,
+   "range_ground_plane_m": 29.706968909488396,
+   "range_ground_plane_rel_sigma": 0.1531264763255275,
+   "range_from_width_m": 29.773425903121236,
+   "lead_class": "car",
+   "radar_range_m": 29.84,
+   "radar_rel_speed_mps": 0.7250000000000001,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 36.0,
+   "t_end_s": 38.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 29.414009195327345,
+   "range_ci90_m": [
+    26.299998189719773,
+    33.02396621734382
+   ],
+   "rel_speed_mps": 0.6042024987217297,
+   "rel_speed_ci90_mps": [
+    -0.007775091788967709,
+    1.0196184272640314
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 24.131162254960316,
+   "range_ground_plane_rel_sigma": 0.13582386809691563,
+   "range_from_width_m": 31.505103130906402,
+   "lead_class": "car",
+   "radar_range_m": 32.22,
+   "radar_rel_speed_mps": 1.5875000000000001,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 38.0,
+   "t_end_s": 40.0,
+   "status": "ABSTAIN",
+   "reasons": [
+    "ground-plane range 24 m and vehicle-width range 35 m disagree beyond their combined uncertainty; one of the assumptions (flat road, lane width, vehicle width) is wrong"
+   ],
+   "notes": [
+    "clip-median lane geometry used (no stable road vanishing point in this window)"
+   ],
+   "range_m": 31.710515928551718,
+   "range_ci90_m": [
+    28.449426409126115,
+    35.51500906390161
+   ],
+   "rel_speed_mps": 0.73832958554969,
+   "rel_speed_ci90_mps": [
+    -0.7388406169891907,
+    2.118866231300014
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 24.168452529445904,
+   "range_ground_plane_rel_sigma": 0.135920025607057,
+   "range_from_width_m": 34.839029278969356,
+   "lead_class": "car",
+   "radar_range_m": 35.42,
+   "radar_rel_speed_mps": 1.5,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 40.0,
+   "t_end_s": 42.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 35.37895469045694,
+   "range_ci90_m": [
+    31.09741706719966,
+    40.150125974266594
+   ],
+   "rel_speed_mps": 0.04711310610334827,
+   "rel_speed_ci90_mps": [
+    -1.320195071948821,
+    1.0596265880939235
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 35.198569987647254,
+   "range_ground_plane_rel_sigma": 0.16725541814076608,
+   "range_from_width_m": 35.420353015785864,
+   "lead_class": "car",
+   "radar_range_m": 37.38,
+   "radar_rel_speed_mps": 0.41250000000000003,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 42.0,
+   "t_end_s": 44.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 34.92004607651213,
+   "range_ci90_m": [
+    31.099382869834596,
+    39.188467029732024
+   ],
+   "rel_speed_mps": -1.0336575538921549,
+   "rel_speed_ci90_mps": [
+    -2.47096688775037,
+    -0.3565307568653263
+   ],
+   "n_frames": 39,
+   "range_ground_plane_m": 35.129147469225295,
+   "range_ground_plane_rel_sigma": 0.12491565573227108,
+   "range_from_width_m": 34.83464280754039,
+   "lead_class": "car",
+   "radar_range_m": 37.940000000000005,
+   "radar_rel_speed_mps": 0.2,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 44.0,
+   "t_end_s": 46.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 35.226518450702066,
+   "range_ci90_m": [
+    31.387344098790074,
+    39.662301704968215
+   ],
+   "rel_speed_mps": 1.5544357460939595,
+   "rel_speed_ci90_mps": [
+    -0.17143248632327282,
+    2.5768968075595966
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 39.45094747184386,
+   "range_ground_plane_rel_sigma": 0.1908908223992983,
+   "range_from_width_m": 34.53271002783257,
+   "lead_class": "car",
+   "radar_range_m": 38.46,
+   "radar_rel_speed_mps": 0.4,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 46.0,
+   "t_end_s": 48.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 37.464690033106244,
+   "range_ci90_m": [
+    33.15715180141746,
+    42.34810520294764
+   ],
+   "rel_speed_mps": 0.7376455542720813,
+   "rel_speed_ci90_mps": [
+    -1.2202105755969725,
+    1.82862947492346
+   ],
+   "n_frames": 38,
+   "range_ground_plane_m": 39.47596546944913,
+   "range_ground_plane_rel_sigma": 0.18057788152982557,
+   "range_from_width_m": 37.082137712574315,
+   "lead_class": "car",
+   "radar_range_m": 39.18000000000001,
+   "radar_rel_speed_mps": 0.16250000000000003,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 48.0,
+   "t_end_s": 50.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 37.7228968149373,
+   "range_ci90_m": [
+    33.50268604338818,
+    42.133125969300615
+   ],
+   "rel_speed_mps": -0.9483572816974195,
+   "rel_speed_ci90_mps": [
+    -2.2694497391699557,
+    0.504902084041587
+   ],
+   "n_frames": 39,
+   "range_ground_plane_m": 40.26404940430602,
+   "range_ground_plane_rel_sigma": 0.17992244897728124,
+   "range_from_width_m": 37.23982554710797,
+   "lead_class": "car",
+   "radar_range_m": 38.78,
+   "radar_rel_speed_mps": -0.45,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 50.0,
+   "t_end_s": 52.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 35.89439707539441,
+   "range_ci90_m": [
+    32.06636408071752,
+    40.02981126546721
+   ],
+   "rel_speed_mps": 0.22364421977801904,
+   "rel_speed_ci90_mps": [
+    -1.0539561032664124,
+    1.1866473114833092
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 35.828388679037126,
+   "range_ground_plane_rel_sigma": 0.1446691987434397,
+   "range_from_width_m": 35.91460626341178,
+   "lead_class": "car",
+   "radar_range_m": 37.44,
+   "radar_rel_speed_mps": -0.5750000000000001,
+   "radar_ttc_s": 65.11304347826086
+  },
+  {
+   "t_start_s": 52.0,
+   "t_end_s": 54.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 36.766466072518,
+   "range_ci90_m": [
+    32.29140301010873,
+    41.762620365618965
+   ],
+   "rel_speed_mps": -0.7807541774134282,
+   "rel_speed_ci90_mps": [
+    -1.9400730618781044,
+    0.5911686361655037
+   ],
+   "n_frames": 38,
+   "range_ground_plane_m": 41.498846261152124,
+   "range_ground_plane_rel_sigma": 0.18704222958327857,
+   "range_from_width_m": 35.96104676599049,
+   "lead_class": "car",
+   "radar_range_m": 36.60000000000001,
+   "radar_rel_speed_mps": -0.1375,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 54.0,
+   "t_end_s": 56.0,
+   "status": "ABSTAIN",
+   "reasons": [
+    "ground-plane range 78 m and vehicle-width range 35 m disagree beyond their combined uncertainty; one of the assumptions (flat road, lane width, vehicle width) is wrong"
+   ],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 36.75918150060711,
+   "range_ci90_m": [
+    31.71989469055696,
+    41.691112402118286
+   ],
+   "rel_speed_mps": -1.418134151697636,
+   "rel_speed_ci90_mps": [
+    -3.7473617870166236,
+    0.6060624402547101
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 78.31215965345146,
+   "range_ground_plane_rel_sigma": 0.31460102322069605,
+   "range_from_width_m": 35.00468846704932,
+   "lead_class": "car",
+   "radar_range_m": 36.260000000000005,
+   "radar_rel_speed_mps": -0.45,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 56.0,
+   "t_end_s": 58.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 31.67355508082354,
+   "range_ci90_m": [
+    28.16595443600442,
+    35.2712689057096
+   ],
+   "rel_speed_mps": -1.3517982887122508,
+   "rel_speed_ci90_mps": [
+    -2.9212308674501557,
+    0.42115548511903667
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 33.75725181923008,
+   "range_ground_plane_rel_sigma": 0.17324874984504354,
+   "range_from_width_m": 31.246170343315608,
+   "lead_class": "car",
+   "radar_range_m": 33.82,
+   "radar_rel_speed_mps": -1.9000000000000001,
+   "radar_ttc_s": 17.799999999999997
+  },
+  {
+   "t_start_s": 58.0,
+   "t_end_s": 60.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 26.487922634272227,
+   "range_ci90_m": [
+    23.48262158954284,
+    30.169679070273606
+   ],
+   "rel_speed_mps": -3.7317923957298564,
+   "rel_speed_ci90_mps": [
+    -4.93239350370163,
+    -3.008480037271316
+   ],
+   "n_frames": 38,
+   "range_ground_plane_m": 31.214636913066958,
+   "range_ground_plane_rel_sigma": 0.1553570018661875,
+   "range_from_width_m": 25.35938915197637,
+   "lead_class": "car",
+   "ttc_s": 6.904349781450485,
+   "ttc_ci90_s": [
+    5.687449282372567,
+    8.668012504189365
+   ],
+   "radar_range_m": 27.299999999999997,
+   "radar_rel_speed_mps": -4.1375,
+   "radar_ttc_s": 6.598187311178247
+  }
+ ]
+}
