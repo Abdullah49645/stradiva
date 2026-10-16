@@ -194,7 +194,7 @@ def assess(samples: List[TrajectorySample], reaction_grid=None, decel_grid=None,
         narrative = (f"The answer depends on assumptions the video cannot verify. At {a_ref:g} m/s^2 braking, the "
                      f"collision is avoided only if the following driver reacted within {cr['median_s']:.2f} s "
                      f"(90 % interval {cr['ci90_s'][0]:.2f}-{cr['ci90_s'][1]:.2f} s) of {onset_txt}; plausible "
-                     f"reaction times span {envelope_reaction[0]}-{envelope_reaction[1]} s, so CARAI does not state a "
+                     f"reaction times span {envelope_reaction[0]}-{envelope_reaction[1]} s, so Odolite does not state a "
                      f"single verdict.")
     return CounterfactualResult(
         verdict=verdict, narrative=narrative, reaction_grid_s=reaction_grid, decel_grid_mps2=decel_grid,

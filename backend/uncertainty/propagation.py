@@ -4,7 +4,7 @@ Uncertainty propagation (brief section 15).
 Nothing in the pipeline before this module ever turns its diagnostics
 into a stated confidence interval on the final speed number -- every
 speed/verdict is currently a point estimate, even though the brief
-explicitly calls this out as one of CARAI's core differentiators and
+explicitly calls this out as one of Odolite's core differentiators and
 warns against "fake precision" (42.17 mph vs 38-46 mph).
 
 Design choice, stated up front: this is an ENGINEERING HEURISTIC, not a

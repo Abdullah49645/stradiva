@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  CARAI - one upload API, one container-image processing function, one bucket, one jobs table.
+  Odolite - one upload API, one container-image processing function, one bucket, one jobs table.
   Sized from a measured run (docs/aws.md): a 15 s 720p clip peaked at 2.0 GB RSS and took
   about 25 s on 2 vCPUs (development machine), which fits one Lambda invocation; no queues,
   step functions or ECS.
@@ -25,10 +25,10 @@ Globals:
     Tracing: Active
 
 Resources:
-  CaraiBucket:
+  OdoliteBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub carai-videos-${AWS::AccountId}-${AWS::Region}
+      BucketName: !Sub odolite-videos-${AWS::AccountId}-${AWS::Region}
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -68,21 +68,21 @@ Resources:
       Environment:
         Variables:
           JOBS_TABLE: !Ref JobsTable
-          CARAI_MAX_SECONDS: !Ref MaxClipSeconds
+          ODOLITE_MAX_SECONDS: !Ref MaxClipSeconds
       Policies:
-        - S3CrudPolicy: {BucketName: !Sub "carai-videos-${AWS::AccountId}-${AWS::Region}"}
+        - S3CrudPolicy: {BucketName: !Sub "odolite-videos-${AWS::AccountId}-${AWS::Region}"}
         - DynamoDBCrudPolicy: {TableName: !Ref JobsTable}
       Events:
         VideoUploaded:
           Type: S3
           Properties:
-            Bucket: !Ref CaraiBucket
+            Bucket: !Ref OdoliteBucket
             Events: s3:ObjectCreated:*
             Filter: {S3Key: {Rules: [{Name: prefix, Value: uploads/}]}}
     Metadata:
       Dockerfile: infrastructure/docker/Dockerfile.lambda
       DockerContext: ../..
-      DockerTag: carai-2.0
+      DockerTag: odolite-2.2
 
   ApiFunction:
     Type: AWS::Serverless::Function
@@ -94,18 +94,18 @@ Resources:
       MemorySize: 512
       Environment:
         Variables:
-          CARAI_BUCKET: !Ref CaraiBucket
+          ODOLITE_BUCKET: !Ref OdoliteBucket
           JOBS_TABLE: !Ref JobsTable
-          CARAI_ALLOWED_ORIGIN: !Ref AllowedOrigin
+          ODOLITE_ALLOWED_ORIGIN: !Ref AllowedOrigin
       Policies:
-        - S3CrudPolicy: {BucketName: !Ref CaraiBucket}
+        - S3CrudPolicy: {BucketName: !Ref OdoliteBucket}
         - DynamoDBCrudPolicy: {TableName: !Ref JobsTable}
       Events:
-        CreateJob: {Type: Api, Properties: {Path: /jobs, Method: post, RestApiId: !Ref CaraiApi}}
-        GetJob: {Type: Api, Properties: {Path: "/jobs/{job_id}", Method: get, RestApiId: !Ref CaraiApi}}
-        Health: {Type: Api, Properties: {Path: /health, Method: get, RestApiId: !Ref CaraiApi}}
+        CreateJob: {Type: Api, Properties: {Path: /jobs, Method: post, RestApiId: !Ref OdoliteApi}}
+        GetJob: {Type: Api, Properties: {Path: "/jobs/{job_id}", Method: get, RestApiId: !Ref OdoliteApi}}
+        Health: {Type: Api, Properties: {Path: /health, Method: get, RestApiId: !Ref OdoliteApi}}
 
-  CaraiApi:
+  OdoliteApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
@@ -118,7 +118,7 @@ Resources:
 
 Outputs:
   ApiEndpoint:
-    Description: Set NEXT_PUBLIC_CARAI_API_BASE to this value for the web UI
-    Value: !Sub "https://${CaraiApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+    Description: Set NEXT_PUBLIC_ODOLITE_API_BASE to this value for the web UI
+    Value: !Sub "https://${OdoliteApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
   BucketName:
-    Value: !Ref CaraiBucket
+    Value: !Ref OdoliteBucket

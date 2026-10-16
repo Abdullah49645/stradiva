@@ -8,7 +8,7 @@ function plain(s: string | undefined): string {
     out = out.split(`${id}:`).join(`${name}:`);
     out = out.split(id).join(`“${name.toLowerCase()}”`);
   }
-  out = out.split("carai_synthetic_centerline").join("CARAI synthetic 3 m + 9 m");
+  out = out.split("carai_synthetic_centerline").join("simulator test road 3 m + 9 m");
   return out.charAt(0).toUpperCase() + out.slice(1);
 }
 
@@ -81,14 +81,14 @@ export default function InvestigationPanel({ c }: { c: CaseFile }) {
   return (
     <section className="section">
       <div className="section-head">
-        <h2>{steps.length ? "What CARAI tried after the dispute" : "What would let CARAI say more"}</h2>
+        <h2>{steps.length ? "What Odolite tried after the dispute" : "What would let Odolite say more"}</h2>
         {steps.length > 0 && <span className="small muted">first result: {statusLabel(inv.base.status, inv.base.verdict)}</span>}
       </div>
       <div className="grid-even">
         {steps.length > 0 && (
           <div>
             <p className="small">
-              Each dispute names a specific failure. CARAI runs the one remedy that failure allows, then the
+              Each dispute names a specific failure. Odolite runs the one remedy that failure allows, then the
               cross-examination runs again from scratch. A remedy is adopted only if every check then holds;
               thresholds are never relaxed.
             </p>
@@ -97,7 +97,7 @@ export default function InvestigationPanel({ c }: { c: CaseFile }) {
         )}
         {requests.length > 0 && (
           <div>
-            {steps.length > 0 && <h3 style={{ marginBottom: 10 }}>What would let CARAI say more</h3>}
+            {steps.length > 0 && <h3 style={{ marginBottom: 10 }}>What would let Odolite say more</h3>}
             <p className="small">These cannot be inferred from the footage. Supply them with the upload and the analysis uses them instead of its defaults.</p>
             <table className="plain small">
               <tbody>

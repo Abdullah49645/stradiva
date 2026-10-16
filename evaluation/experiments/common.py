@@ -10,7 +10,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-CACHE_DIR = os.environ.get("CARAI_SIM_CACHE", os.path.join(ROOT, "evaluation", "_sim_cache"))
+CACHE_DIR = os.environ.get("ODOLITE_SIM_CACHE", os.path.join(ROOT, "evaluation", "_sim_cache"))
 RESULTS_DIR = os.path.join(ROOT, "evaluation", "results")
 os.makedirs(RESULTS_DIR, exist_ok=True)
 

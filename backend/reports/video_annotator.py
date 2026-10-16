@@ -389,7 +389,7 @@ def annotate_video(video_path, result, output_path, fps=None, units="metric"):
             rows.append((skeptic_label, HAZARD_RED if skeptic_disputed else HUD_TEAL))
 
         pad, row_h = 8, 18
-        header = "CARAI // EVIDENCE"
+        header = "Odolite // EVIDENCE"
         header_w = cv2.getTextSize(header, cv2.FONT_HERSHEY_SIMPLEX, 0.42, 1)[0][0]
         sidebar_w = max([header_w] + [cv2.getTextSize(t, cv2.FONT_HERSHEY_SIMPLEX, 0.46, 1)[0][0] for t, _ in rows]) + pad * 2 + 6
         header_h = 20

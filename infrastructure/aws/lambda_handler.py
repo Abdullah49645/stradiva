@@ -23,15 +23,15 @@ import urllib.parse
 import boto3
 from botocore.exceptions import ClientError
 
-sys.path.insert(0, "/opt/carai")  # repo root inside the container image
+sys.path.insert(0, "/opt/odolite")  # repo root inside the container image
 from backend.pipeline.analyze import analyze_video  # noqa: E402
 from backend.investigator.investigator import investigate  # noqa: E402
 
 S3 = boto3.client("s3")
 DDB = boto3.resource("dynamodb")
-JOBS_TABLE = os.environ.get("JOBS_TABLE", "carai-jobs")
-MAX_SECONDS = float(os.environ.get("CARAI_MAX_SECONDS", "15"))
-USE_INVESTIGATOR = os.environ.get("CARAI_INVESTIGATOR", "1") != "0"
+JOBS_TABLE = os.environ.get("JOBS_TABLE", "odolite-jobs")
+MAX_SECONDS = float(os.environ.get("ODOLITE_MAX_SECONDS", "15"))
+USE_INVESTIGATOR = os.environ.get("ODOLITE_INVESTIGATOR", "1") != "0"
 RESULTS_PREFIX = "results"
 TMP_DIR = "/tmp"
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Fetches the comma.ai speed-challenge training video + labels for EVALUATION ONLY.
-# The repository has no license file; CARAI does not redistribute the data.
+# The repository has no license file; Odolite does not redistribute the data.
 set -euo pipefail
 D="$(cd "$(dirname "$0")" && pwd)/data/comma"
 mkdir -p "$D"

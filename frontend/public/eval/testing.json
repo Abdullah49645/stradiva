@@ -5,7 +5,7 @@
  "blocks": [
   {
    "title": "What was tested, and what was not",
-   "text": "Collision verdicts are tested on a simulator whose ground truth CARAI never sees: 3D vehicles, true markings that differ from the assumed standard, camera roll, yaw and noise. Seeds for the dev, test and shift splits were fixed in advance; the code was developed on dev only, frozen, and then run once on test and shift. Each layer is tested separately: the reasoning layer with true tracks, then the full pipeline from pixels.",
+   "text": "Collision verdicts are tested on a simulator whose ground truth Odolite never sees: 3D vehicles, true markings that differ from the assumed standard, camera roll, yaw and noise. Seeds for the dev, test and shift splits were fixed in advance; the code was developed on dev only, frozen, and then run once on test and shift. Each layer is tested separately: the reasoning layer with true tracks, then the full pipeline from pixels.",
    "callout": {
     "tone": "stop",
     "text": "No real collision footage with ground truth was available to us under a licence that permits this use, so the collision verdicts are validated on simulation only. Real footage was used for the dashcam speed mode (see the Real dashcam footage tab)."
@@ -87,7 +87,7 @@
      ]
     ]
    },
-   "text": "Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite."
+   "text": "Counts per outcome. 'No verdict / qualified' is Odolite declining, or answering 'depends on the assumptions', where the truth was definite."
   },
   {
    "title": "Distribution-shift split, frozen code (v2.0; harder camera families over-sampled)",
@@ -165,7 +165,7 @@
      ]
     ]
    },
-   "text": "Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite."
+   "text": "Counts per outcome. 'No verdict / qualified' is Odolite declining, or answering 'depends on the assumptions', where the truth was definite."
   },
   {
    "title": "After the freeze: v2.1 on a new held-out split (test2)",
@@ -425,7 +425,7 @@
      ]
     ]
    },
-   "text": "Computed over the interval in which both vehicles were measured (pre-contact for collisions); ground truth over the same interval from the simulator's vehicle states. Only what CARAI reports is scored (the measures are withheld on disputed reconstructions and when contact is undetermined). With true tracks they are accurate; from pixels they inherit the tracking errors and should not be relied on yet."
+   "text": "Computed over the interval in which both vehicles were measured (pre-contact for collisions); ground truth over the same interval from the simulator's vehicle states. Only what Odolite reports is scored (the measures are withheld on disputed reconstructions and when contact is undetermined). With true tracks they are accurate; from pixels they inherit the tracking errors and should not be relied on yet."
   },
   {
    "title": "The investigator under fault injection (held-out scenes)",
@@ -734,7 +734,7 @@
   },
   {
    "title": "Where the full pipeline fails: distance",
-   "text": "Grouped by how much road one image row covers where the event happens (from ground truth). Far from the camera the gap between two vehicles cannot be measured to within a vehicle length's uncertainty, and CARAI says so.",
+   "text": "Grouped by how much road one image row covers where the event happens (from ground truth). Far from the camera the gap between two vehicles cannot be measured to within a vehicle length's uncertainty, and Odolite says so.",
    "table": {
     "columns": [
      "Road length per image row at the event (frozen v2.0, test)",
@@ -985,7 +985,7 @@
      ]
     ]
    },
-   "text": "Each fault is injected into otherwise clean clips (two vehicles, no collision) analysed by the unchanged pipeline (v2.1). 'Speed error' is the worst error among the speeds CARAI reports, so it includes tracking errors: on the clean clips, every dispute was raised on a reconstruction that really was 20-40 % wrong (a tracking failure), and two tracking errors (16 % and 34 %) went unflagged. The last two rows are faults no check can see from a single static camera; they are listed so the blind spots are explicit."
+   "text": "Each fault is injected into otherwise clean clips (two vehicles, no collision) analysed by the unchanged pipeline (v2.1). 'Speed error' is the worst error among the speeds Odolite reports, so it includes tracking errors: on the clean clips, every dispute was raised on a reconstruction that really was 20-40 % wrong (a tracking failure), and two tracking errors (16 % and 34 %) went unflagged. The last two rows are faults no check can see from a single static camera; they are listed so the blind spots are explicit."
   },
   {
    "title": "Development history on the dev split",

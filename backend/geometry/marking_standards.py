@@ -40,7 +40,7 @@ class MarkingStandard:
 
 
 STANDARDS = [
-    MarkingStandard("carai_synthetic", "CARAI synthetic 3 m + 9 m", 3.0, 9.0, "the simulator's test roads only",
+    MarkingStandard("carai_synthetic", "Simulator test road 3 m + 9 m", 3.0, 9.0, "the simulator's test roads only",
                     "evaluation/sim/world.py (not a real-world standard)"),
     MarkingStandard("us_mutcd", "US MUTCD broken line 10 ft + 30 ft", 10 * FT, 30 * FT,
                     "US roads (federal default)", "MUTCD 2009, Section 3A.06"),

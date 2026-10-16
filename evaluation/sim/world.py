@@ -1,5 +1,5 @@
 """
-CARAI scene simulator v2 -- the instrument the evaluation is built on.
+Odolite scene simulator v2 -- the instrument the evaluation is built on.
 
 Why a second simulator (evaluation/scripts/scene_generator.py still exists
 and still reproduces the original fixtures): the original generator draws

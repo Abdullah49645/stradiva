@@ -2,7 +2,7 @@
 # Downloads the vehicle detector used by the dashcam lead-vehicle analysis (backend/dashcam/lead_vehicle.py)
 # and checks its SHA-256. YOLOX-S, OpenCV Model Zoo (https://github.com/opencv/opencv_zoo,
 # models/object_detection_yolox), Apache-2.0; licence text: licenses/opencv_zoo_yolox-Apache-2.0.txt.
-# Without the file, CARAI runs without a detector and says so in the case record.
+# Without the file, Odolite runs without a detector and says so in the case record.
 set -euo pipefail
 D="$(cd "$(dirname "$0")" && pwd)"
 F="$D/object_detection_yolox_2022nov.onnx"

@@ -36,7 +36,7 @@ export default function Home() {
     <>
       <header className="mast">
         <div className="wrap mast-row">
-          <div className="brand">CARAI<small>evidence from traffic video</small></div>
+          <div className="brand">Odolite<small>evidence from traffic video</small></div>
           <nav className="tabs" role="tablist" aria-label="Views">
             {([["cases", "Case files"], ["real", "Real dashcam footage"], ["testing", "How it was tested"]] as [View, string][]).map(([k, label]) => (
               <button key={k} role="tab" aria-selected={view === k} className="tab" onClick={() => setView(k)}>{label}</button>
@@ -71,7 +71,7 @@ export default function Home() {
         {view === "real" && <RealFootageView />}
         {view === "testing" && <TestingView />}
         <footer className="foot">
-          CARAI states physical evidence and the assumptions it rests on. It does not determine fault, and its output is a
+          Odolite states physical evidence and the assumptions it rests on. It does not determine fault, and its output is a
           starting point for expert review, not a substitute for it.
         </footer>
       </main>

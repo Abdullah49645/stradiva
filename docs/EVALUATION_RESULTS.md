@@ -6,13 +6,13 @@ Every number on this page is computed from the result files committed in evaluat
 
 ## What was tested, and what was not
 
-Collision verdicts are tested on a simulator whose ground truth CARAI never sees: 3D vehicles, true markings that differ from the assumed standard, camera roll, yaw and noise. Seeds for the dev, test and shift splits were fixed in advance; the code was developed on dev only, frozen, and then run once on test and shift. Each layer is tested separately: the reasoning layer with true tracks, then the full pipeline from pixels.
+Collision verdicts are tested on a simulator whose ground truth Odolite never sees: 3D vehicles, true markings that differ from the assumed standard, camera roll, yaw and noise. Seeds for the dev, test and shift splits were fixed in advance; the code was developed on dev only, frozen, and then run once on test and shift. Each layer is tested separately: the reasoning layer with true tracks, then the full pipeline from pixels.
 
 > No real collision footage with ground truth was available to us under a licence that permits this use, so the collision verdicts are validated on simulation only. Real footage was used for the dashcam speed mode (see the Real dashcam footage tab).
 
 ## Held-out test split, frozen code (v2.0)
 
-Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite.
+Counts per outcome. 'No verdict / qualified' is Odolite declining, or answering 'depends on the assumptions', where the truth was definite.
 
 * **4/30** full pipeline: correct, incl. correct refusals
 * **8/30** full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)
@@ -26,7 +26,7 @@ Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'd
 
 ## Distribution-shift split, frozen code (v2.0; harder camera families over-sampled)
 
-Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite.
+Counts per outcome. 'No verdict / qualified' is Odolite declining, or answering 'depends on the assumptions', where the truth was definite.
 
 * **5/30** full pipeline: correct, incl. correct refusals
 * **2/30** full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)
@@ -77,7 +77,7 @@ The investigator acts only when the cross-examination blocks a result (10 of 30 
 
 ## Near-miss measures against ground truth (test3)
 
-Computed over the interval in which both vehicles were measured (pre-contact for collisions); ground truth over the same interval from the simulator's vehicle states. Only what CARAI reports is scored (the measures are withheld on disputed reconstructions and when contact is undetermined). With true tracks they are accurate; from pixels they inherit the tracking errors and should not be relied on yet.
+Computed over the interval in which both vehicles were measured (pre-contact for collisions); ground truth over the same interval from the simulator's vehicle states. Only what Odolite reports is scored (the measures are withheld on disputed reconstructions and when contact is undetermined). With true tracks they are accurate; from pixels they inherit the tracking errors and should not be relied on yet.
 
 | Layer | Measure | clips reporting it | median abs. error | 90 % interval contains truth |
 |---|---|---|---|---|
@@ -134,7 +134,7 @@ Shown so the effect of the change on the original splits is visible; these numbe
 
 ## Where the full pipeline fails: distance
 
-Grouped by how much road one image row covers where the event happens (from ground truth). Far from the camera the gap between two vehicles cannot be measured to within a vehicle length's uncertainty, and CARAI says so.
+Grouped by how much road one image row covers where the event happens (from ground truth). Far from the camera the gap between two vehicles cannot be measured to within a vehicle length's uncertainty, and Odolite says so.
 
 | Road length per image row at the event (frozen v2.0, test) | n | correct | harmful |
 |---|---|---|---|
@@ -174,7 +174,7 @@ For 'prior mismatch' scenes the true markings differ from the assumed standard. 
 
 ## The Skeptic under fault injection
 
-Each fault is injected into otherwise clean clips (two vehicles, no collision) analysed by the unchanged pipeline (v2.1). 'Speed error' is the worst error among the speeds CARAI reports, so it includes tracking errors: on the clean clips, every dispute was raised on a reconstruction that really was 20-40 % wrong (a tracking failure), and two tracking errors (16 % and 34 %) went unflagged. The last two rows are faults no check can see from a single static camera; they are listed so the blind spots are explicit.
+Each fault is injected into otherwise clean clips (two vehicles, no collision) analysed by the unchanged pipeline (v2.1). 'Speed error' is the worst error among the speeds Odolite reports, so it includes tracking errors: on the clean clips, every dispute was raised on a reconstruction that really was 20-40 % wrong (a tracking failure), and two tracking errors (16 % and 34 %) went unflagged. The last two rows are faults no check can see from a single static camera; they are listed so the blind spots are explicit.
 
 | Injected fault | n | verdict withheld or refused | any check flagged | flagged runs whose reported speeds were all within 10 % | silent failures (> 10 % error, no flag) | median worst speed error |
 |---|---|---|---|---|---|---|
@@ -231,7 +231,7 @@ Own-vehicle speed from lane markings on real dashcam footage, compared with the 
 
 ## comma.ai speed challenge (17 minutes, freeway then city)
 
-Used for evaluation only; the video has no licence file, so it is not redistributed and not plotted here. Freeway prior (Caltrans 12 ft + 36 ft). CARAI answers only a minority of windows. On the freeway the answers are accurate, with interval coverage close to the nominal 90 %. In the city the prior is wrong and the few answers are wrong.
+Used for evaluation only; the video has no licence file, so it is not redistributed and not plotted here. Freeway prior (Caltrans 12 ft + 36 ft). Odolite answers only a minority of windows. On the freeway the answers are accurate, with interval coverage close to the nominal 90 %. In the city the prior is wrong and the few answers are wrong.
 
 | Run | Segment | windows | answered | median abs. error | 90th pct abs. error | 90 % coverage |
 |---|---|---|---|---|---|---|
@@ -244,7 +244,7 @@ Used for evaluation only; the video has no licence file, so it is not redistribu
 
 Pre-registered (evaluation/real/PREREGISTRATION_LEAD.md) on the same comma2k19 segment, a different task: YOLOX-S on OpenCV 5's DNN module finds the vehicle in the ego lane; distance from the ground plane (camera height from the lane-width prior) fused with a vehicle-width ruler; closing speed from the rate at which the vehicle grows in the image. Ground truth is the car's forward radar. The method changed during development; the deviations are listed in the pre-registration. Range is compared after a constant 1.29 m camera-to-radar offset fitted on development. Each ruler alone on the test windows (post hoc, same windows): ground plane only 9.6 %, vehicle width only 2.3 %. The lead car's width is close to the 1.8 m prior, which favours the width ruler.
 
-| Part | 2 s windows | answered | range: median abs. error | range: 90 % coverage | relative speed: median abs. error | relative speed: 90 % coverage | time to collision: radar inside CARAI's interval |
+| Part | 2 s windows | answered | range: median abs. error | range: 90 % coverage | relative speed: median abs. error | relative speed: 90 % coverage | time to collision: radar inside Odolite's interval |
 |---|---|---|---|---|---|---|---|
 | development (0-20 s, tuned here) | 10 | 8 | 2.5 % | 100 % | 0.49 m/s | 100 % | 1/2 |
 | test (20-60 s, run once) | 20 | 17 | 2.4 % | 100 % | 0.58 m/s | 82 % | 3/3 |

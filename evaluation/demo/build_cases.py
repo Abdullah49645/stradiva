@@ -34,6 +34,7 @@ sys.path.insert(0, os.path.join(ROOT, "evaluation", "experiments"))
 from evaluation.sim.world import (Scenario, CameraSpec, RoadSpec, VehicleSpec, MotionSegment, Degradation,  # noqa: E402
                                   render_scenario)
 from backend.investigator.investigator import investigate  # noqa: E402
+from backend.pipeline.analyze import PIPELINE_VERSION  # noqa: E402
 
 OUT = os.path.join(ROOT, "frontend", "public", "cases")
 WORK = os.path.join(ROOT, "evaluation", "_sim_cache", "demo")
@@ -71,10 +72,10 @@ def to_webm(src, dst, width=960, fps=None, bitrate="900k"):
 
 
 def rear_end_scene(name, road_kw=None):
-    """The illustrative case. Chosen BEFORE running CARAI on it, from ground-truth properties only
+    """The illustrative case. Chosen BEFORE running Odolite on it, from ground-truth properties only
     (search grid in docs/demo_plan.md): the first candidate in which the collision happens 28-48 m
     from the camera (where one image row spans < 0.3 m of road), the lead brakes >= 1 s before
-    contact, and the true verdict is ASSUMPTION_DEPENDENT. CARAI's output on it is reported as is;
+    contact, and the true verdict is ASSUMPTION_DEPENDENT. Odolite's output on it is reported as is;
     the aggregate results are in the "How it was tested" tab, not here."""
     rk = dict(topology="centerline", edge_half_width_m=1.82, dash_len_m=3.05, dash_gap_m=9.1, dash_phase_m=4.2, wear_prob=0.05)
     rk.update(road_kw or {})
@@ -98,31 +99,31 @@ def gt_validation(sc, gt, case):
     g = gt_counterfactual(sc, meta, col["t_s"] if col else None)
     rows = []
     rows.append({"label": "Verdict over the assumption box", "truth": g["verdict"],
-                 "carai": (case.get("verdict") or {}).get("value", case["status"]),
+                 "odolite": (case.get("verdict") or {}).get("value", case["status"]),
                  "ok": g["verdict"] == (case.get("verdict") or {}).get("value")})
     cr = (case.get("counterfactual") or {}).get("critical_reaction_s", {}).get("7")
     if cr:
-        # both measured from the SAME reference: CARAI's hazard onset (the lead's measured brake onset, or the
+        # both measured from the SAME reference: Odolite's hazard onset (the lead's measured brake onset, or the
         # first tracked frame when the onset was not identifiable); ground truth is relative to the true onset
         t_ref = (case.get("hazard_onset") or {}).get("t_s", meta["hazard_onset_s"])
         t7 = g["critical_reaction_s"]["7"] + (meta["hazard_onset_s"] - t_ref)
-        rows.append({"label": "Latest avoiding reaction at 7 m/s², from CARAI's hazard reference "
+        rows.append({"label": "Latest avoiding reaction at 7 m/s², from Odolite's hazard reference "
                               f"(t = {t_ref:.2f} s)", "truth": f"{t7:.2f} s",
-                     "carai": f"{cr['median_s']:.2f} s ({cr['ci90_s'][0]:.2f}–{cr['ci90_s'][1]:.2f})",
+                     "odolite": f"{cr['median_s']:.2f} s ({cr['ci90_s'][0]:.2f}–{cr['ci90_s'][1]:.2f})",
                      "ok": cr["ci90_s"][0] - 0.05 <= t7 <= cr["ci90_s"][1] + 0.05})
     hz = case.get("hazard_onset") or {}
     if hz.get("source") == "lead_brake_onset":
-        rows.append({"label": "Lead brake onset", "truth": f"{meta['hazard_onset_s']:.2f} s", "carai": f"{hz['t_s']:.2f} s",
+        rows.append({"label": "Lead brake onset", "truth": f"{meta['hazard_onset_s']:.2f} s", "odolite": f"{hz['t_s']:.2f} s",
                      "ok": abs(hz["t_s"] - meta["hazard_onset_s"]) < 0.15})
     if col and (case.get("collision") or {}).get("t_contact_s") is not None:
-        rows.append({"label": "Contact time", "truth": f"{col['t_s']:.2f} s", "carai": f"{case['collision']['t_contact_s']:.2f} s",
+        rows.append({"label": "Contact time", "truth": f"{col['t_s']:.2f} s", "odolite": f"{case['collision']['t_contact_s']:.2f} s",
                      "ok": abs(case["collision"]["t_contact_s"] - col["t_s"]) < 0.1})
     fs = case.get("follower_speed_at_hazard_onset")
     if fs:
         k = int(round(meta["hazard_onset_s"] * gt["fps"]))
         vt = gt["frames"][k]["vehicles"]["follow"]["speed_mps"]
         rows.append({"label": "Follower speed at hazard onset", "truth": f"{vt * 3.6:.1f} km/h",
-                     "carai": f"{fs['ci90_mps'][0] * 3.6:.1f}–{fs['ci90_mps'][1] * 3.6:.1f} km/h",
+                     "odolite": f"{fs['ci90_mps'][0] * 3.6:.1f}–{fs['ci90_mps'][1] * 3.6:.1f} km/h",
                      "ok": fs["ci90_mps"][0] <= vt <= fs["ci90_mps"][1]})
     return {"note": "Ground truth exists only because this footage is synthetic. It was not available to the pipeline; "
                     "it is compared here after the fact.", "rows": rows}
@@ -135,7 +136,7 @@ def build_synthetic(cid, sc, title, summary, post=None):
     case = investigate(vp, seed=0)
     case["id"] = cid
     case["provenance"] = {"kind": "synthetic", "title": title, "summary": summary,
-                          "source": "CARAI simulator (evaluation/sim/world.py)"}
+                          "source": "Odolite simulator (evaluation/sim/world.py)"}
     case["validation"] = gt_validation(sc, gt, case)
     to_webm(vp, os.path.join(OUT, f"{cid}.webm"))
     case["video"] = f"/cases/{cid}.webm"
@@ -166,13 +167,13 @@ def build_dashcam_real(seg_dir):
         w["truth_mps"] = float(vf[a:b].mean())
     implied = [w["diagnostics"].get("scale_cross_check", {}).get("implied_cycle_m") for w in res["windows"]]
     implied = [x for x in implied if x]
-    case = {"id": "dashcam_real", "status": "MOVING_CAMERA", "pipeline_version": "carai-2.0",
+    case = {"id": "dashcam_real", "status": "MOVING_CAMERA", "pipeline_version": PIPELINE_VERSION,
             "verdict": {"value": "MOVING_CAMERA",
-                        "reason": ("The camera is moving, so CARAI measures the camera vehicle's own speed from the lane "
+                        "reason": ("The camera is moving, so Odolite measures the camera vehicle's own speed from the lane "
                                    "markings sliding past. Assuming freeway markings (48 ft cycle), lane width and the "
                                    "camera's documented focal length disagree with that assumption in "
                                    f"{sum('inconsistent with lane geometry' in ' '.join(w['reasons']) for w in res['windows'])} "
-                                   f"of {len(res['windows'])} windows, so CARAI refuses rather than report speeds that, if the "
+                                   f"of {len(res['windows'])} windows, so Odolite refuses rather than report speeds that, if the "
                                    f"lane geometry is right, would be {14.63 / np.median(implied):.1f}x too high. "
                                    f"The lane geometry implies a marking cycle of "
                                    f"{np.median(implied):.1f} m, which is a city-street pattern, not a freeway one.")},
@@ -192,16 +193,16 @@ def build_dashcam_real(seg_dir):
     ok2 = [(w, float(vf[int(round(w['t_start_s'] * 20)):int(round(w['t_end_s'] * 20))].mean())) for w in res2["windows"] if w["status"] == "OK"]
     ape = [abs(w["speed_mps"] - t) / t for w, t in ok2]
     cov = [w["ci90_mps"][0] <= t <= w["ci90_mps"][1] for w, t in ok2]
-    case["validation"] = {"note": "The car's CAN-bus speed was not available to CARAI. Post-hoc comparison: this segment "
+    case["validation"] = {"note": "The car's CAN-bus speed was not available to Odolite. Post-hoc comparison: this segment "
                                   "was the pre-registered holdout, where the freeway assumption failed; see 'Real dashcam footage'.",
                           "rows": [{"label": "Windows answered with the freeway assumption", "truth": "–",
-                                    "carai": f"{sum(w['status'] == 'OK' for w in res['windows'])} of {len(res['windows'])}", "ok": None},
+                                    "odolite": f"{sum(w['status'] == 'OK' for w in res['windows'])} of {len(res['windows'])}", "ok": None},
                                    {"label": "Marking cycle implied by lane geometry", "truth": "unknown (city street)",
-                                    "carai": f"{np.median(implied):.2f} m", "ok": None},
+                                    "odolite": f"{np.median(implied):.2f} m", "ok": None},
                                    {"label": "Speed error with the 24 ft city standard the geometry points to (median, post hoc)", "truth": "CAN bus",
-                                    "carai": f"{100 * np.median(ape):.1f} % over {len(ok2)} windows", "ok": None},
+                                    "odolite": f"{100 * np.median(ape):.1f} % over {len(ok2)} windows", "ok": None},
                                    {"label": "90 % intervals containing the CAN speed", "truth": "–",
-                                    "carai": f"{sum(cov)} of {len(cov)}", "ok": None}]}
+                                    "odolite": f"{sum(cov)} of {len(cov)}", "ok": None}]}
     # the vehicle ahead: the pre-registered lead-vehicle run (evaluation/real/run_comma2k19_lead.py), dev + test parts
     ld = json.load(open(os.path.join(ROOT, "evaluation", "results", "comma2k19_lead_dev.json")))
     lt = json.load(open(os.path.join(ROOT, "evaluation", "results", "comma2k19_lead_test.json")))
@@ -217,7 +218,7 @@ def build_dashcam_real(seg_dir):
         json.dump(case, f)
     print("dashcam_real", sum(w["status"] == "OK" for w in res["windows"]), "answered")
     return {"id": "dashcam_real", "title": "Real dashcam, wrong assumption caught",
-            "summary": "Real footage; CARAI refuses a marking assumption the geometry contradicts."}
+            "summary": "Real footage; Odolite refuses a marking assumption the geometry contradicts."}
 
 
 if __name__ == "__main__":
@@ -225,15 +226,15 @@ if __name__ == "__main__":
     index.append(build_synthetic("rear_end_roadside", rear_end_scene("demo_rear_end"), "Rear-end, roadside camera",
                                  "Lead brakes hard; the follower reacts late. Synthetic, with known ground truth."))
     index.append(build_synthetic("no_scale", rear_end_scene("demo_no_scale", {"dash_len_m": 0.0001, "dash_gap_m": 12.0}),
-                                 "No dashed line", "The road has no marking of known length, so CARAI refuses to measure."))
+                                 "No dashed line", "The road has no marking of known length, so Odolite refuses to measure."))
     index.append(build_synthetic("bumped_camera", rear_end_scene("demo_bumped"), "Camera knocked mid-clip",
                                  "The pole camera moves 1.5° halfway through; the cross-examination catches it and the "
                                  "investigator analyses the part before the bump.", post=bump))
     index.append(build_synthetic("other_markings", rear_end_scene("demo_other_markings", {"dash_len_m": 6.0, "dash_gap_m": 12.0}),
                                  "Unfamiliar road markings",
-                                 "The dashes are 6 m + 12 m, not the assumed 3 m + 9 m. CARAI notices the proportions and tries "
+                                 "The dashes are 6 m + 12 m, not the assumed 3 m + 9 m. Odolite notices the proportions and tries "
                                  "every documented standard that matches them."))
-    seg = os.environ.get("CARAI_COMMA2K19_SEG", os.path.join(ROOT, "evaluation", "real", "data", "comma2k19", "seg40"))
+    seg = os.environ.get("ODOLITE_COMMA2K19_SEG", os.path.join(ROOT, "evaluation", "real", "data", "comma2k19", "seg40"))
     if os.path.exists(os.path.join(seg, "video.hevc")):
         index.append(build_dashcam_real(seg))
     else:

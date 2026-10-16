@@ -29,12 +29,12 @@ export default function DashcamPanel({ c, units }: { c: CaseFile; units: Units }
             <YAxis fontSize={13} label={{ value: u, angle: -90, position: "insideLeft", fontSize: 13 }} />
             <Tooltip formatter={(v: number | number[]) => (Array.isArray(v) ? "" : v.toFixed(0))} />
             <Legend verticalAlign="top" height={28} />
-            {truth.length > 0 && <Line data={truth} dataKey="v" name="Car's own speed sensor (not given to CARAI)" stroke="#7a8691" dot={false} strokeWidth={1.5} isAnimationActive={false} />}
-            {est.length > 0 && <Scatter data={est} dataKey="v" name="CARAI estimate (90 % interval)" fill="#2f5d8c" isAnimationActive={false}><ErrorBar dataKey="e" direction="y" stroke="#2f5d8c" width={0} /></Scatter>}
+            {truth.length > 0 && <Line data={truth} dataKey="v" name="Car's own speed sensor (not given to Odolite)" stroke="#7a8691" dot={false} strokeWidth={1.5} isAnimationActive={false} />}
+            {est.length > 0 && <Scatter data={est} dataKey="v" name="Odolite estimate (90 % interval)" fill="#2f5d8c" isAnimationActive={false}><ErrorBar dataKey="e" direction="y" stroke="#2f5d8c" width={0} /></Scatter>}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      {est.length === 0 && <p className="callout">CARAI answered none of the {d.windows.length} windows under this assumption.</p>}
+      {est.length === 0 && <p className="callout">Odolite answered none of the {d.windows.length} windows under this assumption.</p>}
       <h3 style={{ marginTop: 18 }}>Why windows were refused</h3>
       <table className="plain small"><tbody>
         {Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([k, n]) => <tr key={k}><td>{k}</td><td className="num">{n}</td></tr>)}

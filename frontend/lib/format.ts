@@ -65,7 +65,7 @@ export const INPUT_NAMES: Record<string, string> = {
 };
 
 export const STANDARD_NAMES: Record<string, string> = {
-  carai_synthetic: "CARAI synthetic 3 m + 9 m (test roads)",
+  carai_synthetic: "Simulator test road 3 m + 9 m",
   us_mutcd: "US MUTCD 10 ft + 30 ft",
   caltrans_freeway: "Caltrans freeway 12 ft + 36 ft",
   fr_t1: "France T1 3 m + 10 m",

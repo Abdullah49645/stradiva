@@ -1,6 +1,6 @@
 # Architecture
 
-CARAI turns one static-camera clip of a road into a reconstruction of the
+Odolite turns one static-camera clip of a road into a reconstruction of the
 vehicles' along-road motion, and, if two vehicles in the same lane collide,
 a statement of whether braking could have prevented it under a stated range
 of driver assumptions. A clip from a moving camera (dashcam) is routed to a
@@ -48,7 +48,7 @@ assignment (`linear_sum_assignment`).
 
 ## The decision loop, stated plainly
 
-CARAI is a **deterministic perception, decision, action loop with an
+Odolite is a **deterministic perception, decision, action loop with an
 independent verifier and a remedy step**. Nothing in it is a language model,
 and no step is chosen by a learned policy.
 

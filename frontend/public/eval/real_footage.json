@@ -54,7 +54,7 @@
   },
   {
    "title": "comma.ai speed challenge (17 minutes, freeway then city)",
-   "text": "Used for evaluation only; the video has no licence file, so it is not redistributed and not plotted here. Freeway prior (Caltrans 12 ft + 36 ft). CARAI answers only a minority of windows. On the freeway the answers are accurate, with interval coverage close to the nominal 90 %. In the city the prior is wrong and the few answers are wrong.",
+   "text": "Used for evaluation only; the video has no licence file, so it is not redistributed and not plotted here. Freeway prior (Caltrans 12 ft + 36 ft). Odolite answers only a minority of windows. On the freeway the answers are accurate, with interval coverage close to the nominal 90 %. In the city the prior is wrong and the few answers are wrong.",
    "table": {
     "columns": [
      "Run",
@@ -117,7 +117,7 @@
      "range: 90 % coverage",
      "relative speed: median abs. error",
      "relative speed: 90 % coverage",
-     "time to collision: radar inside CARAI's interval"
+     "time to collision: radar inside Odolite's interval"
     ],
     "rows": [
      [

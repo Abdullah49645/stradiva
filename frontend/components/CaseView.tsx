@@ -21,7 +21,7 @@ export default function CaseView({ c, live, units }: { c: CaseFile; live: boolea
   reason = reason.charAt(0).toUpperCase() + reason.slice(1);
   const prov = live ? "live" : c.provenance?.kind === "real" ? "real" : "";
   const provText = live
-    ? "Analysed just now by the CARAI service"
+    ? "Analysed just now by the Odolite service"
     : c.provenance?.kind === "real"
       ? `Real footage, precomputed: ${c.provenance.source}`
       : "Synthetic footage with known ground truth, precomputed by the same pipeline";
@@ -56,7 +56,7 @@ export default function CaseView({ c, live, units }: { c: CaseFile; live: boolea
           </div>
           <div className="grid-2">
             <p className="small">
-              The video cannot show how fast the following driver could react or how hard the tyres could brake. CARAI
+              The video cannot show how fast the following driver could react or how hard the tyres could brake. Odolite
               therefore replays the approach for every combination below. The follower moves as reconstructed until it
               reacts, then brakes. A verdict is stated only when it holds inside the whole outlined box.
             </p>

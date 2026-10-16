@@ -78,14 +78,14 @@ class MarkingPrior:
     name: str
     cycle_m: float            # dash + gap
     cycle_rel_sigma: float = 0.03
-    duty: float = 0.25        # dash length / cycle (10/40 ft US federal, 12/48 ft Caltrans, 3/12 m CARAI synthetic)
+    duty: float = 0.25        # dash length / cycle (10/40 ft US federal, 12/48 ft Caltrans, 3/12 m Odolite synthetic)
 
     @staticmethod
     def preset(key: str) -> "MarkingPrior":
         presets = {
             "us_federal": MarkingPrior("US MUTCD 10 ft + 30 ft", 12.19),
             "california_freeway": MarkingPrior("Caltrans freeway 12 ft + 36 ft", 14.63),
-            "carai_synthetic": MarkingPrior("CARAI synthetic 3 m + 9 m", 12.0),
+            "carai_synthetic": MarkingPrior("Simulator test road 3 m + 9 m", 12.0),
         }
         return presets[key]
 

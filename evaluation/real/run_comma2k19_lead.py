@@ -18,7 +18,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
 from backend.dashcam.lead_vehicle import LeadConfig, analyze_lead  # noqa: E402
 
-SEG = os.environ.get("CARAI_COMMA2K19_SEG", os.path.join(ROOT, "evaluation", "real", "data", "comma2k19", "seg40"))
+SEG = os.environ.get("ODOLITE_COMMA2K19_SEG", os.path.join(ROOT, "evaluation", "real", "data", "comma2k19", "seg40"))
 PARTS = {"dev": (0.0, 20.0), "test": (20.0, 60.0)}
 CACHE = os.path.join(ROOT, "evaluation", "_sim_cache", "comma2k19_lead_estimate.json")
 

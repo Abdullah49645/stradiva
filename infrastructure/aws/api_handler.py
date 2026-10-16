@@ -49,9 +49,9 @@ def validate_inputs(raw):
 
 S3 = boto3.client("s3")
 DDB = boto3.resource("dynamodb")
-BUCKET = os.environ.get("CARAI_BUCKET", "carai-videos")
-JOBS_TABLE = os.environ.get("JOBS_TABLE", "carai-jobs")
-ALLOWED_ORIGIN = os.environ.get("CARAI_ALLOWED_ORIGIN", "*")
+BUCKET = os.environ.get("ODOLITE_BUCKET", "odolite-videos")
+JOBS_TABLE = os.environ.get("JOBS_TABLE", "odolite-jobs")
+ALLOWED_ORIGIN = os.environ.get("ODOLITE_ALLOWED_ORIGIN", "*")
 UPLOAD_URL_EXPIRY_S = 900
 ALLOWED_EXT = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v"}
 RETENTION_S = 30 * 24 * 3600

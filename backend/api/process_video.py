@@ -1,5 +1,5 @@
 """
-Production entry point: process_video(path) runs the full CARAI pipeline
+Production entry point: process_video(path) runs the full Odolite pipeline
 on an arbitrary video file, with NO dependency on synthetic-scene
 internals (unlike evaluation/scripts/run_causality_feasibility.py, which
 uses the known synthetic camera model to render a perfectly clean

@@ -11,10 +11,10 @@ implements the identical job contract.
 
 | Resource | Purpose | Settings and why |
 |---|---|---|
-| `CaraiBucket` (S3) | uploads and results | Public access blocked, SSE-S3, CORS PUT for the UI origin only, lifecycle: `uploads/` deleted after 7 days, `results/` after 30 (accident footage is sensitive; keep it no longer than needed) |
+| `OdoliteBucket` (S3) | uploads and results | Public access blocked, SSE-S3, CORS PUT for the UI origin only, lifecycle: `uploads/` deleted after 7 days, `results/` after 30 (accident footage is sensitive; keep it no longer than needed) |
 | `JobsTable` (DynamoDB) | job status | On-demand billing; TTL on `expires_at` (30 days) |
 | `ApiFunction` (Lambda, zip, Python 3.12, 512 MB) | `POST /jobs`, `GET /jobs/{id}`, `GET /health` | Issues a presigned PUT URL (15 min) for `uploads/{job}/{file}`; validates the file extension and the optional user inputs (`fps`, `focal_px`, `marking_standard`), stored with the job |
-| `CaraiApi` (API Gateway) | HTTPS front door | CORS for the UI origin; throttled to 5 req/s, burst 10 |
+| `OdoliteApi` (API Gateway) | HTTPS front door | CORS for the UI origin; throttled to 5 req/s, burst 10 |
 | `ProcessingFunction` (Lambda, container image) | runs the investigator (`investigate`: the pipeline, then a remedy if the cross-examination blocks the result) with the job's user inputs; the image includes the YOLOX-S detector, fetched and SHA-256-checked at build time (`models/fetch_models.sh`) | 4096 MB, 900 s timeout, 2 GB `/tmp`, reserved concurrency 3 (cost ceiling for a public demo); S3 `ObjectCreated` on `uploads/` triggers it |
 
 Why one Lambda and not a queue, Step Functions or ECS: one clip is one
@@ -63,7 +63,7 @@ build machine needs internet access.
 cd infrastructure/aws
 sam build --use-container            # builds the processing image from infrastructure/docker/Dockerfile.lambda
 sam deploy --guided \
-  --stack-name carai \
+  --stack-name odolite \
   --parameter-overrides AllowedOrigin=https://<your-ui-host> MaxClipSeconds=15 \
   --capabilities CAPABILITY_IAM \
   --resolve-image-repos
@@ -82,7 +82,7 @@ curl -s -X PUT --upload-file clip.mp4 "$URL"
 watch -n 5 curl -s <ApiEndpoint>/jobs/$ID
 ```
 
-UI: build with `NEXT_PUBLIC_CARAI_API_BASE=<ApiEndpoint> npm run build`
+UI: build with `NEXT_PUBLIC_ODOLITE_API_BASE=<ApiEndpoint> npm run build`
 and host the static export (S3 + CloudFront, or Amplify Hosting). Set
 `AllowedOrigin` to that host.
 
@@ -90,12 +90,12 @@ Cost guardrails: reserved concurrency 3, API throttling, lifecycle
 expiry. At the measured run time a clip costs well under one cent of
 Lambda compute; check current pricing before relying on that.
 
-Tear down: `sam delete --stack-name carai` (empty the bucket first).
+Tear down: `sam delete --stack-name odolite` (empty the bucket first).
 
 ## Responsible use built into the deployment
 
 * Footage expires automatically (7 days uploads, 30 days results, job
   records by TTL).
 * The bucket is private; uploads use short-lived presigned URLs.
-* CARAI's outputs never assign fault; every result states the
+* Odolite's outputs never assign fault; every result states the
   assumptions it depends on (docs/assumptions.md).

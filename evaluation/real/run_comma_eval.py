@@ -1,7 +1,7 @@
 """
 Pre-registered real-footage evaluation (see evaluation/real/PREREGISTRATION.md).
 
-Fetch the footage first (not redistributed with CARAI):
+Fetch the footage first (not redistributed with Odolite):
     bash evaluation/real/fetch_comma.sh        # -> evaluation/real/data/comma/train.mp4, train.txt
 
 Then:
@@ -21,7 +21,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
 from backend.dashcam.ego_speed import estimate_ego_speed, MarkingPrior  # noqa: E402
 
-DATA = os.environ.get("CARAI_COMMA_DIR", os.path.join(ROOT, "evaluation", "real", "data", "comma"))
+DATA = os.environ.get("ODOLITE_COMMA_DIR", os.path.join(ROOT, "evaluation", "real", "data", "comma"))
 OUT = os.path.join(ROOT, "evaluation", "results")
 
 
