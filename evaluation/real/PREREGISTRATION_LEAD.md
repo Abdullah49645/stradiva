@@ -47,4 +47,25 @@ No estimator output was produced or compared with radar.
 4. Answered fraction, and the reasons for abstaining.
 
 ## Deviations
-(none yet)
+Recorded here after the test run (they were made during development on t = 0-20 s, before the
+test part was run, and are visible in the frozen code of commit 35ab63f, but this section was not
+updated at the time). The method that was frozen and tested differs from the one written above:
+
+1. **Range uses two rulers, not one.** The ground-plane range is fused (inverse variance, in log
+   space) with a second range from the detected box width and a vehicle-width prior by class (car
+   1.8 m, truck 2.5 m, bus 2.55 m, ±8 %). A window is refused when the two disagree beyond their
+   combined 2σ. Reason: on development the ground-plane range alone was biased (17 % median error).
+2. **Relative speed from the expansion rate**, not from an RTS smoother on Z: v = -Z * d ln(w)/dt,
+   with the slope of the log box width by Theil-Sen. Reason: the differentiated range was too noisy
+   on development.
+3. **Uncertainty by moving-block bootstrap** (0.5 s blocks) of the per-frame measurements, combined
+   with the Monte Carlo over the lane-width and vehicle-width priors, instead of Monte Carlo over the
+   lane-width prior and an assumed 2 px row noise alone. Reason: development intervals were too narrow.
+4. **Detection filters**: boxes whose bottom is in the lowest 15 % of the image (bonnet) are ignored;
+   minimum detector score 0.5 for the lead.
+5. **Clip-median lane geometry** is used in windows where both ego-lane boundaries are not visible.
+
+All five were chosen on the development part. The test part was run once on the frozen estimator
+(lead-5). One consequence for interpreting the result: the lead car in this segment is close to the
+1.8 m car-width prior, which favours the width ruler; on vehicles of other widths it would contribute
+a bias up to the prior's ±8 %.
