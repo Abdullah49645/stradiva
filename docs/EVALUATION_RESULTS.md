@@ -52,6 +52,73 @@ The frozen run showed that every harmful end-to-end error on test happened 70-13
 | Reasoning only (true tracks, occluded) | 30 | 10 | 3 | 16 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
 | Full pipeline (from pixels) | 30 | 2 | 3 | 22 | 0 | 0 | 0 | 1 | 2 | 0 | 0 |
 
+## v2.2 with the investigator on a third held-out split (test3)
+
+test3 (seeds 17000+, the test distribution) was defined and committed with its pre-registration (evaluation/PREREGISTRATION_V22.md) before v2.2 or the investigator ran on any of its clips. The full-pipeline row is the shipped behaviour: the pipeline followed by the investigator. Harmful end-to-end cases by the contact evidence they rested on: extrapolated: follower hidden before contact (4); measured: sudden speed loss of the following vehicle (1). With true, unoccluded tracks the same clips give no harmful case, so these are tracking failures that the reasoning layer could not recognise.
+
+* **5/30** full pipeline: correct, incl. correct refusals
+* **5/30** full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)
+* **0/0** definite verdicts (avoidable / not avoidable) that were right
+
+| Layer | n | Correct | Correct refusal (event off-screen) | No verdict / qualified | Qualified, event off-screen | Missed, event off-screen | Missed a visible collision | Reported a collision that did not happen | Verdict on the wrong contact time | Overconfident | Opposite verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Reasoning only (true tracks) | 30 | 4 | 5 | 21 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Reasoning only (true tracks, occluded) | 30 | 4 | 5 | 20 | 0 | 0 | 0 | 1 | 0 | 0 | 0 |
+| Full pipeline (from pixels) | 30 | 1 | 4 | 19 | 1 | 0 | 0 | 2 | 3 | 0 | 0 |
+
+## What the investigator changed (test3, same clips)
+
+The investigator acts only when the cross-examination blocks a result (10 of 30 clips here). It changed the outcome of 0.
+
+|  | n | correct | harmful |
+|---|---|---|---|
+| Pipeline alone | 30 | 5 | 5 |
+| Pipeline + investigator | 30 | 5 | 5 |
+
+## Near-miss measures against ground truth (test3)
+
+Computed over the interval in which both vehicles were measured (pre-contact for collisions); ground truth over the same interval from the simulator's vehicle states. Only what CARAI reports is scored (the measures are withheld on disputed reconstructions and when contact is undetermined). With true tracks they are accurate; from pixels they inherit the tracking errors and should not be relied on yet.
+
+| Layer | Measure | clips reporting it | median abs. error | 90 % interval contains truth |
+|---|---|---|---|---|
+| Reasoning only (true tracks) | smallest bumper gap | 6 | 0.30 m | 6/6 |
+| Reasoning only (true tracks) | shortest time to collision (capped 10 s) | 6 | 0.06 s | 5/6 |
+| Reasoning only (true tracks) | braking needed to avoid contact | 6 | 1.75 m/s^2 | 5/6 |
+| Reasoning only (true tracks, occluded) | smallest bumper gap | 7 | 0.60 m | 7/7 |
+| Reasoning only (true tracks, occluded) | shortest time to collision (capped 10 s) | 7 | 0.10 s | 5/7 |
+| Reasoning only (true tracks, occluded) | braking needed to avoid contact | 7 | 0.37 m/s^2 | 7/7 |
+| Full pipeline (from pixels) | smallest bumper gap | 4 | 7.93 m | 1/4 |
+| Full pipeline (from pixels) | shortest time to collision (capped 10 s) | 4 | 4.07 s | 0/4 |
+| Full pipeline (from pixels) | braking needed to avoid contact | 4 | 6.67 m/s^2 | 0/4 |
+
+## The investigator under fault injection (held-out scenes)
+
+Scenes 8-15 of the fault benchmark. 'Correct' means every reported speed is within 10 % of the truth or every 90 % interval contains it. With a matching but unknown marking standard the investigator reports the union of the intervals under every candidate standard.
+
+| Injected fault | n | answered: pipeline alone | answered: + investigator | answers recovered by the investigator | of which correct | harmful: pipeline alone | harmful: + investigator | made harmful by the investigator |
+|---|---|---|---|---|---|---|---|---|
+| No fault | 8 | 6 | 6 | 0 | 0 | 2 | 2 | 0 |
+| Camera knocked mid-clip | 8 | 0 | 1 | 1 | 0 | 0 | 1 | 1 |
+| Marking standard 6 m + 12 m (assumed 3 m + 9 m) | 8 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Dash mis-indexed | 8 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Wrong lane-width prior | 8 | 4 | 4 | 0 | 0 | 0 | 0 | 0 |
+| Longer markings, same proportions (undetectable) | 8 | 7 | 7 | 0 | 0 | 6 | 6 | 0 |
+| Wrong frame rate in file (undetectable) | 8 | 6 | 6 | 0 | 0 | 6 | 6 | 0 |
+
+## The investigator under fault injection (development scenes), first version of the investigator
+
+Scenes 0-7 of the fault benchmark. 'Correct' means every reported speed is within 10 % of the truth or every 90 % interval contains it. With a matching but unknown marking standard the investigator reports the union of the intervals under every candidate standard. This run used the investigator before the development fixes in EVALUATION.md section 7; the case it made harmful is refused by the fixed version (re-checked on that clip).
+
+| Injected fault | n | answered: pipeline alone | answered: + investigator | answers recovered by the investigator | of which correct | harmful: pipeline alone | harmful: + investigator | made harmful by the investigator |
+|---|---|---|---|---|---|---|---|---|
+| No fault | 8 | 5 | 5 | 0 | 0 | 2 | 2 | 0 |
+| Camera knocked mid-clip | 8 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
+| Marking standard 6 m + 12 m (assumed 3 m + 9 m) | 8 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Dash mis-indexed | 8 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Wrong lane-width prior | 8 | 7 | 7 | 0 | 0 | 3 | 3 | 0 |
+| Longer markings, same proportions (undetectable) | 8 | 6 | 7 | 1 | 0 | 5 | 6 | 1 |
+| Wrong frame rate in file (undetectable) | 8 | 7 | 7 | 0 | 0 | 7 | 7 | 0 |
+
 ## v2.1 re-run on splits it has already seen (post hoc, not independent)
 
 Shown so the effect of the change on the original splits is visible; these numbers are not a held-out result.

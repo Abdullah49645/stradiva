@@ -13,9 +13,9 @@ implements the identical job contract.
 |---|---|---|
 | `CaraiBucket` (S3) | uploads and results | Public access blocked, SSE-S3, CORS PUT for the UI origin only, lifecycle: `uploads/` deleted after 7 days, `results/` after 30 (accident footage is sensitive; keep it no longer than needed) |
 | `JobsTable` (DynamoDB) | job status | On-demand billing; TTL on `expires_at` (30 days) |
-| `ApiFunction` (Lambda, zip, Python 3.12, 512 MB) | `POST /jobs`, `GET /jobs/{id}`, `GET /health` | Issues a presigned PUT URL (15 min) for `uploads/{job}/{file}`; validates file extension |
+| `ApiFunction` (Lambda, zip, Python 3.12, 512 MB) | `POST /jobs`, `GET /jobs/{id}`, `GET /health` | Issues a presigned PUT URL (15 min) for `uploads/{job}/{file}`; validates the file extension and the optional user inputs (`fps`, `focal_px`, `marking_standard`), stored with the job |
 | `CaraiApi` (API Gateway) | HTTPS front door | CORS for the UI origin; throttled to 5 req/s, burst 10 |
-| `ProcessingFunction` (Lambda, container image) | runs `analyze_video` | 4096 MB, 900 s timeout, 2 GB `/tmp`, reserved concurrency 3 (cost ceiling for a public demo); S3 `ObjectCreated` on `uploads/` triggers it |
+| `ProcessingFunction` (Lambda, container image) | runs the investigator (`investigate`: the pipeline, then a remedy if the cross-examination blocks the result) with the job's user inputs; the image includes the YOLOX-S detector, fetched and SHA-256-checked at build time (`models/fetch_models.sh`) | 4096 MB, 900 s timeout, 2 GB `/tmp`, reserved concurrency 3 (cost ceiling for a public demo); S3 `ObjectCreated` on `uploads/` triggers it |
 
 Why one Lambda and not a queue, Step Functions or ECS: one clip is one
 invocation that fits comfortably in Lambda's limits (measured below), the
@@ -34,11 +34,12 @@ x86_64, OpenCV 5.0.0.93 headless:
 
 | Input | Wall time | Peak RSS |
 |---|---|---|
-| 15 s, 1280x720, 30 fps synthetic clip, full pipeline (v2.1) | 24 s | 1.99 GB |
+| 15 s, 1280x720, 30 fps synthetic clip, pipeline + investigator (v2.2), no remedy needed | 27.5 s | 1.99 GB |
+| Same clip with the camera knocked half-way: the costliest remedy (both stable parts re-analysed, frames decoded once and shared) | 66 s | 2.67 GB |
 
 Lambda allocates CPU in proportion to memory; at 4096 MB a function gets
-about 2.3 vCPUs, comparable to the machine measured. 4096 MB leaves about 2x headroom over
-the measured peak, and the 15 s cap (`MaxClipSeconds`) keeps a clip well
+about 2.3 vCPUs, comparable to the machine measured. 4096 MB leaves about 1.5x headroom over
+the worst measured peak, and the 15 s cap (`MaxClipSeconds`) keeps a clip well
 inside the 900 s timeout.
 These are development-machine measurements, not Lambda measurements.
 
@@ -46,7 +47,7 @@ These are development-machine measurements, not Lambda measurements.
 
 | Claim | Evidence | Verified against real AWS? |
 |---|---|---|
-| Handlers implement the job contract (create, upload trigger, idempotent processing, error paths, 404) | `tests/test_aws_handlers.py`, 6 tests, run against `moto` mocks of S3 and DynamoDB, with the real pipeline | **No**: mocked AWS |
+| Handlers implement the job contract (create, upload trigger, idempotent processing, error paths, 404, user inputs validated and stored, API validator identical to the pipeline's) | `tests/test_aws_handlers.py`, 8 tests, run against `moto` mocks of S3 and DynamoDB, with the real pipeline | **No**: mocked AWS |
 | Template is valid CloudFormation/SAM | `cfn-lint infrastructure/aws/template.yaml` passes | No (static check) |
 | Dependencies install on both Lambda architectures | pinned wheels resolved for `manylinux x86_64` and `aarch64` | No image built: container registries were unreachable from the development environment |
 | Pipeline memory and time fit the function | `evaluation/results/aws_sizing.json` | No: measured locally |
@@ -54,7 +55,9 @@ These are development-machine measurements, not Lambda measurements.
 
 ## Runbook (to deploy)
 
-Prerequisites: AWS account and credentials, AWS SAM CLI, Docker.
+Prerequisites: AWS account and credentials, AWS SAM CLI, Docker. The image
+build downloads the detector model from media.githubusercontent.com, so the
+build machine needs internet access.
 
 ```bash
 cd infrastructure/aws
@@ -72,7 +75,7 @@ Smoke test end to end (any short static-camera clip):
 
 ```bash
 JOB=$(curl -s -X POST <ApiEndpoint>/jobs -H 'Content-Type: application/json' \
-      -d '{"filename":"clip.mp4"}')
+      -d '{"filename":"clip.mp4", "inputs": {"fps": 30}}')     # inputs optional: fps, focal_px, marking_standard
 URL=$(echo "$JOB" | python3 -c 'import json,sys; print(json.load(sys.stdin)["upload_url"])')
 ID=$(echo "$JOB" | python3 -c 'import json,sys; print(json.load(sys.stdin)["job_id"])')
 curl -s -X PUT --upload-file clip.mp4 "$URL"

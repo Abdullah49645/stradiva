@@ -207,7 +207,8 @@ time, overconfident or opposite verdict):
 |---|---|---|---|
 | test, frozen v2.0: correct / harmful | 20 / 2 | 15 / 6 | 4 / 8 |
 | shift, frozen v2.0 | 8 / 0 | 7 / 6 | 5 / 2 |
-| **test2 (new held-out), shipped v2.1** | **15 / 0** | **13 / 1** | **5 / 3** |
+| test2 (new held-out), v2.1 | 15 / 0 | 13 / 1 | 5 / 3 |
+| **test3 (new held-out), shipped v2.2 + investigator** | **9 / 0** | **9 / 1** | **5 / 5** |
 | v1 as received, same clips (full pipeline) | – | – | 0 verdicts issued on test |
 
 What these say:
@@ -223,6 +224,27 @@ What these say:
   occlusion. But correct answers in the occluded layer also fall, from 15
   to 7, because most test events happen far from the camera, where v2.1 now
   declines.
+
+What test3 adds (pre-registered, run once on the code tagged `eval-freeze-v22`):
+* The end-to-end harmful count did not improve on a fresh split (5/30;
+  test2 gave 3/30 for v2.1). Four of the five rest on a contact
+  extrapolated while the follower was hidden, in approaching traffic; with
+  true, unoccluded tracks the same clips give none. This is the next
+  failure family to fix, and it was found on held-out data.
+* The investigator blocked nothing new and recovered nothing: it acted on
+  the 10 disputed clips and in every one concluded that the dispute stands
+  (6 times because the impossible motion was next to the possible impact).
+  On the held-out fault scenes it recovered one answer, whose worst speed
+  error was 12 %, just over the 10 % line, so it counts as harmful. Its
+  value today is the trace and the input requests, not extra verdicts.
+* Near-miss measures are accurate with true tracks (smallest gap within
+  0.3-0.6 m median, intervals covering 13 of 13) and not yet reliable from
+  pixels (1 of 4 intervals covered).
+* **The vehicle ahead, on real footage against the car's radar**
+  (pre-registered, test part run once): range median error 2.4 % with all
+  17 answered windows inside their 90 % interval, closing speed median
+  error 0.58 m/s with 82 % coverage, and time to collision inside the
+  interval in the 3 windows where both closed.
 
 Other results:
 * **Road geometry**, same 18 scenes: v1 accepted 4 with up to 9.3 % error;
@@ -246,13 +268,24 @@ Other results:
 * **Range.** Beyond roughly 70 m from the camera, one image row spans
   0.7 m of road or more. Contact then cannot be established within the
   vehicle-length uncertainty. Since v2.1, CARAI says so instead of
-  guessing. The check is made where the follower was last tracked, so a
-  track lost early can still slip past it (one test2 case).
-* **Known logic gap (found on test2, not fixed, so the split stays
-  clean):** in traffic receding from the camera, an apparent "lead pushed
-  forward" speed jump is still accepted as an impact signature, although
-  there the lead is the hidden vehicle. That caused 2 of the 3 harmful
-  test2 errors.
+  guessing. Since v2.2 the check is made at the event (the contact, or the
+  closest approach), not where the follower was last tracked.
+* **Logic gap found on test2, fixed in v2.2 (after test2 was scored, so
+  test2 stays clean):** in traffic receding from the camera, an apparent
+  "lead pushed forward" speed jump was accepted as an impact signature,
+  although there the lead is the hidden vehicle. It is now used only while
+  the lead stays in view. Its effect is measured on test3.
+* **The investigator is conservative by construction.** It adopts a remedy
+  only if every blocking check passes on the result from scratch, so on
+  poorly tracked clips it mostly reports that the dispute stands. It cannot
+  repair a wrong frame rate or a marking standard with the right proportions
+  but the wrong length; those remain requests to the user.
+* **Near-miss measures** inherit the tracking errors: they are withheld when
+  the reconstruction is disputed or contact is undetermined, and are scored
+  against ground truth only where CARAI reports them.
+* **Vehicle ahead (dashcam)** is validated on one real 60 s segment with
+  one lead car whose width is close to the 1.8 m prior. It needs the
+  camera's focal length.
 * **The marking prior is the speed scale.** If the jurisdiction's standard
   is wrong, every speed is wrong by the same factor. The duty-cycle check
   catches standards with different proportions. A standard with the same
@@ -297,5 +330,10 @@ evaluation discipline:
 
 * verdicts that say which assumption decides them;
 * cross-examination whose detection rates are measured by fault injection;
+* remedies that must pass the same cross-examination before they replace a
+  refusal, evaluated as refusals turned correct against refusals turned
+  harmful on held-out clips;
+* two independent range rulers for the vehicle ahead, with refusal when
+  they disagree;
 * a second, independent ruler for metric scale;
 * pre-registered real-footage tests that report their failures.

@@ -19,10 +19,10 @@ cannot support a claim, it says why instead of giving a number.
 | Claim | Evidence | Status |
 |---|---|---|
 | Road geometry from markings (vanishing point, closed-form horizon/roll, homography with bootstrap) | Simulator ground truth, 18-scene sweep vs v1 | Validated on simulation |
-| Collision verdicts (avoidable / not avoidable / depends) and refusals | Held-out test and shift splits (frozen v2.0) and test2 (v2.1), 3 layers | **Simulation only.** No legally usable real crash footage with ground truth was found. |
+| Collision verdicts (avoidable / not avoidable / depends) and refusals | Held-out test and shift splits (frozen v2.0), test2 (v2.1) and test3 (v2.2 + investigator, pre-registered), 3 layers | **Simulation only.** No legally usable real crash footage with ground truth was found. |
 | Dashcam ego speed from markings | Two real datasets, pre-registered | **Real footage.** Freeway works; a pre-registered city holdout **failed** (wrong marking prior), and a post-hoc second ruler now refuses that case. |
 | Skeptic (cross-examination) | Fault-injection benchmark with negative controls | Measured detection and false-alarm rates |
-| Investigator (remedies after a dispute) | test3 (new held-out split) and held-out fault scenes, pre-registered; outcome before vs after on the same clips | Simulation only; refusals turned correct vs turned harmful are both reported |
+| Investigator (remedies after a dispute) | test3 (new held-out split) and held-out fault scenes, pre-registered; outcome before vs after on the same clips | Simulation only. On test3 it changed no outcome; on held-out fault scenes it recovered one answer, which was 12 % off (counted harmful). Reported, not hidden |
 | Near-miss measures (gap, time to collision, braking needed) | Simulator ground truth over the observed interval | Simulation only |
 | Dashcam: distance and closing speed of the vehicle ahead (YOLOX-S on `cv2.dnn`) | The car's own radar, pre-registered, test part run once | **Real footage**, one 60 s segment |
 | AWS stack | moto-mocked tests, cfn-lint | **Not deployed** from this environment (docs/aws.md) |

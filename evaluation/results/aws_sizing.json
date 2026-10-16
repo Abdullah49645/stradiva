@@ -5,25 +5,58 @@
     "height": 720,
     "fps": 30.0
   },
-  "wall_s": 24.4,
-  "peak_rss_mb": 1986.0,
-  "pipeline": {
-    "status": "RECONSTRUCTED_NO_INTERACTION",
-    "timings": {
-      "ingest": 0.935,
-      "background": 13.987,
-      "geometry": 14.223,
-      "tracking": 4.827,
-      "kinematics": 0.046,
-      "events_mc_counterfactual": 1.699,
-      "skeptic": 2.017,
-      "total": 23.858
+  "runs": {
+    "ordinary": {
+      "wall_s": 27.5,
+      "peak_rss_mb_so_far": 1993.0,
+      "result": {
+        "status": "RECONSTRUCTED_NO_INTERACTION",
+        "timings": {
+          "ingest": 0.954,
+          "background": 16.592,
+          "geometry": 16.808,
+          "tracking": 5.265,
+          "kinematics": 0.02,
+          "events_mc_counterfactual": 1.78,
+          "skeptic": 2.033,
+          "total": 26.982
+        },
+        "investigation_s": 26.99,
+        "remedies": [
+          "analyse"
+        ]
+      }
+    },
+    "camera_bumped": {
+      "wall_s": 66.4,
+      "peak_rss_mb_so_far": 2671.0,
+      "result": {
+        "status": "DISPUTED",
+        "timings": {
+          "ingest": 0.962,
+          "background": 21.678,
+          "geometry": 21.907,
+          "tracking": 6.132,
+          "kinematics": 0.07,
+          "events_mc_counterfactual": 2.685,
+          "skeptic": 2.08,
+          "total": 33.989
+        },
+        "investigation_s": 65.87,
+        "remedies": [
+          "analyse",
+          "remedy:temporal_stability",
+          "diagnose"
+        ]
+      }
     }
   },
+  "wall_s": 66.4,
+  "peak_rss_mb": 2671.0,
   "machine": {
     "cpus": 2,
     "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
     "python": "3.13.16"
   },
-  "note": "development machine, not Lambda; Lambda at 4096 MB has about 2.3 vCPUs"
+  "note": "development machine, not Lambda; Lambda at 4096 MB has about 2.3 vCPUs. peak_rss_mb is the maximum over the child processes (getrusage reports the largest child so far)"
 }

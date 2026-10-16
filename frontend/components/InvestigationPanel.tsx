@@ -4,7 +4,11 @@ import { CHECK_NAMES, INPUT_NAMES, STANDARD_NAMES, VERDICT_TEXT } from "@/lib/fo
 function plain(s: string | undefined): string {
   if (!s) return "";
   let out = s;
-  for (const [id, name] of Object.entries(CHECK_NAMES)) out = out.split(`${id}:`).join(`${name}:`);
+  for (const [id, name] of Object.entries(CHECK_NAMES)) {
+    out = out.split(`${id}:`).join(`${name}:`);
+    out = out.split(id).join(`“${name.toLowerCase()}”`);
+  }
+  out = out.split("carai_synthetic_centerline").join("CARAI synthetic 3 m + 9 m");
   return out.charAt(0).toUpperCase() + out.slice(1);
 }
 

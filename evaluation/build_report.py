@@ -286,6 +286,17 @@ def testing_json():
                        "text": ("test3 (seeds 17000+, the test distribution) was defined and committed with its pre-registration "
                                 "(evaluation/PREREGISTRATION_V22.md) before v2.2 or the investigator ran on any of its clips. "
                                 "The full-pipeline row is the shipped behaviour: the pipeline followed by the investigator.")})
+        rows3, _ = suite("test3", "e2e")
+        bad3 = [r for r in rows3 if r["outcome"] in HARMFUL]
+        causes = {}
+        for r in bad3:
+            src = (r.get("contact_source") or "–").split(" (")[0]
+            causes[src] = causes.get(src, 0) + 1
+        if bad3:
+            blocks[-1]["text"] += (" Harmful end-to-end cases by the contact evidence they rested on: "
+                                   + "; ".join(f"{k} ({n})" for k, n in sorted(causes.items(), key=lambda x: -x[1]))
+                                   + ". With true, unoccluded tracks the same clips give no harmful case, so these are "
+                                     "tracking failures that the reasoning layer could not recognise.")
         it = investigator_table("test3")
         if it:
             t, t2, blocked, nch = it
@@ -299,16 +310,23 @@ def testing_json():
         blocks.append({"title": "Near-miss measures against ground truth" + (" (test3)" if near_miss_table("test3") else " (dev, development only)"),
                        "table": nmt,
                        "text": ("Computed over the interval in which both vehicles were measured (pre-contact for collisions); ground truth "
-                                "over the same interval from the simulator's vehicle states.")})
+                                "over the same interval from the simulator's vehicle states. Only what CARAI reports is scored (the "
+                                "measures are withheld on disputed reconstructions and when contact is undetermined). With true tracks "
+                                "they are accurate; from pixels they inherit the tracking errors and should not be relied on yet.")})
     for nm_, title in (("investigator_faults_heldout.json", "The investigator under fault injection (held-out scenes)"),
                        ("investigator_faults_dev.json", "The investigator under fault injection (development scenes)")):
         ift = investigator_fault_table(nm_)
         if ift:
             t, scenes = ift
+            if "development" in title:
+                title += ", first version of the investigator"
             blocks.append({"title": title, "table": t,
                            "text": (f"Scenes {scenes[0]}-{scenes[1]} of the fault benchmark. 'Correct' means every reported speed is within "
                                     "10 % of the truth or every 90 % interval contains it. With a matching but unknown marking standard the "
-                                    "investigator reports the union of the intervals under every candidate standard.") if scenes else None})
+                                    "investigator reports the union of the intervals under every candidate standard."
+                                    + (" This run used the investigator before the development fixes in EVALUATION.md section 7; "
+                                       "the case it made harmful is refused by the fixed version (re-checked on that clip)."
+                                       if "development" in title else "")) if scenes else None})
     tp = suite_table(["test", "shift", "dev"], post=True, label_split=True)
     if tp:
         blocks.append({"title": "v2.1 re-run on splits it has already seen (post hoc, not independent)", "table": tp,

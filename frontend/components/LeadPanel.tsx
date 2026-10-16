@@ -20,7 +20,8 @@ export default function LeadPanel({ c }: { c: CaseFile }) {
   const ok = ws.filter((w) => w.status === "OK" && w.range_m != null);
   const estR = ok.map((w) => ({ t: mid(w), r: w.range_m! + off, e: [w.range_m! - w.range_ci90_m![0], w.range_ci90_m![1] - w.range_m!] }));
   const estV = ok.map((w) => ({ t: mid(w), v: w.rel_speed_mps!, e: [w.rel_speed_mps! - w.rel_speed_ci90_mps![0], w.rel_speed_ci90_mps![1] - w.rel_speed_mps!] }));
-  const ttc = ws.filter((w) => w.ttc_s != null || w.radar_ttc_s != null);
+  // rows where either side reports a time to collision short enough to matter
+  const ttc = ws.filter((w) => w.ttc_s != null || (w.radar_ttc_s != null && w.radar_ttc_s < 20));
   const truthName = "Car's own radar (not given to CARAI)";
   return (
     <section className="section">

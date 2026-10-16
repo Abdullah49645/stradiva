@@ -28,7 +28,7 @@ export const VERDICT_TEXT: Record<string, { title: string; tone: string }> = {
   CONTACT_UNDETERMINED: { title: "No verdict: the footage cannot settle whether they touched", tone: "withheld" },
   NOT_RECONSTRUCTABLE: { title: "This footage cannot support measurements", tone: "withheld" },
   STANDARD_DEPENDENT: { title: "No verdict: it depends on which marking standard applies", tone: "withheld" },
-  MOVING_CAMERA: { title: "Dashcam footage: own-vehicle speed only", tone: "neutral" },
+  MOVING_CAMERA: { title: "Dashcam footage: measured from the moving car", tone: "neutral" },
 };
 
 export function verdictKey(c: { status: string; verdict?: { value: string } }): string {
