@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="cards.css"><title>Architecture</title></head>
+<body><div class="frame" style="justify-content:flex-start;padding-top:64px">
+<h2>Architecture</h2>
+<div class="lane">Analysis: OpenCV 5 does every image operation (runs inside the processing Lambda)</div>
+<div class="row">
+  <div class="box cv"><b>Ingest</b><code>VideoCapture</code><br>camera motion: <code>calcOpticalFlowPyrLK</code></div><div class="arrow">→</div>
+  <div class="box cv"><b>Road geometry</b><code>Canny · HoughLinesP · fitLine · remap</code><br>vanishing point, closed-form horizon, homography</div><div class="arrow">→</div>
+  <div class="box cv"><b>Tracking</b><code>MOG2 · KalmanFilter</code><br>+ Hungarian assignment</div><div class="arrow">→</div>
+  <div class="box"><b>Physics</b>road-plane kinematics, brake onset, contact, avoidance envelope, near-miss (Monte Carlo)</div>
+</div>
+<div class="row">
+  <div class="box"><b>Skeptic</b>cross-examines with evidence the fit did not use</div><div class="arrow">→</div>
+  <div class="box v"><b>Investigator</b>remedy for the failure named: <code>findTransformECC</code>, marking standards, quarantine; re-examined from scratch</div><div class="arrow">→</div>
+  <div class="box"><b>Result</b>verdict or refusal, stated assumptions, trace, input requests</div><div class="arrow">·</div>
+  <div class="box cv"><b>Dashcam branch</b><code>dnn.readNet</code> YOLOX-S (OpenCV Zoo) · <code>phaseCorrelate</code><br>own speed, vehicle ahead</div>
+</div>
+<div class="lane">Delivery on AWS (one SAM template)</div>
+<div class="row">
+  <div class="box"><b>Browser</b>Next.js static site</div><div class="arrow">→</div>
+  <div class="box aws"><b>API Gateway + API Lambda</b>creates the job, presigned upload URL</div><div class="arrow">→</div>
+  <div class="box aws"><b>S3 uploads/</b>private, expires in 7 days</div><div class="arrow">→</div>
+  <div class="box aws"><b>Processing Lambda</b>container image, OpenCV 5, 4 GB</div><div class="arrow">→</div>
+  <div class="box aws"><b>S3 results/ + DynamoDB</b>case JSON, job status (TTL)</div>
+</div>
+</div></body></html>

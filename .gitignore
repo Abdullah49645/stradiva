@@ -12,3 +12,4 @@ frontend/node_modules/
 *.webm.tmp
 frontend/out/
 models/*.onnx
+evaluation/demo/video/fonts/

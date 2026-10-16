@@ -58,3 +58,10 @@ development machine this takes about 30 s (docs/aws.md); cut the wait.
 * Not "the investigator improves accuracy". On the held-out data it did
   not; its value is the trace and the input requests.
 * Not "deployed on AWS" unless the runbook has actually been executed.
+
+## The recorded video
+
+`evaluation/demo/video/record_demo.py` records the video above from the real UI (static build plus the
+local API for the live upload) and cuts it with ffmpeg: 1920×1080, 4:52. The voiceover script with
+timecodes is `evaluation/demo/video/voiceover.md`; the title, architecture and closing cards are the HTML
+files next to it.
