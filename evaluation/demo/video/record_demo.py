@@ -129,31 +129,22 @@ def card(name, seconds):
     return run
 
 
-def s_dashcam(sc):
+def s_dashcam_mode(sc):
+    """The added mode: moving cameras. Vehicle ahead vs radar, then the own-speed refusal."""
     app(sc)
     sc.case("Real dashcam")
     sc.p.locator("video").first.evaluate("v => { v.muted = true; v.play(); }")
     sc.mark()
-    sc.wait(7)
-    sc.scroll_to(sc.section("Vehicle ahead"), offset=30, ms=1800)
-    sc.wait(6)
+    sc.wait(5)
+    sc.scroll_to(sc.section("Vehicle ahead"), offset=30, ms=1600)
+    sc.wait(3)
     charts = sc.section("Vehicle ahead").locator(".recharts-wrapper")
-    sc.move_to(charts.nth(0), steps=40); sc.wait(9)
-    sc.move_to(charts.nth(1), steps=40); sc.wait(8)
-    sc.scroll_by(520, ms=1800)
-    sc.wait(8)
-    return None
-
-
-def s_own_speed(sc):
-    app(sc)
-    sc.case("Real dashcam")
-    sc.scroll_to(sc.section("Own-vehicle speed"), offset=30, ms=10)
-    sc.wait(0.5)
-    sc.mark()
-    sc.wait(8)
-    sc.scroll_by(330, ms=1500)
-    sc.wait(10)
+    sc.move_to(charts.nth(0), steps=40); sc.wait(8)
+    sc.move_to(charts.nth(1), steps=40); sc.wait(7)
+    sc.scroll_to(sc.section("Own-vehicle speed"), offset=30, ms=1600)
+    sc.wait(4)
+    sc.scroll_by(330, ms=1400)
+    sc.wait(9)
     return None
 
 
@@ -164,11 +155,11 @@ def s_rear_end(sc):
     sc.mark()
     sc.move_to(v, steps=40)
     v.evaluate("v => { v.muted = true; v.currentTime = 0; v.play(); }")
-    sc.wait(7.5)
+    sc.wait(8)
     v.evaluate("v => { v.currentTime = 0; v.playbackRate = 0.6; v.play(); }")
-    sc.wait(11)
+    sc.wait(12)
     sc.move_to(sc.p.locator(".facts").first, steps=40)
-    sc.wait(9)
+    sc.wait(13)
     return None
 
 
@@ -252,13 +243,12 @@ def s_results(sc):
 
 # (name, function, seconds kept) -- the voiceover script follows this order and these lengths
 SCENES = [
-    ("01_title", card("title", 12), 12),
-    ("02_dashcam_lead", s_dashcam, None),
-    ("03_own_speed", s_own_speed, None),
+    ("01_title", card("title", 13), 13),
     ("04_rear_end", s_rear_end, None),
     ("05_envelope", s_envelope, None),
     ("06_investigator", s_investigator, None),
     ("07_upload", s_upload, None),
+    ("07b_dashcam_mode", s_dashcam_mode, None),
     ("08_architecture", card("arch", 28), 28),
     ("09_results", s_results, None),
     ("10_close", card("close", 10), 10),
@@ -283,14 +273,14 @@ def record_scene(browser, name, fn):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    only = set(sys.argv[3].split(",")) if len(sys.argv) > 3 else None
+    only = set(sys.argv[3].split(",")) if len(sys.argv) > 3 else None   # re-record only these scenes
     httpd = serve()
     logf = os.path.join(OUT, "scenes.json")
     log = json.load(open(logf)) if os.path.exists(logf) else {}
     with sync_playwright() as p:
         b = p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
         for name, fn, keep in SCENES:
-            if only and name not in only and name in log:
+            if only is not None and name not in only and name in log:
                 continue
             e = record_scene(b, name, fn)
             e["keep"] = keep

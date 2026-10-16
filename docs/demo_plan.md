@@ -1,28 +1,25 @@
 # Demo plan: 5-minute video, with a backup
 
-Goal: in five minutes, show a judge four things. Odolite measures motion from
-markings with OpenCV. On real dashcam footage it measures the vehicle ahead
-with an OpenCV DNN detector and agrees with the car's own radar. When its
-own cross-examination disputes a result, it tries the remedy for that
-specific failure and says plainly when the refusal stands. Every claim is
-tested, failures included. Nothing in the video may suggest the collision
-verdicts were validated on real crashes, because they were not.
+Goal: in five minutes, show a judge what the product is: collision footage from an ordinary,
+uncalibrated camera in, physics out (speeds, brake onset, contact, near-miss measures, and whether
+braking could have prevented it), with every assumption stated. Then show that it cross-examines itself,
+that the app works live, the added dashcam mode with its real-footage validation, the architecture, and
+the held-out results, failures included. Nothing in the video may suggest that the collision verdicts were
+validated on real crashes, because they were not.
 
-The video opens on real footage, because that is where the strongest
-validated result is.
+## Script (4:38; voiceover with timecodes in evaluation/demo/video/voiceover.md)
 
-## Script (target 4:45, hard limit 5:00)
-
-| Time | Screen | Say (paraphrase) |
+| Time | Screen | Point |
 |---|---|---|
-| 0:00–0:20 | Case "Real dashcam, wrong assumption caught", video playing | Problem: road footage is everywhere, but nobody calibrated the camera. Odolite turns it into measurements from physics only, and it never assigns fault. This is one minute of real driving from the comma2k19 dataset. |
-| 0:20–1:10 | Scroll to "Vehicle ahead: distance and closing speed" | YOLOX-S running on OpenCV 5's DNN module finds the car in our lane. Its distance comes from two independent rulers: where its tyres meet the road, and how wide it looks. If they disagree, Odolite refuses the window. Grey is the car's own radar, which Odolite never saw. Pre-registered: the first 20 s for development, the last 40 s run once. Range within 2.4 % median, every interval contains the radar; closing speed within 0.6 m/s. |
-| 1:10–1:40 | Scroll up to own-vehicle speed and the refusal table | The same footage under a freeway marking assumption: the lane width and the camera's focal length contradict it in 19 windows, so Odolite answers none instead of giving speeds twice too high. This was our pre-registered holdout, and its first version failed. The "Real dashcam footage" tab shows that failure. |
-| 1:40–2:25 | Case "Rear-end, roadside camera": play with the road-grid overlay | Static camera: the only ruler is the paint (a stated 12 m ± 3 % dash cycle). Lines, vanishing point and a closed-form horizon give the road plane, drawn back onto the video. MOG2, Kalman and Hungarian track the vehicles. |
-| 2:25–3:05 | Envelope map, "How close they came", then "Checked against ground truth" | The verdict holds across reaction times 0.75–2.0 s and braking 5–8 m/s², or it says which assumption decides it. Here it depends. The near-miss measures (smallest gap, time to collision, braking needed) are the standard traffic-conflict figures. Show the ground-truth rows marked "differs" too. This case is synthetic and illustrative. |
-| 3:05–3:50 | Case "Camera knocked mid-clip": "What Odolite tried after the dispute" | The cross-examination finds the camera moved. Odolite locates the bump (ECC alignment), splits the clip and re-analyses each part; each part must pass the whole cross-examination again. Here neither does, so the refusal stands, and Odolite says what input would help. |
-| 3:50–4:10 | Case "Unfamiliar road markings" | The dashes are 6 m + 12 m. Odolite notices the proportions, tries every documented standard that matches, and gives a verdict only if all of them agree. They do not, so no verdict. |
-| 4:10–4:45 | "How it was tested" tab: test3 and investigator tables | Held-out, pre-registered, run once. With true tracks the reasoning makes no harmful errors; from pixels it makes 5 in 30, and we show where they come from. The investigator changed no outcome on the fresh split and made one borderline answer on the fault scenes. We publish that. Close on the AWS diagram, one sentence. |
+| 0:00–0:13 | Title card (team, one-line product) | What Odolite is: collision footage in, physics out |
+| 0:13–0:48 | Case "Rear-end, roadside camera", the clip with the road grid | The paint is the ruler: vanishing point, closed-form horizon, tracking; speeds, brake onset, contact (synthetic, with ground truth) |
+| 0:48–1:27 | Envelope map, "How close they came", "Checked against ground truth" | A verdict only if it holds across the reaction and braking range; near-miss measures; the rows where it is off |
+| 1:27–2:07 | Case "Camera knocked mid-clip": the investigator trace | Cross-examination, the remedy (ECC bump detection, re-analysis), the refusal stands, the input request |
+| 2:07–2:34 | Live upload with the frame rate filled in (wait cut) | The app working end to end |
+| 2:34–3:22 | Case "Real dashcam": the vehicle ahead against radar, then the own-speed refusal | The added mode: YOLOX-S on cv2.dnn, two range rulers, pre-registered real-footage result |
+| 3:22–3:50 | Architecture card | OpenCV 5 components; the AWS path: API Gateway, S3, container Lambda, DynamoDB, expiry |
+| 3:50–4:28 | "How it was tested": test3, investigator, radar tables | Held-out results with the failures |
+| 4:28–4:38 | Closing card | No fault; measures what the footage supports |
 
 Recording notes: 1920×1080, browser at 110 % zoom, cursor highlight on.
 Record the UI from the static build (`npm run build && npx serve out`) so
@@ -62,6 +59,6 @@ development machine this takes about 30 s (docs/aws.md); cut the wait.
 ## The recorded video
 
 `evaluation/demo/video/record_demo.py` records the video above from the real UI (static build plus the
-local API for the live upload) and cuts it with ffmpeg: 1920×1080, 4:52. The voiceover script with
+local API for the live upload) and cuts it with ffmpeg: 1920×1080, 4:38. The voiceover script with
 timecodes is `evaluation/demo/video/voiceover.md`; the title, architecture and closing cards are the HTML
 files next to it.

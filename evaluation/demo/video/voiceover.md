@@ -1,66 +1,51 @@
 # Odolite demo: voiceover script
 
-Video: `odolite_demo.mp4`, 1920×1080, 4:52, silent track (record the voice and lay it over, or replace the
-audio track). Made by `record_demo.py` from the real UI. Every number on screen comes from the committed
-case and evaluation files, and the upload scene is a live analysis by the local server.
+Video: `odolite_demo.mp4`, 1920×1080, 4:38. The audio track is silent: record your voice and lay it over.
+`record_demo.py` made the video from the real UI. Every number on screen comes from the committed case
+and evaluation files, and the upload scene is a live analysis by the local server.
 
 Pace: about 140 words a minute, calm. Each block starts at its timecode. If a block runs short, let the
-picture breathe; if it runs long, cut the sentence marked *(optional)*.
+picture breathe. If it runs long, drop the sentence marked *(optional)*.
 
-Rules check (opencv.org/opencv-ai-competition-2026): at most 5 minutes ✓ (4:52); it must show the team
-(0:00), the application working (0:12–3:36, including a live upload at 3:10), its architecture (3:36) and
-its principal results (4:04). Upload it as public or unlisted (YouTube unlisted is fine) and check that the
-link opens while logged out.
+Rules check (opencv.org/opencv-ai-competition-2026):
+* at most 5 minutes: ✓ (4:38);
+* shows the team: 0:00;
+* shows the application working: 0:13–3:22, including a live upload at 2:07;
+* shows its architecture: 3:22;
+* shows its principal results: 3:50.
+
+Upload it public or unlisted (unlisted YouTube is fine), and check that the link opens while logged out.
 
 ---
 
-### 0:00–0:12 · Title card
+### 0:00–0:13 · Title card
 
-> Hi, I'm Abdullah. This is Odolite, my entry for the OpenCV AI Competition. It turns ordinary road footage
-> into physical measurements, and states every assumption they rest on.
+> Hi, I'm Abdullah. This is Odolite. Give it collision footage from an ordinary, uncalibrated camera, and it
+> works out the physics, stating every assumption along the way.
 
-### 0:12–1:00 · Real dashcam, the vehicle ahead
+### 0:13–0:48 · A collision on a fixed roadside camera
 
-*(case opens and plays; at about 0:20 it scrolls to the distance charts; at about 0:47 to the time-to-collision table)*
+*(the clip plays twice, the second time slowed down; then the key facts)*
 
-> Real footage first: one minute of driving from the comma2k19 dataset.
->
-> This is the car ahead of us. A YOLOX detector, running on OpenCV 5's DNN module, finds it in our lane. Its
-> distance comes from two independent rulers: where its tyres meet the road, and how wide it looks. If the
-> two disagree, Odolite refuses that window instead of guessing.
->
-> The grey line is the car's own radar, which Odolite never saw. The test was pre-registered: the first
-> twenty seconds for development, the last forty run once. Distance is within 2.4 percent, and every interval
-> contains the radar. Closing speed is within 0.6 metres per second.
+> A rear-end collision on a roadside camera. It's from our simulator, so every number can be checked against
+> ground truth. The only ruler is the road paint. OpenCV finds the lane lines and their vanishing point, and
+> because they're equally spaced, the horizon and camera roll follow in closed form. The grid is the recovered road plane, drawn back onto the video. MOG2, a Kalman
+> filter and Hungarian assignment track the vehicles. Out come each vehicle's speed, when braking began,
+> and the moment of contact.
 
-### 1:00–1:21 · Same clip, own speed: a refusal
-
-> Same clip, our own speed. Under a freeway marking standard, the lane width and the camera's focal length
-> contradict that assumption, so Odolite answers none of the windows, instead of reporting speeds twice too
-> high. This was our pre-registered holdout. Its first version failed, and we publish that.
-
-### 1:21–1:50 · Fixed roadside camera
-
-*(the clip plays twice, the second time slowed down)*
-
-> Now a fixed roadside camera. Here the only ruler is the paint. OpenCV finds the lane lines and their
-> vanishing point. Because the three lines are equally spaced, the horizon, and the camera's roll, follow in
-> closed form. The grid is the recovered road plane, drawn back onto the video. MOG2, a Kalman filter and
-> Hungarian assignment track the vehicles.
-
-### 1:50–2:29 · Which assumption decides the answer
+### 0:48–1:27 · Could braking have prevented it?
 
 *(envelope map, then "How close they came", then "Checked against ground truth")*
 
-> Could braking have prevented this? Odolite doesn't pick one reaction time. It replays the approach for
-> every reaction from 0.75 to two seconds and every braking level from five to eight metres per second
-> squared. It only says "avoidable" or "not avoidable" if the answer holds inside the whole box. Here it
-> doesn't, so it says which assumption decides it.
+> Could braking have prevented it? Odolite doesn't pick one reaction time. It replays the approach for every
+> reaction from 0.75 to two seconds and every braking level from five to eight metres per second squared.
+> It only says "avoidable" or "not avoidable" if the answer holds inside the whole box. Here it doesn't, so
+> it says which assumption decides it.
 >
-> These are the standard near-miss measures: smallest gap, time to collision and braking needed. This clip
-> is synthetic, so we can check against ground truth, including the two rows where Odolite is off.
+> Below are the standard near-miss measures: smallest gap, time to collision and braking needed. Then the
+> check against ground truth, including the two rows where Odolite is off.
 
-### 2:29–3:10 · The investigator
+### 1:27–2:07 · When the footage fights back
 
 *(camera-knocked case; scrolls through "What Odolite tried after the dispute")*
 
@@ -72,32 +57,45 @@ link opens while logged out.
 > cross-examination from scratch. Neither does, so the refusal stands, and Odolite says what input would
 > help. It never relaxes a threshold to produce an answer.
 
-### 3:10–3:36 · Live upload
+### 2:07–2:34 · Live upload
 
 *(file chosen, frame rate typed, Analyse; the wait is cut; the new case appears)*
 
-> This is the app working live. I upload a clip and tell it the frame rate, which is the one thing the file
-> metadata often gets wrong. The analysis takes about half a minute, cut here. The result comes back with
-> the same reasoning, cross-examination and stated assumptions.
+> This is the app working live. I upload a collision clip and give it the frame rate, the one thing file
+> metadata often gets wrong. The analysis takes about half a minute, cut here. Back comes the full case:
+> speeds, contact, the cross-examination and every stated assumption.
 
-### 3:36–4:04 · Architecture
+### 2:34–3:22 · Added mode: dashcam footage
+
+*(real dashcam clip, the vehicle-ahead charts, then the own-speed refusal)*
+
+> Odolite also handles a moving camera, as an added mode. This is real footage: one minute of driving from
+> the comma2k19 dataset. A YOLOX detector on OpenCV 5's DNN module finds the car ahead. Its distance comes
+> from two independent rulers: where its tyres meet the road, and how wide it looks. If they disagree, the
+> window is refused. The grey line is the car's own radar, which Odolite never saw. On the pre-registered
+> test, distance was within 2.4 percent, and every interval contained the radar.
+>
+> On the same clip, the lane width contradicts a freeway marking assumption, so Odolite refuses to give
+> speeds that would be twice too high.
+
+### 3:22–3:50 · Architecture
 
 > OpenCV 5 does every image operation: the markings, tracking, optical flow, the image alignment and the DNN
 > detector. On AWS, the browser uploads through a presigned URL to a private S3 bucket. The upload triggers a
 > container Lambda that runs the full analysis, DynamoDB tracks the job, and footage expires automatically
 > after seven days.
 
-### 4:04–4:42 · Results, failures included
+### 3:50–4:28 · Results, failures included
 
 *(test3 table, then "What the investigator changed", then the radar table)*
 
 > Results, failures included. Each test set was fixed in advance and run once. With true tracks, the
-> reasoning made no harmful errors on the newest held-out split. From raw pixels it got five of thirty right
-> and made five harmful errors, mostly when the following car was hidden. That's the next thing to fix.
-> The investigator changed no outcome there. Collision verdicts are validated on simulation only, because we
-> found no real crash footage we could legally use. The dashcam measurements are validated on real footage.
+> collision reasoning made no harmful errors on the newest held-out split. From raw pixels, it got five of
+> thirty right and made five harmful errors, mostly when the following car was hidden. That's the next
+> thing to fix. Collision verdicts are validated on simulation only, because we found no real crash footage
+> we could legally use. The dashcam measurements are validated on real footage.
 
-### 4:42–4:52 · Closing card
+### 4:28–4:38 · Closing card
 
 > Odolite never assigns fault. It measures what the footage supports, and says why when it can't. Thanks for
 > watching.
@@ -106,8 +104,8 @@ link opens while logged out.
 
 ## Recording the voice
 
-* Phone voice memo in a quiet room is fine; keep the phone about 20 cm away.
-* Lay it over the video: in CapCut, DaVinci Resolve or iMovie, drop the video and the voice on the timeline
-  and nudge each block to its timecode. Or with ffmpeg:
+* A phone voice memo in a quiet room is fine; hold the phone about 20 cm away.
+* To lay it over the video, put the video and the voice on one timeline in CapCut, DaVinci Resolve or
+  iMovie, and nudge each block to its timecode. Or, with ffmpeg:
   `ffmpeg -i odolite_demo.mp4 -i voice.m4a -map 0:v -map 1:a -c:v copy -c:a aac -shortest odolite_final.mp4`
-* Optional: add captions (YouTube auto-captions, then correct them), which judges watching on mute appreciate.
+* Optional: add captions for judges watching on mute (YouTube auto-captions, then correct them).
