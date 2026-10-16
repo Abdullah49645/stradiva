@@ -1,0 +1,277 @@
+{
+ "summary": {
+  "part": "dev",
+  "t_range_s": [
+   0.0,
+   20.0
+  ],
+  "n_windows": 10,
+  "n_answered": 8,
+  "n_answered_with_radar": 8,
+  "range_offset_m_from_dev": 1.2909938902425324,
+  "camera_height_m": 1.3054900457225802,
+  "estimator_version": "lead-5",
+  "rel_speed_median_abs_err_mps": 0.4915440434049429,
+  "rel_speed_ci90_coverage": 1.0,
+  "range_median_ape": 0.025393507206077727,
+  "range_ci90_coverage": 1.0,
+  "range_bias_rel": 0.0015871348486425334,
+  "ttc_both_closing": 2,
+  "ttc_radar_inside_ci90": 1,
+  "ttc_carai_only": 0,
+  "ttc_radar_only": 2,
+  "abstention_reasons": {
+   "lead vehicle": 2
+  }
+ },
+ "windows": [
+  {
+   "t_start_s": 0.0,
+   "t_end_s": 2.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 29.894224439226296,
+   "range_ci90_m": [
+    26.70437224236685,
+    33.42232407580409
+   ],
+   "rel_speed_mps": 2.4484326276680775,
+   "rel_speed_ci90_mps": [
+    1.3950711835835548,
+    3.685314582366608
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 26.87012335597853,
+   "range_ground_plane_rel_sigma": 0.15535105793539933,
+   "range_from_width_m": 30.751769083789057,
+   "lead_class": "car",
+   "radar_range_m": 32.480000000000004,
+   "radar_rel_speed_mps": 3.0625,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 2.0,
+   "t_end_s": 4.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 33.393242483810226,
+   "range_ci90_m": [
+    29.75764534936449,
+    36.86298489217915
+   ],
+   "rel_speed_mps": 1.7970700279424152,
+   "rel_speed_ci90_mps": [
+    0.381885547403336,
+    3.3085007410153606
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 28.753051002779884,
+   "range_ground_plane_rel_sigma": 0.14830444824758424,
+   "range_from_width_m": 34.87910125560643,
+   "lead_class": "car",
+   "radar_range_m": 37.96000000000001,
+   "radar_rel_speed_mps": 2.575,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 4.0,
+   "t_end_s": 6.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 39.670160094281314,
+   "range_ci90_m": [
+    35.63899294094572,
+    44.646178887617765
+   ],
+   "rel_speed_mps": 0.18255778072773263,
+   "rel_speed_ci90_mps": [
+    -1.901449125133786,
+    1.6036242987616482
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 34.195777123995796,
+   "range_ground_plane_rel_sigma": 0.16420961829759292,
+   "range_from_width_m": 41.093277188684304,
+   "lead_class": "car",
+   "radar_range_m": 42.08,
+   "radar_rel_speed_mps": 1.1625,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 6.0,
+   "t_end_s": 8.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 42.33577058580082,
+   "range_ci90_m": [
+    37.80183190425833,
+    47.42233225402028
+   ],
+   "rel_speed_mps": -0.09023355897183402,
+   "rel_speed_ci90_mps": [
+    -2.6474924734163627,
+    1.7724320096284725
+   ],
+   "n_frames": 31,
+   "range_ground_plane_m": 47.91298296977606,
+   "range_ground_plane_rel_sigma": 0.15899698732394302,
+   "range_from_width_m": 41.029948798546975,
+   "lead_class": "car",
+   "radar_range_m": 42.74,
+   "radar_rel_speed_mps": -0.45,
+   "radar_ttc_s": null
+  },
+  {
+   "t_start_s": 8.0,
+   "t_end_s": 10.0,
+   "status": "ABSTAIN",
+   "reasons": [
+    "lead vehicle in the ego lane tracked in 6 of 40 frames"
+   ],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "radar_range_m": 76.22,
+   "radar_rel_speed_mps": -3.9000000000000004,
+   "radar_ttc_s": 19.54358974358974
+  },
+  {
+   "t_start_s": 10.0,
+   "t_end_s": 12.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 67.97446578891731,
+   "range_ci90_m": [
+    59.756228850290235,
+    77.03916762383206
+   ],
+   "rel_speed_mps": -4.192788916239315,
+   "rel_speed_ci90_mps": [
+    -9.787659031883102,
+    -0.9662762719659982
+   ],
+   "n_frames": 27,
+   "range_ground_plane_m": 87.2185246934672,
+   "range_ground_plane_rel_sigma": 0.34693288037482245,
+   "range_from_width_m": 67.07939951709416,
+   "lead_class": "car",
+   "ttc_s": 13.466674389800705,
+   "ttc_ci90_s": [
+    6.550584632225313,
+    58.49443296240847
+   ],
+   "radar_range_m": 67.68,
+   "radar_rel_speed_mps": -4.075,
+   "radar_ttc_s": 16.608588957055215
+  },
+  {
+   "t_start_s": 12.0,
+   "t_end_s": 14.0,
+   "status": "ABSTAIN",
+   "reasons": [
+    "lead vehicle in the ego lane tracked in 10 of 40 frames"
+   ],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "radar_range_m": 60.260000000000005,
+   "radar_rel_speed_mps": -3.2875000000000005,
+   "radar_ttc_s": 18.330038022813685
+  },
+  {
+   "t_start_s": 14.0,
+   "t_end_s": 16.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 57.484688304541365,
+   "range_ci90_m": [
+    51.15512551565353,
+    65.3568951026211
+   ],
+   "rel_speed_mps": -2.5192835066785695,
+   "rel_speed_ci90_mps": [
+    -7.976599553983477,
+    0.23140974958515698
+   ],
+   "n_frames": 26,
+   "range_ground_plane_m": 67.01472760531836,
+   "range_ground_plane_rel_sigma": 0.2741431705657049,
+   "range_from_width_m": 56.73866632275742,
+   "lead_class": "car",
+   "radar_range_m": 54.440000000000005,
+   "radar_rel_speed_mps": -2.4125000000000005,
+   "radar_ttc_s": 22.565803108808286
+  },
+  {
+   "t_start_s": 16.0,
+   "t_end_s": 18.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [],
+   "range_m": 48.28224163371412,
+   "range_ci90_m": [
+    42.45440812434455,
+    54.25508437684501
+   ],
+   "rel_speed_mps": -3.0723727762870126,
+   "rel_speed_ci90_mps": [
+    -6.761030366432078,
+    -1.101643997384701
+   ],
+   "n_frames": 38,
+   "range_ground_plane_m": 39.480373653458095,
+   "range_ground_plane_rel_sigma": 0.15459647111549227,
+   "range_from_width_m": 50.955749540748755,
+   "lead_class": "car",
+   "ttc_s": 14.180128350957357,
+   "ttc_ci90_s": [
+    5.949965385099606,
+    27.287073574545413
+   ],
+   "radar_range_m": 50.46000000000001,
+   "radar_rel_speed_mps": -1.4000000000000001,
+   "radar_ttc_s": 36.042857142857144
+  },
+  {
+   "t_start_s": 18.0,
+   "t_end_s": 20.0,
+   "status": "OK",
+   "reasons": [],
+   "notes": [
+    "clip-median lane geometry used (ego-lane boundaries not both visible in this window)"
+   ],
+   "range_m": 48.28021198114026,
+   "range_ci90_m": [
+    42.743952619197856,
+    53.49382928923721
+   ],
+   "rel_speed_mps": -1.0190207144779633,
+   "rel_speed_ci90_mps": [
+    -3.7889290502236843,
+    1.5845996277107985
+   ],
+   "n_frames": 40,
+   "range_ground_plane_m": 48.57906058198063,
+   "range_ground_plane_rel_sigma": 0.2103271140372233,
+   "range_from_width_m": 48.23712895801336,
+   "lead_class": "car",
+   "radar_range_m": 48.400000000000006,
+   "radar_rel_speed_mps": -0.65,
+   "radar_ttc_s": 74.46153846153847
+  }
+ ]
+}
