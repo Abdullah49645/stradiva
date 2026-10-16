@@ -27,6 +27,7 @@ constants. Stages:
 """
 from __future__ import annotations
 
+import copy as _copy
 import hashlib
 import os
 import time
@@ -44,7 +45,7 @@ from backend.reconstruction.kinematics import road_kinematics, velocity_kink
 from backend.causality.counterfactual import TrajectorySample, assess as assess_counterfactual, hinge_onset
 from backend.verification.skeptic import cross_examine
 
-PIPELINE_VERSION = "carai-2.1"
+PIPELINE_VERSION = "carai-2.2"
 BLOCKING_CHECKS = {"held_out_markings", "temporal_stability", "marking_standard", "kinematics"}
 FOLLOW_LENGTH_PRIOR = (4.6, 0.35)     # passenger car length mean, sd (m) -- stated assumption
 MAX_SECONDS = 20.0
@@ -288,7 +289,10 @@ def _json(o):
 # -------------------------------------------------------------------- main --
 
 def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks=None, max_seconds=MAX_SECONDS,
-                  return_internals=False):
+                  return_internals=False, fps_override=None, frame_range=None, focal_px=None):
+    """fps_override: the true frame rate when the user supplies it (container metadata is often wrong).
+    frame_range: (first, last) frame indices -- analyse only that part of the clip (used by the
+    investigator for the segments either side of a camera bump); times are then relative to `first`."""
     t_start = time.time()
     prior = prior or RoadPrior()
     rng = np.random.default_rng(seed)
@@ -312,6 +316,18 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
         stage("ingest", "FAIL", str(e))
         return (_json(case), None) if return_internals else _json(case)
     case["input"].update(info)
+    if fps_override:
+        case["input"]["fps_container"] = fps
+        fps = float(fps_override)
+        case["input"]["fps"] = fps
+        case["input"]["fps_source"] = "supplied by the user"
+    else:
+        case["input"]["fps_source"] = "container metadata (unverified)"
+    if frame_range is not None:
+        a, b = int(frame_range[0]), int(min(frame_range[1], len(frames)))
+        frames = frames[a:b]
+        case["input"]["frame_range"] = [a, b]
+        case["input"]["t_offset_s"] = a / fps
     if len(frames) < 15:
         case.update({"status": "INVALID_INPUT", "reasons": [f"only {len(frames)} frames decoded (need >= 15)"]})
         stage("ingest", "FAIL", "too few frames")
@@ -330,11 +346,24 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
                      "reasons": ["the camera moves (dashcam/handheld): third-party vehicle reconstruction needs a "
                                  "static camera; see the dashcam ego-speed result instead"]})
         try:
-            from backend.dashcam.ego_speed import estimate_ego_speed, MarkingPrior
+            from backend.dashcam.ego_speed import EgoSpeedConfig, estimate_ego_speed, MarkingPrior
             mp = MarkingPrior("from case prior", prior.cycle_m, prior.cycle_rel_sigma)
-            case["dashcam"] = estimate_ego_speed(path, mp, max_frames=len(frames))
+            case["dashcam"] = estimate_ego_speed(path, mp, max_frames=len(frames), fps_override=fps_override,
+                                                 cfg=EgoSpeedConfig(focal_px=focal_px))
         except Exception as e:  # noqa: BLE001
             case["dashcam_error"] = str(e)
+        # lead vehicle: range, closing speed, time-to-collision (needs the camera's focal length: both of its
+        # range rulers -- the ground plane and the vehicle width -- are in pixels per metre at the focal length)
+        if focal_px:
+            try:
+                from backend.dashcam.lead_vehicle import LeadConfig, analyze_lead
+                case["dashcam_lead"] = analyze_lead(path, fps, LeadConfig(focal_px=float(focal_px)), max_frames=len(frames))
+            except Exception as e:  # noqa: BLE001
+                case["dashcam_lead"] = {"status": "ERROR", "reason": str(e)[:300]}
+        else:
+            case["dashcam_lead"] = {"status": "NEEDS_INPUT",
+                                    "reason": "the lead-vehicle range needs the camera's focal length in pixels "
+                                              "(device specification or calibration)"}
         return (_json(case), None) if return_internals else _json(case)
     stage("camera_motion", "STATIC", f"{frac:.0%} of features static" if frac is not None else "")
 
@@ -392,9 +421,12 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
     tracks = track_vehicles(frames, bg, TrackerConfig())
     timings["tracking"] = time.time() - t0
 
+    case_pre = _copy.deepcopy(case) if return_internals else None
     out, internals = analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skeptic_checks, timings, t_start)
     if return_internals:
         internals["frames_shape"] = (h, w)
+        internals.update({"frames": frames, "case_pre": case_pre, "prior": prior, "seed": seed, "n_mc": n_mc,
+                          "skeptic_checks": skeptic_checks})
         return out, internals
     return out
 
@@ -487,7 +519,11 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
                              t_lo=win(fol["kin"])[0], t_hi=win(fol["kin"])[1])
         if kink is not None:
             kink["vehicle"] = "follower"
-        if not (kink and kink["significant"]):
+        # v2.2: a "pushed lead" is evidence only while the lead stays in view through the contact -- traffic
+        # approaching (the lead is the nearer vehicle). Receding traffic hides the lead behind the follower, and
+        # the last positions of a vehicle being covered move as its silhouette shrinks: not an impact.
+        lead_kink_ok = direction < 0 or (hidden != "lead" and lead.get("occluded_from_s") is None)
+        if not (kink and kink["significant"]) and lead_kink_ok:
             lk = velocity_kink(lead["kin"]["t"], -np.asarray(lead["kin"]["x_raw"]), lead["kin"]["sigma_x_meas"],
                                t_lo=win(lead["kin"])[0], t_hi=win(lead["kin"])[1])
             if lk is not None and lk["significant"]:
@@ -580,7 +616,18 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
         res_m_per_row = None
         try:
             from backend.reconstruction.kinematics import _jacobian
-            res_m_per_row = float(abs(_jacobian(geo.H, fol["uv"][-1])[0, 1]))
+            # v2.2: at the event (the contact, else the closest approach while both are measured), not at the
+            # follower's last position
+            t_mf = _measured(fol["track"], fps)[0]
+            if t_contact is not None:
+                t_ev = t_contact
+            else:
+                tc_ = fol["kin"]["t"][(fol["kin"]["t"] >= lead["kin"]["t"][0]) & (fol["kin"]["t"] <= lead["kin"]["t"][-1])]
+                t_ev = (float(tc_[np.argmin(np.interp(tc_, lead["kin"]["t"], lead["kin"]["x"])
+                                            - np.interp(tc_, fol["kin"]["t"], fol["kin"]["x"]))])
+                        if len(tc_) else float(t_mf[-1]))
+            k_ev = int(np.argmin(np.abs(t_mf - t_ev)))
+            res_m_per_row = float(abs(_jacobian(geo.H, fol["uv"][k_ev])[0, 1]))
         except Exception:  # noqa: BLE001 -- explanatory only
             pass
         if (res_m_per_row is not None and res_m_per_row > 2 * FOLLOW_LENGTH_PRIOR[1]

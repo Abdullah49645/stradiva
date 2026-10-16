@@ -45,8 +45,10 @@ ASSUMED_EDGE = 1.85
 
 def sample_scenario(split, i):
     # test2: a second held-out split with the test distribution, added (and committed) AFTER the eval-freeze
-    # run and BEFORE any post-freeze change is evaluated on it -- see docs/EVALUATION.md section 6
-    base = {"dev": 1000, "test": 5000, "shift": 9000, "test2": 13000}[split]
+    # run and BEFORE any post-freeze change is evaluated on it -- see docs/EVALUATION.md section 6.
+    # test3: the same distribution again, defined (and committed) before v2.2 + the investigator were run on
+    # any of its clips -- see evaluation/PREREGISTRATION_V22.md
+    base = {"dev": 1000, "test": 5000, "shift": 9000, "test2": 13000, "test3": 17000}[split]
     seed = base + i
     rng = np.random.default_rng(seed)
     hard = split == "shift"
@@ -396,9 +398,21 @@ def run_one(args):
         row["gt_collision_t_s"] = gtc["t_s"] if gtc else None
         row["gt"] = gt_counterfactual(sc, meta, gtc["t_s"] if gtc else None)
         t0 = time.time()
-        case = analyze_video(vp, seed=i)
+        if os.environ.get("CARAI_INVESTIGATE"):
+            from backend.investigator.investigator import investigate
+            case = investigate(vp, seed=i)
+        else:
+            case = analyze_video(vp, seed=i)
         row["pipeline_s"] = round(time.time() - t0, 1)
         score_case(row, case, gt, sc, meta)
+        inv = case.get("investigation")
+        if inv:
+            b = inv["base"]
+            bv = "NOT_RECONSTRUCTABLE" if b["status"] in ("NOT_RECONSTRUCTABLE", "INVALID_INPUT", "MOVING_CAMERA") else b["verdict"]
+            row["investigation"] = {"changed": inv["changed"], "trace": inv["trace"], "requests": inv["requests"],
+                                    "base_status": b["status"], "base_verdict": bv,
+                                    "base_outcome": outcome({**row, "status": b["status"], "carai_verdict": bv,
+                                                             "carai_contact_t_s": b["contact_t_s"]})}
         g = case.get("geometry") or {}
         row["geometry_ok"] = bool(g.get("ok"))
         row["roll_est_deg"] = g.get("roll_deg")
@@ -429,9 +443,12 @@ def main():
     ap.add_argument("--mode", default="e2e", choices=["e2e", "oracle_clean", "oracle_occluded"])
     ap.add_argument("--out", default=None, help="results file (default: evaluation/results/collision_suite_<split>[_<mode>].jsonl)")
     ap.add_argument("--no-legacy", action="store_true", help="skip the v1-pipeline ablation (faster)")
+    ap.add_argument("--investigate", action="store_true", help="run the investigator (backend/investigator) on top of the pipeline")
     args = ap.parse_args()
     if args.no_legacy:
         os.environ["CARAI_SKIP_LEGACY"] = "1"
+    if args.investigate:
+        os.environ["CARAI_INVESTIGATE"] = "1"
     suffix = "" if args.mode == "e2e" else f"_{args.mode}"
     out = args.out or os.path.join(RESULTS_DIR, f"collision_suite_{args.split}{suffix}.jsonl")
     done = set()

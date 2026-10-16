@@ -20,11 +20,13 @@ export async function apiHealth(): Promise<{ ok: boolean; mode?: string; pipelin
   }
 }
 
-export async function createJob(filename: string): Promise<{ job_id: string; upload_url: string }> {
+export type JobInputs = { fps?: number; focal_px?: number; marking_standard?: string };
+
+export async function createJob(filename: string, inputs: JobInputs = {}): Promise<{ job_id: string; upload_url: string }> {
   const res = await fetch(`${API_BASE}/jobs`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filename }),
+    body: JSON.stringify({ filename, inputs }),
   });
   if (!res.ok) {
     const detail = await res.json().catch(() => ({}));

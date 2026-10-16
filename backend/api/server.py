@@ -3,7 +3,8 @@ Local CARAI API -- the same job contract as the AWS deployment
 (infrastructure/aws/api_handler.py + lambda_handler.py), so the web UI talks
 to either without code changes:
 
-    POST /jobs                 {"filename": "..."}  ->  {"job_id", "upload_url", "expires_in_s"}
+    POST /jobs                 {"filename": "...", "inputs"?: {"fps", "focal_px", "marking_standard"}}
+                                                    ->  {"job_id", "upload_url", "expires_in_s"}
     PUT  <upload_url>          raw video bytes       ->  204   (processing starts)
     GET  /jobs/{job_id}                              ->  {"job_id", "status", "stage", "result"?, "error"?}
     GET  /health                                     ->  {"ok": true, "pipeline_version": ...}
@@ -28,6 +29,8 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
+from backend.investigator.inputs import validate_inputs
+from backend.investigator.investigator import investigate
 from backend.pipeline.analyze import analyze_video, PIPELINE_VERSION
 
 MAX_UPLOAD_BYTES = int(os.environ.get("CARAI_MAX_UPLOAD_MB", "200")) * 1024 * 1024
@@ -49,11 +52,18 @@ def _set(job_id, **kw):
         JOBS[job_id].update(kw, updated_at=time.time())
 
 
+USE_INVESTIGATOR = os.environ.get("CARAI_INVESTIGATOR", "1") != "0"
+
+
 def _process(job_id, path):
     with WORKER_SLOTS:
         _set(job_id, status="PROCESSING", stage="analysing")
         try:
-            case = analyze_video(path, seed=0)
+            inputs = JOBS[job_id].get("inputs") or {}
+            if USE_INVESTIGATOR:
+                case = investigate(path, seed=0, user_inputs=inputs)
+            else:
+                case = analyze_video(path, seed=0, fps_override=inputs.get("fps"), focal_px=inputs.get("focal_px"))
             _set(job_id, status=case.get("status", "DONE"), stage="done", result=case)
         except Exception as exc:  # noqa: BLE001 -- report, never hang at PROCESSING
             _set(job_id, status="ERROR", stage="failed", error=f"{type(exc).__name__}: {exc}",
@@ -80,10 +90,13 @@ async def create_job(request: Request):
     ext = os.path.splitext(filename)[1].lower()
     if ext not in ALLOWED_EXT:
         raise HTTPException(400, f"unsupported file type '{ext}' (accepted: {', '.join(sorted(ALLOWED_EXT))})")
+    inputs, err = validate_inputs(body.get("inputs"))
+    if err:
+        raise HTTPException(400, err)
     job_id = str(uuid.uuid4())
     with LOCK:
         JOBS[job_id] = {"job_id": job_id, "status": "PENDING", "stage": "awaiting upload", "filename": filename,
-                        "created_at": time.time()}
+                        "created_at": time.time(), "inputs": inputs}
     base = str(request.base_url).rstrip("/")
     return {"job_id": job_id, "upload_url": f"{base}/jobs/{job_id}/upload", "expires_in_s": 900}
 

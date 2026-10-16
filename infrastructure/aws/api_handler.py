@@ -2,7 +2,8 @@
 API Gateway Lambda (proxy integration). Same contract as the local server
 (backend/api/server.py), so the web UI works against either:
 
-  POST /jobs          {"filename"}  -> job record (PENDING) + presigned S3 PUT URL for uploads/{job_id}/{filename}
+  POST /jobs          {"filename", "inputs"?}  -> job record (PENDING) + presigned S3 PUT URL for uploads/{job_id}/{filename}
+                      inputs (optional): {"fps", "focal_px", "marking_standard"} -- what the user knows about the camera
   GET  /jobs/{job_id}               -> {"job_id", "status", "result"?, "error"?}
 
 Every response carries CORS headers for the configured web origin.
@@ -13,6 +14,38 @@ import time
 import uuid
 
 import boto3
+
+# The API function is packaged without the pipeline (CodeUri: infrastructure/aws), so the input validation is
+# repeated here; tests/test_aws_handlers.py checks it against backend/investigator/inputs.py.
+MARKING_STANDARDS = {"carai_synthetic", "us_mutcd", "caltrans_freeway", "fr_t1", "at_motorway", "at_rural", "at_urban"}
+INPUT_LIMITS = {"fps": (1.0, 240.0), "focal_px": (100.0, 10000.0)}
+
+
+def validate_inputs(raw):
+    if raw in (None, {}):
+        return {}, None
+    if not isinstance(raw, dict):
+        return {}, "inputs must be an object"
+    clean = {}
+    for k, v in raw.items():
+        if v in (None, ""):
+            continue
+        if k in INPUT_LIMITS:
+            try:
+                x = float(v)
+            except (TypeError, ValueError):
+                return {}, f"{k} must be a number"
+            lo, hi = INPUT_LIMITS[k]
+            if not lo <= x <= hi:
+                return {}, f"{k} must be between {lo:g} and {hi:g}"
+            clean[k] = x
+        elif k == "marking_standard":
+            if v not in MARKING_STANDARDS:
+                return {}, f"unknown marking_standard '{v}' (known: {', '.join(sorted(MARKING_STANDARDS))})"
+            clean[k] = v
+        else:
+            return {}, f"unknown input '{k}' (accepted: fps, focal_px, marking_standard)"
+    return clean, None
 
 S3 = boto3.client("s3")
 DDB = boto3.resource("dynamodb")
@@ -40,12 +73,18 @@ def _create_job(event):
     ext = os.path.splitext(filename)[1].lower()
     if ext not in ALLOWED_EXT:
         return _response(400, {"error": f"unsupported file type '{ext}' (accepted: {', '.join(sorted(ALLOWED_EXT))})"})
+    inputs = {}
+    if body.get("inputs"):
+        inputs, err = validate_inputs(body.get("inputs"))
+        if err:
+            return _response(400, {"error": err})
     job_id = str(uuid.uuid4())
     key = f"uploads/{job_id}/{filename}"
     url = S3.generate_presigned_url("put_object", Params={"Bucket": BUCKET, "Key": key}, ExpiresIn=UPLOAD_URL_EXPIRY_S)
     now = int(time.time())
     DDB.Table(JOBS_TABLE).put_item(Item={"job_id": job_id, "status": "PENDING", "created_at": now,
-                                         "upload_key": key, "expires_at": now + RETENTION_S})
+                                         "upload_key": key, "expires_at": now + RETENTION_S,
+                                         "inputs": json.dumps(inputs)})
     return _response(200, {"job_id": job_id, "upload_url": url, "expires_in_s": UPLOAD_URL_EXPIRY_S})
 
 

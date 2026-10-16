@@ -1,7 +1,7 @@
 """
 S3-triggered processing Lambda (container image, see infrastructure/docker/Dockerfile.lambda).
 
-uploads/{job_id}/{filename}  ->  backend.pipeline.analyze.analyze_video  ->  results/{job_id}/case.json
+uploads/{job_id}/{filename}  ->  backend.investigator.investigate (the pipeline + its remedies)  ->  results/{job_id}/case.json
 and the job record in DynamoDB moves PENDING -> PROCESSING -> <case status> | ERROR.
 
 Robustness:
@@ -25,11 +25,13 @@ from botocore.exceptions import ClientError
 
 sys.path.insert(0, "/opt/carai")  # repo root inside the container image
 from backend.pipeline.analyze import analyze_video  # noqa: E402
+from backend.investigator.investigator import investigate  # noqa: E402
 
 S3 = boto3.client("s3")
 DDB = boto3.resource("dynamodb")
 JOBS_TABLE = os.environ.get("JOBS_TABLE", "carai-jobs")
 MAX_SECONDS = float(os.environ.get("CARAI_MAX_SECONDS", "15"))
+USE_INVESTIGATOR = os.environ.get("CARAI_INVESTIGATOR", "1") != "0"
 RESULTS_PREFIX = "results"
 TMP_DIR = "/tmp"
 
@@ -68,7 +70,13 @@ def handler(event, context):
         local = os.path.join(TMP_DIR, f"{job_id}_{filename}")
         try:
             S3.download_file(bucket, key, local)
-            case = analyze_video(local, max_seconds=MAX_SECONDS)
+            item = DDB.Table(JOBS_TABLE).get_item(Key={"job_id": job_id}).get("Item") or {}
+            inputs = json.loads(item.get("inputs") or "{}")
+            if USE_INVESTIGATOR:
+                case = investigate(local, seed=0, user_inputs=inputs, max_seconds=MAX_SECONDS)
+            else:
+                case = analyze_video(local, max_seconds=MAX_SECONDS, fps_override=inputs.get("fps"),
+                                     focal_px=inputs.get("focal_px"))
             case["job_id"] = job_id
             result_key = f"{RESULTS_PREFIX}/{job_id}/case.json"
             S3.put_object(Bucket=bucket, Key=result_key, Body=json.dumps(case).encode("utf-8"),

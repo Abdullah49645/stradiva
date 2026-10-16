@@ -89,10 +89,79 @@ export interface CaseFile {
   stages?: { stage: string; status: string; detail: string; t_s: number }[];
   timings_s?: Record<string, number>;
   dashcam?: { fps: number; fps_source?: string; prior: { name: string; cycle_m: number }; windows: DashWindow[] };
+  near_miss?: NearMiss;
+  investigation?: Investigation;
+  dashcam_lead?: DashcamLead;
+  marking_standard_candidates?: { standard: string; name: string; cycle_m: number; source: string; status: string; verdict: string | null }[];
+  segment_analysis?: { camera_shift_frame: number; camera_shift_t_s: number; adopted_frames: [number, number];
+                       segments: { frames: [number, number]; t_s?: [number, number]; status?: string; verdict?: string | null; skipped?: string }[] };
+  quarantine?: Record<string, { frames: number[]; fraction: number }>;
+  time_base?: string;
   // added by evaluation/demo/build_cases.py for the bundled cases only
   provenance?: Provenance;
   validation?: Validation;
   video?: string;
+}
+
+export interface Interval { median: number; ci90: [number, number] }
+
+export interface NearMiss {
+  withheld?: string;
+  observed_interval_s?: [number, number];
+  n_samples?: number;
+  ttc_cap_s?: number;
+  p_conflict_ttc_below_1_5s?: number;
+  t_min_ttc_s?: number | null;
+  min_gap_m?: Interval;
+  min_ttc_s?: Interval;
+  max_drac_mps2?: Interval;
+  definitions?: Record<string, string>;
+}
+
+export interface InvestigationStep {
+  step: string;
+  diagnosis?: string;
+  action?: string;
+  observation?: string | Record<string, unknown>;
+  decision?: string;
+  candidates?: { standard: string; name: string; cycle_m: number; status: string; verdict: string | null; sub_step?: InvestigationStep }[];
+  segments?: { frames: [number, number]; t_s?: [number, number]; status?: string; verdict?: string | null; skipped?: string }[];
+  re_examination?: { status: string; verdict: string | null; disputed_checks: string[] | null };
+}
+
+export interface Investigation {
+  base: { status: string; verdict: string | null; disputed_checks: string[] | null };
+  final: { status: string; verdict: string | null; disputed_checks: string[] | null };
+  trace: InvestigationStep[];
+  requests: { input: string; why: string; options?: string[] }[];
+  changed: boolean;
+  user_inputs?: Record<string, unknown>;
+}
+
+export interface LeadWindow {
+  t_start_s: number;
+  t_end_s: number;
+  status: string;
+  reasons?: string[];
+  range_m?: number;
+  range_ci90_m?: [number, number];
+  rel_speed_mps?: number;
+  rel_speed_ci90_mps?: [number, number];
+  ttc_s?: number | null;
+  ttc_ci90_s?: [number, number] | null;
+  radar_range_m?: number | null;
+  radar_rel_speed_mps?: number | null;
+  radar_ttc_s?: number | null;
+  part?: "development" | "test";
+}
+
+export interface DashcamLead {
+  status: string;
+  reason?: string;
+  camera_height_m?: number;
+  range_offset_m?: number;
+  windows?: LeadWindow[];
+  summary_test?: Record<string, unknown>;
 }
 
 export interface DashWindow {

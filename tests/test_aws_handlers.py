@@ -106,3 +106,26 @@ def test_corrupt_upload_is_invalid_input_not_error(aws):
 def test_unknown_job_404(aws):
     r = aws["api"].handler({"httpMethod": "GET", "pathParameters": {"job_id": "nope"}}, None)
     assert r["statusCode"] == 404
+
+
+def test_inputs_validated_and_stored(aws):
+    r = aws["api"].handler({"httpMethod": "POST", "resource": "/jobs", "body": json.dumps(
+        {"filename": "c.mp4", "inputs": {"fps": 25, "marking_standard": "fr_t1"}})}, None)
+    assert r["statusCode"] == 200
+    item = aws["ddb"].Table(TABLE).get_item(Key={"job_id": json.loads(r["body"])["job_id"]})["Item"]
+    assert json.loads(item["inputs"]) == {"fps": 25.0, "marking_standard": "fr_t1"}
+    for bad in ({"fps": 0}, {"marking_standard": "nope"}, {"speed": 3}, {"focal_px": "x"}):
+        r = aws["api"].handler({"httpMethod": "POST", "resource": "/jobs", "body": json.dumps(
+            {"filename": "c.mp4", "inputs": bad})}, None)
+        assert r["statusCode"] == 400, bad
+
+
+def test_api_validator_matches_pipeline_validator():
+    """The API Lambda repeats the validation (it ships without the pipeline); the two must agree."""
+    import api_handler
+    from backend.geometry.marking_standards import BY_KEY
+    from backend.investigator.inputs import LIMITS, validate_inputs
+    assert api_handler.MARKING_STANDARDS == set(BY_KEY)
+    assert api_handler.INPUT_LIMITS == LIMITS
+    for raw in ({"fps": 30}, {"fps": 500}, {"focal_px": 910, "marking_standard": "us_mutcd"}, {"x": 1}, "s"):
+        assert api_handler.validate_inputs(raw) == validate_inputs(raw)

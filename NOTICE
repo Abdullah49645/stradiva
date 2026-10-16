@@ -13,6 +13,12 @@ Third-party software (used as dependencies, not vendored):
   Next.js, React, Recharts, Tailwind CSS (UI) ..... MIT
   Overpass, IBM Plex Sans fonts (via @fontsource) . SIL Open Font License 1.1
 
+Third-party model (downloaded by models/fetch_models.sh, not stored in the repository):
+  YOLOX-S object detector, object_detection_yolox_2022nov.onnx, from the OpenCV
+  Model Zoo (https://github.com/opencv/opencv_zoo, models/object_detection_yolox),
+  Apache License 2.0; YOLOX by Megvii (https://github.com/Megvii-BaseDetection/YOLOX).
+  Licence text: licenses/opencv_zoo_yolox-Apache-2.0.txt.
+
 Third-party data (see docs/data_provenance.md):
   frontend/public/cases/dashcam_real.* contains frames re-encoded from one
   segment of the comma2k19 dataset, https://github.com/commaai/comma2k19,

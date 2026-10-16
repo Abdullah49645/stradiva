@@ -6,6 +6,9 @@ import EvidencePlayer from "./EvidencePlayer";
 import EnvelopeMap from "./EnvelopeMap";
 import DashcamPanel from "./DashcamPanel";
 import { CrossExamination, Establishes, KeyFacts, MotionChart, Validation } from "./CasePanels";
+import InvestigationPanel from "./InvestigationPanel";
+import NearMissPanel from "./NearMissPanel";
+import LeadPanel from "./LeadPanel";
 
 export default function CaseView({ c, live, units }: { c: CaseFile; live: boolean; units: Units }) {
   const key = verdictKey(c);
@@ -40,7 +43,10 @@ export default function CaseView({ c, live, units }: { c: CaseFile; live: boolea
         </div>
       </section>
 
+      <InvestigationPanel c={c} />
+
       {c.dashcam && <DashcamPanel c={c} units={units} />}
+      {c.dashcam_lead && <LeadPanel c={c} />}
 
       {c.counterfactual && (
         <section className="section">
@@ -78,9 +84,12 @@ export default function CaseView({ c, live, units }: { c: CaseFile; live: boolea
         </div>
       </section>}
 
+      {c.status !== "DISPUTED" && <NearMissPanel c={c} />}
+
       {c.vehicles?.length ? (
         <section className="section">
-          <div className="section-head"><h2>Reconstructed speeds</h2></div>
+          <div className="section-head"><h2>Reconstructed speeds</h2>
+            {c.time_base && <span className="small muted">{c.time_base}</span>}</div>
           <MotionChart c={c} units={units} />
         </section>
       ) : null}

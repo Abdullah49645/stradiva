@@ -7,6 +7,10 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt boto3==1.43.114 --target
 
 COPY backend /opt/carai/backend
 COPY cv /opt/carai/cv
+# vehicle detector for the dashcam lead-vehicle analysis (YOLOX-S, OpenCV Model Zoo, Apache-2.0),
+# downloaded at build time and checked against its SHA-256
+COPY models/fetch_models.sh /opt/carai/models/fetch_models.sh
+RUN bash /opt/carai/models/fetch_models.sh
 COPY infrastructure/aws/lambda_handler.py ${LAMBDA_TASK_ROOT}/lambda_handler.py
 
 ENV OPENCV_LOG_LEVEL=ERROR

@@ -1,0 +1,457 @@
+{
+  "description": "\nThe investigator (backend/investigator) on the Skeptic's fault-injection clips\n(evaluation/experiments/skeptic_faults.py: same scenes, same faults, same\ncached renders).\n\nQuestion: when the Skeptic blocks a reconstruction, does the investigator\nrecover a CORRECT answer, and does it ever turn a refusal into a wrong one?\n\nPer clip, for the base pipeline and for the investigator's final case:\n  answered     speeds reported and no blocking dispute / rejection\n  worst error  largest |relative speed error| of a reported (non-withheld) speed\n  covered      every reported speed's 90 % interval contains the true speed\n  harmful      answered, no flag, and worst error > 10 %\n\n  python3 investigator_faults.py --n 8   -> evaluation/results/investigator_faults.json\n",
+  "summary": {
+    "clean": {
+      "n": 1,
+      "base_answered": 1,
+      "final_answered": 1,
+      "final_answered_rate_ci90": [
+        0.2698308834937703,
+        1.0
+      ],
+      "recovered_by_investigator": 0,
+      "recovered_correct": 0,
+      "final_answered_correct_or_covered": 1,
+      "harmful": 1,
+      "median_worst_err_answered": 0.3444307247422218
+    },
+    "camera_bump": {
+      "n": 1,
+      "base_answered": 0,
+      "final_answered": 0,
+      "final_answered_rate_ci90": [
+        0.0,
+        0.7301691165062297
+      ],
+      "recovered_by_investigator": 0,
+      "recovered_correct": 0,
+      "final_answered_correct_or_covered": 0,
+      "harmful": 0,
+      "median_worst_err_answered": null
+    },
+    "wrong_standard_shape": {
+      "n": 1,
+      "base_answered": 0,
+      "final_answered": 0,
+      "final_answered_rate_ci90": [
+        0.0,
+        0.7301691165062297
+      ],
+      "recovered_by_investigator": 0,
+      "recovered_correct": 0,
+      "final_answered_correct_or_covered": 0,
+      "harmful": 0,
+      "median_worst_err_answered": null
+    },
+    "misindexed_dash": {
+      "n": 1,
+      "base_answered": 0,
+      "final_answered": 0,
+      "final_answered_rate_ci90": [
+        0.0,
+        0.7301691165062297
+      ],
+      "recovered_by_investigator": 0,
+      "recovered_correct": 0,
+      "final_answered_correct_or_covered": 0,
+      "harmful": 0,
+      "median_worst_err_answered": null
+    },
+    "wrong_lateral_prior": {
+      "n": 1,
+      "base_answered": 1,
+      "final_answered": 1,
+      "final_answered_rate_ci90": [
+        0.2698308834937703,
+        1.0
+      ],
+      "recovered_by_investigator": 0,
+      "recovered_correct": 0,
+      "final_answered_correct_or_covered": 0,
+      "harmful": 1,
+      "median_worst_err_answered": 0.8022573407950182
+    },
+    "same_duty_longer": {
+      "n": 1,
+      "base_answered": 1,
+      "final_answered": 1,
+      "final_answered_rate_ci90": [
+        0.2698308834937703,
+        1.0
+      ],
+      "recovered_by_investigator": 0,
+      "recovered_correct": 0,
+      "final_answered_correct_or_covered": 0,
+      "harmful": 1,
+      "median_worst_err_answered": 0.9253484933987055
+    },
+    "wrong_fps_metadata": {
+      "n": 1,
+      "base_answered": 1,
+      "final_answered": 1,
+      "final_answered_rate_ci90": [
+        0.2698308834937703,
+        1.0
+      ],
+      "recovered_by_investigator": 0,
+      "recovered_correct": 0,
+      "final_answered_correct_or_covered": 0,
+      "harmful": 1,
+      "median_worst_err_answered": 0.18180337563992643
+    }
+  },
+  "rows": [
+    {
+      "scene": 0,
+      "fault": "clean",
+      "final": {
+        "status": "RECONSTRUCTED_NO_INTERACTION",
+        "answered": true,
+        "worst_err": 0.3444307247422218,
+        "covered": true,
+        "harmful": true
+      },
+      "base": {
+        "status": "RECONSTRUCTED_NO_INTERACTION"
+      },
+      "changed": false,
+      "trace": [
+        {
+          "step": "analyse",
+          "action": "full pipeline with the Skeptic",
+          "observation": {
+            "status": "RECONSTRUCTED_NO_INTERACTION",
+            "verdict": "NO_PAIR_RECONSTRUCTED",
+            "disputed_checks": [],
+            "contact_t_s": null
+          }
+        }
+      ],
+      "requests": [
+        {
+          "input": "fps",
+          "why": "every speed scales with the frame rate; 30.0 fps comes from the file's metadata, which is often wrong. Confirm it if you know the camera's rate"
+        }
+      ]
+    },
+    {
+      "scene": 0,
+      "fault": "camera_bump",
+      "final": {
+        "status": "DISPUTED",
+        "answered": false,
+        "worst_err": 0.3598881463457999,
+        "covered": false,
+        "harmful": false
+      },
+      "base": {
+        "status": "DISPUTED"
+      },
+      "changed": false,
+      "trace": [
+        {
+          "step": "analyse",
+          "action": "full pipeline with the Skeptic",
+          "observation": {
+            "status": "DISPUTED",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "disputed_checks": [
+              "temporal_stability",
+              "vehicle_width",
+              "kinematics"
+            ],
+            "contact_t_s": null
+          }
+        },
+        {
+          "diagnosis": "temporal_stability: the geometry of the two halves of the clip disagrees, so a single road geometry cannot be right for the whole clip",
+          "action": "measure the background's displacement through the clip and look for one abrupt shift",
+          "observation": "too few background features to measure camera motion",
+          "decision": "no single camera bump found: the dispute stands",
+          "step": "remedy:temporal_stability"
+        },
+        {
+          "diagnosis": "kinematics: vehicle 0 (subject): |a| 18.1 m/s^2, v 35.4 m/s -- implausible; vehicle 2 (subject): |a| -0.0 m/s^2, v 12.3 m/s; vehicle 3: |a| 0.2 m/s^2, v 9.0 m/s; vehicle 6: |a| 5.9 m/s^2, v 12.0 m/s; vehicle 23: |a| -3.7 m/s^2, v 18.9 m/s; vehicle 26: |a| -28.1 m/s^2, v 7.1 m/s; vehicle 33: |a| 0.0 m/s^2, v 1886.6 m/s -- implausible; vehicle 36: |a| 0.0 m/s^2, v 7309.9 m/s -- implausible (pre-impact, lower 2-sigma bounds)",
+          "action": "quarantine the measurements of the subject vehicle(s) in the frames where the motion is impossible (treat them as unmeasured) and re-run the reasoning on the rest",
+          "observation": "vehicle 0: 28 measurement(s) quarantined (33%), t = 0.00-2.40 s",
+          "re_examination": {
+            "status": "DISPUTED",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "disputed_checks": [
+              "temporal_stability",
+              "vehicle_width"
+            ],
+            "contact_t_s": null
+          },
+          "decision": "the Skeptic still disputes the re-run (temporal_stability): the dispute stands",
+          "step": "remedy:kinematics"
+        }
+      ],
+      "requests": [
+        {
+          "input": "fps",
+          "why": "every speed scales with the frame rate; 30.0 fps comes from the file's metadata, which is often wrong. Confirm it if you know the camera's rate"
+        }
+      ]
+    },
+    {
+      "scene": 0,
+      "fault": "wrong_standard_shape",
+      "final": {
+        "status": "DISPUTED",
+        "answered": false,
+        "worst_err": 0.3421229955958216,
+        "covered": false,
+        "harmful": false
+      },
+      "base": {
+        "status": "DISPUTED"
+      },
+      "changed": false,
+      "trace": [
+        {
+          "step": "analyse",
+          "action": "full pipeline with the Skeptic",
+          "observation": {
+            "status": "DISPUTED",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "disputed_checks": [
+              "marking_standard",
+              "kinematics"
+            ],
+            "contact_t_s": null
+          }
+        },
+        {
+          "diagnosis": "marking_standard: dashes cover 35% of each cycle; the assumed standard (carai_synthetic_centerline) says 25%",
+          "action": "look up documented standards with a duty cycle within 0.06 of the measured one; re-run the geometry and the reasoning under each",
+          "observation": "Austria motorway 6 m + 12 m (33%), Austria rural 6 m + 9 m (40%)",
+          "candidates": [
+            {
+              "standard": "at_motorway",
+              "name": "Austria motorway 6 m + 12 m",
+              "cycle_m": 18.0,
+              "source": "Bodenmarkierungsverordnung (BoMaVO) \u00a7 5 (1)",
+              "status": "DISPUTED",
+              "verdict": "INSUFFICIENT_EVIDENCE",
+              "disputed_checks": [
+                "kinematics"
+              ],
+              "contact_t_s": null,
+              "sub_step": {
+                "diagnosis": "kinematics: vehicle 0: |a| 10.1 m/s^2, v 22.3 m/s; vehicle 1 (subject): |a| 14.0 m/s^2, v 24.1 m/s -- implausible; vehicle 2 (subject): |a| 20.0 m/s^2, v 15.1 m/s -- implausible (pre-impact, lower 2-sigma bounds)",
+                "action": "quarantine the measurements of the subject vehicle(s) in the frames where the motion is impossible (treat them as unmeasured) and re-run the reasoning on the rest",
+                "observation": "vehicle 1: 23 measurement(s) quarantined (19%), t = 3.03-3.77 s; vehicle 2: 25 measurement(s) quarantined (60%), t = 1.30-2.17 s",
+                "re_examination": {
+                  "status": "RECONSTRUCTED_NO_INTERACTION",
+                  "verdict": "NO_PAIR_RECONSTRUCTED",
+                  "disputed_checks": [],
+                  "contact_t_s": null
+                },
+                "decision": "more than 25% of a vehicle's measurements would have to be discarded: too little of the track is trustworthy; the dispute stands"
+              }
+            },
+            {
+              "standard": "at_rural",
+              "name": "Austria rural 6 m + 9 m",
+              "cycle_m": 15.0,
+              "source": "Bodenmarkierungsverordnung (BoMaVO) \u00a7 5 (1)",
+              "status": "DISPUTED",
+              "verdict": "INSUFFICIENT_EVIDENCE",
+              "disputed_checks": [
+                "kinematics"
+              ],
+              "contact_t_s": null,
+              "sub_step": {
+                "diagnosis": "kinematics: vehicle 0: |a| 8.8 m/s^2, v 18.7 m/s; vehicle 1 (subject): |a| 11.9 m/s^2, v 19.6 m/s; vehicle 2 (subject): |a| 18.1 m/s^2, v 13.1 m/s -- implausible (pre-impact, lower 2-sigma bounds)",
+                "action": "quarantine the measurements of the subject vehicle(s) in the frames where the motion is impossible (treat them as unmeasured) and re-run the reasoning on the rest",
+                "observation": "vehicle 2: 22 measurement(s) quarantined (52%), t = 1.40-2.17 s",
+                "re_examination": {
+                  "status": "RECONSTRUCTED_NO_INTERACTION",
+                  "verdict": "NO_PAIR_RECONSTRUCTED",
+                  "disputed_checks": [],
+                  "contact_t_s": null
+                },
+                "decision": "more than 25% of a vehicle's measurements would have to be discarded: too little of the track is trustworthy; the dispute stands"
+              }
+            }
+          ],
+          "decision": "the reconstruction is not undisputed under every matching standard (Austria motorway 6 m + 12 m, Austria rural 6 m + 9 m): the dispute stands",
+          "step": "remedy:marking_standard"
+        },
+        {
+          "diagnosis": "kinematics: vehicle 0: |a| 7.3 m/s^2, v 15.1 m/s; vehicle 1 (subject): |a| 10.0 m/s^2, v 14.8 m/s; vehicle 2 (subject): |a| 15.8 m/s^2, v 10.9 m/s -- implausible (pre-impact, lower 2-sigma bounds)",
+          "action": "quarantine the measurements of the subject vehicle(s) in the frames where the motion is impossible (treat them as unmeasured) and re-run the reasoning on the rest",
+          "observation": "vehicle 2: 22 measurement(s) quarantined (52%), t = 1.40-2.17 s",
+          "re_examination": {
+            "status": "DISPUTED",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "disputed_checks": [
+              "marking_standard"
+            ],
+            "contact_t_s": null
+          },
+          "decision": "the Skeptic still disputes the re-run (marking_standard): the dispute stands",
+          "step": "remedy:kinematics"
+        }
+      ],
+      "requests": [
+        {
+          "input": "marking_standard",
+          "why": "the answer depends on which matching standard applies at this location",
+          "options": [
+            "at_motorway",
+            "at_rural"
+          ]
+        },
+        {
+          "input": "fps",
+          "why": "every speed scales with the frame rate; 30.0 fps comes from the file's metadata, which is often wrong. Confirm it if you know the camera's rate"
+        }
+      ]
+    },
+    {
+      "scene": 0,
+      "fault": "misindexed_dash",
+      "final": {
+        "status": "DISPUTED",
+        "answered": false,
+        "worst_err": 0.42739051336917155,
+        "covered": false,
+        "harmful": false
+      },
+      "base": {
+        "status": "DISPUTED"
+      },
+      "changed": false,
+      "trace": [
+        {
+          "step": "analyse",
+          "action": "full pipeline with the Skeptic",
+          "observation": {
+            "status": "DISPUTED",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "disputed_checks": [
+              "held_out_markings"
+            ],
+            "contact_t_s": null
+          }
+        },
+        {
+          "step": "diagnose",
+          "diagnosis": "held_out_markings",
+          "decision": "no automatic remedy for this failure: the refusal stands"
+        }
+      ],
+      "requests": [
+        {
+          "input": "footage",
+          "why": "the road markings are not consistent with any single regular pattern (worn, missing or irregular dashes in view)"
+        },
+        {
+          "input": "fps",
+          "why": "every speed scales with the frame rate; 30.0 fps comes from the file's metadata, which is often wrong. Confirm it if you know the camera's rate"
+        }
+      ]
+    },
+    {
+      "scene": 0,
+      "fault": "wrong_lateral_prior",
+      "final": {
+        "status": "RECONSTRUCTED_COLLISION",
+        "answered": true,
+        "worst_err": 0.8022573407950182,
+        "covered": false,
+        "harmful": true
+      },
+      "base": {
+        "status": "RECONSTRUCTED_COLLISION"
+      },
+      "changed": false,
+      "trace": [
+        {
+          "step": "analyse",
+          "action": "full pipeline with the Skeptic",
+          "observation": {
+            "status": "RECONSTRUCTED_COLLISION",
+            "verdict": "ASSUMPTION_DEPENDENT",
+            "disputed_checks": [],
+            "contact_t_s": 3.486666666666669
+          }
+        }
+      ],
+      "requests": [
+        {
+          "input": "fps",
+          "why": "every speed scales with the frame rate; 30.0 fps comes from the file's metadata, which is often wrong. Confirm it if you know the camera's rate"
+        }
+      ]
+    },
+    {
+      "scene": 0,
+      "fault": "same_duty_longer",
+      "final": {
+        "status": "RECONSTRUCTED_COLLISION",
+        "answered": true,
+        "worst_err": 0.9253484933987055,
+        "covered": false,
+        "harmful": true
+      },
+      "base": {
+        "status": "RECONSTRUCTED_COLLISION"
+      },
+      "changed": false,
+      "trace": [
+        {
+          "step": "analyse",
+          "action": "full pipeline with the Skeptic",
+          "observation": {
+            "status": "RECONSTRUCTED_COLLISION",
+            "verdict": "ASSUMPTION_DEPENDENT",
+            "disputed_checks": [],
+            "contact_t_s": 3.803333333333336
+          }
+        }
+      ],
+      "requests": [
+        {
+          "input": "fps",
+          "why": "every speed scales with the frame rate; 30.0 fps comes from the file's metadata, which is often wrong. Confirm it if you know the camera's rate"
+        }
+      ]
+    },
+    {
+      "scene": 0,
+      "fault": "wrong_fps_metadata",
+      "final": {
+        "status": "RECONSTRUCTED_NO_INTERACTION",
+        "answered": true,
+        "worst_err": 0.18180337563992643,
+        "covered": false,
+        "harmful": true
+      },
+      "base": {
+        "status": "RECONSTRUCTED_NO_INTERACTION"
+      },
+      "changed": false,
+      "trace": [
+        {
+          "step": "analyse",
+          "action": "full pipeline with the Skeptic",
+          "observation": {
+            "status": "RECONSTRUCTED_NO_INTERACTION",
+            "verdict": "NO_PAIR_RECONSTRUCTED",
+            "disputed_checks": [],
+            "contact_t_s": null
+          }
+        }
+      ],
+      "requests": [
+        {
+          "input": "fps",
+          "why": "every speed scales with the frame rate; 30.0 fps comes from the file's metadata, which is often wrong. Confirm it if you know the camera's rate"
+        }
+      ]
+    }
+  ]
+}

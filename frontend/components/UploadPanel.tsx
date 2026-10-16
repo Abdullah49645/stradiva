@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiBase, apiHealth, createJob, pollJob, uploadFile } from "@/lib/api";
+import { apiBase, apiHealth, createJob, JobInputs, pollJob, uploadFile } from "@/lib/api";
 import { CaseFile } from "@/lib/types";
+import { STANDARD_NAMES } from "@/lib/format";
 
 const MAX_MB = 200;
 
@@ -12,6 +13,9 @@ export default function UploadPanel({ onResult }: { onResult: (c: CaseFile) => v
   const [state, setState] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [fps, setFps] = useState("");
+  const [focal, setFocal] = useState("");
+  const [standard, setStandard] = useState("");
 
   useEffect(() => { apiHealth().then(setHealth); }, []);
 
@@ -22,7 +26,11 @@ export default function UploadPanel({ onResult }: { onResult: (c: CaseFile) => v
     setBusy(true);
     try {
       setState("Creating job");
-      const { job_id, upload_url } = await createJob(file.name);
+      const inputs: JobInputs = {};
+      if (fps.trim()) inputs.fps = Number(fps);
+      if (focal.trim()) inputs.focal_px = Number(focal);
+      if (standard) inputs.marking_standard = standard;
+      const { job_id, upload_url } = await createJob(file.name, inputs);
       setState("Uploading");
       await uploadFile(upload_url, file);
       setState("Waiting for the analysis to start");
@@ -60,6 +68,25 @@ export default function UploadPanel({ onResult }: { onResult: (c: CaseFile) => v
         <input type="file" accept="video/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} disabled={busy} aria-label="Video file" />
         <button className="btn" onClick={analyse} disabled={!file || busy || health === null}>{busy ? "Analysing…" : "Analyse clip"}</button>
       </div>
+      <details style={{ marginTop: 12 }}>
+        <summary className="small">What you know about the camera (optional)</summary>
+        <div className="inputs">
+          <label>Frame rate (fps)
+            <input inputMode="decimal" value={fps} onChange={(e) => setFps(e.target.value)} placeholder="from the file" disabled={busy} />
+          </label>
+          <label>Focal length (pixels)
+            <input inputMode="decimal" value={focal} onChange={(e) => setFocal(e.target.value)} placeholder="unknown" disabled={busy} />
+          </label>
+          <label>Marking standard
+            <select value={standard} onChange={(e) => setStandard(e.target.value)} disabled={busy}>
+              <option value="">default (CARAI test roads)</option>
+              {Object.entries(STANDARD_NAMES).map(([k, n]) => <option key={k} value={k}>{n}</option>)}
+            </select>
+          </label>
+        </div>
+        <p className="small muted" style={{ margin: 0 }}>Every speed scales with the frame rate and the marking standard; the focal length lets a
+          dashcam clip be checked against the lane width and the vehicle ahead be measured.</p>
+      </details>
       {state && <p className="small" aria-live="polite">{state}</p>}
       {error && <p className="small err" role="alert">{error}</p>}
     </div>
