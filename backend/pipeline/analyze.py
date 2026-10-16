@@ -665,6 +665,19 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
             case["collision"]["t_contact_ci90_s"] = ([float(np.percentile(impacts, 5)), float(np.percentile(impacts, 95))]
                                                       if impacts else None)
             case["status"] = "RECONSTRUCTED_COLLISION"
+    if pair is not None and len(pair) >= 2:
+        # surrogate safety measures; own random stream (spawned) so every other result stays bit-identical
+        col = case.get("collision") or {}
+        t_cut_nm = col.get("t_contact_s")
+        res_nm = col.get("road_m_per_image_row_at_follower")
+        if res_nm is not None and res_nm > 2 * FOLLOW_LENGTH_PRIOR[1]:
+            case["near_miss"] = {"withheld": f"one image row spans {res_nm:.2f} m of road at the follower: the bumper gap "
+                                             f"is not resolved finer than the vehicle-length uncertainty"}
+        else:
+            nm = _near_miss(pair[0], pair[1], geo, prior, fps, rng.spawn(1)[0], max(40, n_mc // 2),
+                            pair[0].get("direction", 1), t_max=(t_cut_nm - 0.3) if t_cut_nm else None)
+            if nm:
+                case["near_miss"] = nm
     timings["events_mc_counterfactual"] = time.time() - t0
 
     # 8. cross-examination
@@ -850,6 +863,65 @@ def _speed_summaries(vehicles, geo, prior, fps, rng, n_mc, ref_t=None):
                     "uncertainty_budget_rel_sigma": {
                         "marking_prior": prior.cycle_rel_sigma,
                         "geometry_and_tracking": float(np.std(draws) / max(abs(v_point), 0.5)) if draws else None}})
+    return out
+
+
+TTC_CAP_S = 10.0        # time-to-collision above this (or not closing) is reported as ">= 10 s": no conflict
+
+
+def _near_miss(fol, lead, geo, prior, fps, rng, n_mc, direction, t_max=None, min_closing=0.3):
+    """Surrogate safety measures over the interval in which BOTH vehicles were measured (nothing
+    extrapolated): minimum bumper gap, minimum time-to-collision (gap / closing speed while closing,
+    censored at TTC_CAP_S) and maximum deceleration rate to avoid the crash (DRAC = closing^2 / (2 gap)).
+    Standard traffic-conflict indicators (Hayward 1972; Cooper & Ferguson 1976). Monte Carlo over the
+    homography bootstrap, the marking prior, the follower-length prior and the smoother's own position /
+    velocity uncertainty (one correlated offset per vehicle per draw)."""
+    Hs = geo.H_samples or [geo.H]
+    tf = {int(round(t * fps)) for t in _measured(fol["track"], fps)[0]}
+    tl = {int(round(t * fps)) for t in _measured(lead["track"], fps)[0]}
+    common = np.array(sorted(tf & tl), float) / fps
+    if t_max is not None:
+        common = common[common < t_max]
+    if len(common) < 8:
+        return None
+    draws = {"min_gap_m": [], "min_ttc_s": [], "max_drac_mps2": []}
+    t_ttc = []
+    for _ in range(n_mc):
+        Hm = Hs[rng.integers(len(Hs))]
+        sx = 1.0 + rng.normal(0, prior.cycle_rel_sigma)
+        kf = _kin_for(fol["track"], fps, Hm, sx=sx)
+        kl = _kin_for(lead["track"], fps, Hm, sx=sx)
+        if kf is None or kl is None:
+            continue
+        kf, kl = _aligned(kf, direction), _aligned(kl, direction)
+        L = max(3.5, rng.normal(*FOLLOW_LENGTH_PRIOR))
+        ef, el = rng.normal(0, 1, 2)
+        gf, gl = rng.normal(0, 1, 2)
+        xf = np.interp(common, kf["t"], kf["x"] + ef * kf["sx"])
+        xl = np.interp(common, kl["t"], kl["x"] + el * kl["sx"])
+        vf = np.interp(common, kf["t"], kf["v"] + gf * kf["sv"])
+        vl = np.interp(common, kl["t"], kl["v"] + gl * kl["sv"])
+        gap, clo = xl - xf - L, vf - vl
+        draws["min_gap_m"].append(float(gap.min()))
+        m = (clo > min_closing) & (gap > 0)
+        ttc = gap[m] / clo[m] if m.any() else np.array([np.inf])
+        k = int(np.argmin(ttc))
+        draws["min_ttc_s"].append(float(min(ttc[k], TTC_CAP_S)))
+        if m.any() and ttc[k] < TTC_CAP_S:
+            t_ttc.append(float(common[m][k]))
+        draws["max_drac_mps2"].append(float(np.max(clo[m] ** 2 / (2 * gap[m]))) if m.any() else 0.0)
+    if len(draws["min_gap_m"]) < 10:
+        return None
+    out = {"observed_interval_s": [float(common[0]), float(common[-1])], "n_samples": len(draws["min_gap_m"]),
+           "ttc_cap_s": TTC_CAP_S,
+           "p_conflict_ttc_below_1_5s": float(np.mean(np.array(draws["min_ttc_s"]) < 1.5)),
+           "t_min_ttc_s": float(np.median(t_ttc)) if len(t_ttc) >= 0.5 * len(draws["min_ttc_s"]) else None,
+           "definitions": {"gap": "lead rear contact - follower rear contact - follower length (prior 4.6 +- 0.35 m)",
+                           "ttc": f"gap / closing speed while closing faster than {min_closing} m/s; values above "
+                                  f"{TTC_CAP_S:g} s (or never closing) are reported as {TTC_CAP_S:g} s",
+                           "drac": "closing speed^2 / (2 gap): constant deceleration the follower needed to avoid contact"}}
+    for k, v in draws.items():
+        out[k] = {"median": float(np.median(v)), "ci90": [float(np.percentile(v, 5)), float(np.percentile(v, 95))]}
     return out
 
 

@@ -304,6 +304,36 @@ def run_oracle(split, i, occluded):
     return out, gt, sc, meta
 
 
+def gt_near_miss(sc, t0, t1, min_closing=0.3, ttc_cap=10.0):
+    """Ground-truth surrogate safety measures over [t0, t1] (CARAI's observed interval), from the
+    simulator's vehicle states: bumper gap = d (x_lead - x_follow) - (L_lead + L_follow) / 2."""
+    lead = next(v for v in sc.vehicles if v.vid == "lead")
+    fol = next(v for v in sc.vehicles if v.vid == "follow")
+    d = lead.direction
+    tt = np.arange(t0, t1 + 1e-9, 0.01)
+    xl, vl, _ = _free(lead, tt)
+    xf, vf, _ = _free(fol, tt)
+    gap = d * (xl - xf) - (lead.length_m + fol.length_m) / 2.0
+    clo = vf - vl                     # simulate_vehicle returns speeds (magnitudes along the travel direction)
+    m = (clo > min_closing) & (gap > 0)
+    ttc = float((gap[m] / clo[m]).min()) if m.any() else np.inf
+    return {"min_gap_m": float(gap.min()), "min_ttc_s": float(min(ttc, ttc_cap)),
+            "max_drac_mps2": float(np.max(clo[m] ** 2 / (2 * gap[m]))) if m.any() else 0.0}
+
+
+def score_near_miss(case, sc):
+    nm = case.get("near_miss")
+    if not nm or "observed_interval_s" not in nm:
+        return None
+    g = gt_near_miss(sc, *nm["observed_interval_s"], ttc_cap=nm.get("ttc_cap_s", 10.0))
+    res = {"gt": g}
+    for k in ("min_gap_m", "min_ttc_s", "max_drac_mps2"):
+        if k in nm and k in g:
+            lo, hi = nm[k]["ci90"]
+            res[k] = {"est": nm[k]["median"], "gt": g[k], "err": nm[k]["median"] - g[k], "covered": bool(lo <= g[k] <= hi)}
+    return res
+
+
 def score_case(row, case, gt, sc, meta):
     row["status"] = case.get("status")
     v = (case.get("verdict") or {}).get("value")
@@ -331,6 +361,10 @@ def score_case(row, case, gt, sc, meta):
         row["event_resolution"] = event_resolution(gt, sc, row.get("gt_collision_t_s"))
     except Exception:  # noqa: BLE001 -- stratification only
         row["event_resolution"] = None
+    try:
+        row["near_miss"] = score_near_miss(case, sc)
+    except Exception as e:  # noqa: BLE001 -- secondary metric
+        row["near_miss"] = {"error": str(e)[:200]}
     row["outcome"] = outcome(row)
     return row
 
