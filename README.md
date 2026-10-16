@@ -19,7 +19,7 @@ cannot support a claim, it says why instead of giving a number.
 | Claim | Evidence | Status |
 |---|---|---|
 | Road geometry from markings (vanishing point, closed-form horizon/roll, homography with bootstrap) | Simulator ground truth, 18-scene sweep vs v1 | Validated on simulation |
-| Collision verdicts (avoidable / not avoidable / depends) and refusals | Held-out test and shift splits, 3 layers | **Simulation only.** No legally usable real crash footage with ground truth was found. |
+| Collision verdicts (avoidable / not avoidable / depends) and refusals | Held-out test and shift splits (frozen v2.0) and test2 (v2.1), 3 layers | **Simulation only.** No legally usable real crash footage with ground truth was found. |
 | Dashcam ego speed from markings | Two real datasets, pre-registered | **Real footage.** Freeway works; a pre-registered city holdout **failed** (wrong marking prior), and a post-hoc second ruler now refuses that case. |
 | Skeptic (cross-examination) | Fault-injection benchmark with negative controls | Measured detection and false-alarm rates |
 | AWS stack | moto-mocked tests, cfn-lint | **Not deployed** from this environment (docs/aws.md) |

@@ -46,7 +46,7 @@ assignment (`linear_sum_assignment`).
 
 ## The decision loop, stated plainly
 
-The brief's "agentic" framing is accurate only in a narrow sense, and we
+The competition's Agentic Vision framing fits CARAI only in a narrow sense, and we
 describe it that way: CARAI is a **deterministic perception, decision,
 action loop with an independent verifier**. Nothing in it is a language
 model, and no step is chosen by a learned policy.

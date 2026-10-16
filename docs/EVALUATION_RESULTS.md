@@ -59,7 +59,11 @@ Shown so the effect of the change on the original splits is visible; these numbe
 | Split | Layer | n | Correct | Correct refusal (event off-screen) | No verdict / qualified | Qualified, event off-screen | Missed, event off-screen | Missed a visible collision | Reported a collision that did not happen | Verdict on the wrong contact time | Overconfident | Opposite verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | test | Reasoning only (true tracks, occluded) | 30 | 6 | 1 | 23 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| test | Full pipeline (from pixels) | 2 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| test | Full pipeline (from pixels) | 30 | 2 | 1 | 26 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+| shift | Reasoning only (true tracks, occluded) | 30 | 1 | 3 | 25 | 0 | 0 | 0 | 1 | 0 | 0 | 0 |
+| shift | Full pipeline (from pixels) | 30 | 1 | 3 | 26 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| dev | Reasoning only (true tracks, occluded) | 30 | 7 | 5 | 17 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+| dev | Full pipeline (from pixels) | 30 | 0 | 5 | 24 | 0 | 0 | 1 | 0 | 0 | 0 | 0 |
 
 ## Where the full pipeline fails: distance
 

@@ -7,7 +7,7 @@ endpoint for judging needs the runbook below to be executed with an AWS
 account; until then, the demo runs against the local server, which
 implements the identical job contract.
 
-## What is deployed (template: `infrastructure/aws/template.yaml`)
+## What the template deploys (`infrastructure/aws/template.yaml`)
 
 | Resource | Purpose | Settings and why |
 |---|---|---|

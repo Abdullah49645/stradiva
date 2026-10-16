@@ -185,6 +185,11 @@ What these say:
   answers about the same (4 → 5).
 * The remaining errors come from tracking. Detail: EVALUATION_RESULTS.md,
   "Where the full pipeline fails".
+* v2.1 trades coverage for safety. Re-run post hoc on test, harmful errors
+  fall from 8 to 1 end to end and from 6 to 0 with true tracks plus
+  occlusion. But correct answers in the occluded layer also fall, from 15
+  to 7, because most test events happen far from the camera, where v2.1 now
+  declines.
 
 Other results:
 * **Road geometry**, same 18 scenes: v1 accepted 4 with up to 9.3 % error;
