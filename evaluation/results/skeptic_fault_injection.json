@@ -1,0 +1,1489 @@
+{
+  "description": "\nFault-injection benchmark for the Skeptic (backend/verification/skeptic.py).\n\nQuestion: when the reconstruction is wrong in a way the Reconstructor's own\nfit cannot see, does the cross-examination catch it -- and how often does it\nraise a false alarm on a correct reconstruction?\n\nScenes: two vehicles in the same lane at constant speed (no collision), on\nsimulator v2 with roadside and overhead cameras. For each scene the CLEAN\nclip and several FAULTY variants are analysed by the unchanged production\npipeline:\n\n  camera_bump          frames after mid-clip rotated 1.5 deg + shifted 6 px (pole knocked / PTZ nudge)\n  wrong_standard_shape real road uses 6 m + 12 m dashes (duty 0.33) vs assumed 3 m + 9 m (0.25):\n                       speed scale off by 1.5x\n  misindexed_dash      algorithmic fault: dash indices beyond the middle dash shifted by one cycle\n                       (what a mis-handled missing dash does)\n  wrong_lateral_prior  real edge-to-centre distance 1.30 m vs assumed 1.85 m (lateral scale off 42 %)\n  NEGATIVE CONTROLS (stated as undetectable by design -- reported, not hidden):\n  same_duty_longer     real cycle 14.6 m (same 25 % duty) vs assumed 12 m: speed off 22 %\n  wrong_fps_metadata   container claims 30 fps, scene rendered at 25 fps: speeds off 20 %\n\nReported per fault: share of runs the Skeptic disputes (per check), the\nalong-road speed error, and \"silent failure\" = |speed error| > 10 % with no\ndispute and no rejection.\n",
+  "summary": {
+    "clean": {
+      "n": 8,
+      "flagged_or_rejected": 3,
+      "flag_rate_ci90": [
+        0.16115994929027644,
+        0.652029352995119
+      ],
+      "blocked_or_rejected": 3,
+      "block_rate_ci90": [
+        0.16115994929027644,
+        0.652029352995119
+      ],
+      "silent_failures": 2,
+      "per_check_disputes": {
+        "held_out_markings": 0,
+        "temporal_stability": 0,
+        "marking_standard": 0,
+        "vehicle_width": 1,
+        "kinematics": 3
+      },
+      "median_worst_speed_err": 0.18223349495881302
+    },
+    "camera_bump": {
+      "n": 8,
+      "flagged_or_rejected": 7,
+      "flag_rate_ci90": [
+        0.5888281744971084,
+        0.9716039186467054
+      ],
+      "blocked_or_rejected": 7,
+      "block_rate_ci90": [
+        0.5888281744971084,
+        0.9716039186467054
+      ],
+      "silent_failures": 0,
+      "per_check_disputes": {
+        "held_out_markings": 2,
+        "temporal_stability": 7,
+        "marking_standard": 0,
+        "vehicle_width": 5,
+        "kinematics": 4
+      },
+      "median_worst_speed_err": 0.20785195663459088
+    },
+    "wrong_standard_shape": {
+      "n": 8,
+      "flagged_or_rejected": 8,
+      "flag_rate_ci90": [
+        0.7472427908584185,
+        1.0
+      ],
+      "blocked_or_rejected": 8,
+      "block_rate_ci90": [
+        0.7472427908584185,
+        1.0
+      ],
+      "silent_failures": 0,
+      "per_check_disputes": {
+        "held_out_markings": 0,
+        "temporal_stability": 0,
+        "marking_standard": 8,
+        "vehicle_width": 1,
+        "kinematics": 4
+      },
+      "median_worst_speed_err": 0.34744379070033726
+    },
+    "misindexed_dash": {
+      "n": 8,
+      "flagged_or_rejected": 8,
+      "flag_rate_ci90": [
+        0.7472427908584185,
+        1.0
+      ],
+      "blocked_or_rejected": 8,
+      "block_rate_ci90": [
+        0.7472427908584185,
+        1.0
+      ],
+      "silent_failures": 0,
+      "per_check_disputes": {
+        "held_out_markings": 8,
+        "temporal_stability": 2,
+        "marking_standard": 0,
+        "vehicle_width": 1,
+        "kinematics": 3
+      },
+      "median_worst_speed_err": 0.16370678767667046
+    },
+    "wrong_lateral_prior": {
+      "n": 8,
+      "flagged_or_rejected": 4,
+      "flag_rate_ci90": [
+        0.2486251757128503,
+        0.7513748242871496
+      ],
+      "blocked_or_rejected": 1,
+      "block_rate_ci90": [
+        0.02839608135329466,
+        0.41117182550289144
+      ],
+      "silent_failures": 3,
+      "per_check_disputes": {
+        "held_out_markings": 0,
+        "temporal_stability": 0,
+        "marking_standard": 0,
+        "vehicle_width": 4,
+        "kinematics": 1
+      },
+      "median_worst_speed_err": 0.19378898938810757
+    },
+    "same_duty_longer": {
+      "n": 8,
+      "flagged_or_rejected": 3,
+      "flag_rate_ci90": [
+        0.16115994929027644,
+        0.652029352995119
+      ],
+      "blocked_or_rejected": 2,
+      "block_rate_ci90": [
+        0.0865070033792796,
+        0.5398716011915111
+      ],
+      "silent_failures": 5,
+      "per_check_disputes": {
+        "held_out_markings": 0,
+        "temporal_stability": 0,
+        "marking_standard": 0,
+        "vehicle_width": 1,
+        "kinematics": 2
+      },
+      "median_worst_speed_err": 0.254288278649924
+    },
+    "wrong_fps_metadata": {
+      "n": 8,
+      "flagged_or_rejected": 1,
+      "flag_rate_ci90": [
+        0.02839608135329466,
+        0.41117182550289144
+      ],
+      "blocked_or_rejected": 1,
+      "block_rate_ci90": [
+        0.02839608135329466,
+        0.41117182550289144
+      ],
+      "silent_failures": 7,
+      "per_check_disputes": {
+        "held_out_markings": 0,
+        "temporal_stability": 0,
+        "marking_standard": 0,
+        "vehicle_width": 0,
+        "kinematics": 1
+      },
+      "median_worst_speed_err": 0.18376460082452606
+    }
+  },
+  "rows": [
+    {
+      "scene": 0,
+      "fault": "clean",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.02978059785632914,
+        -0.037178291142286435,
+        0.3444307247422218
+      ],
+      "worst_speed_rel_error": 0.3444307247422218,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 0,
+      "fault": "camera_bump",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "temporal_stability",
+        "vehicle_width",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.015283179632427202,
+        -0.14601463828943717,
+        -0.24794723376368555,
+        0.3598881463457999
+      ],
+      "worst_speed_rel_error": 0.3598881463457999,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "DISPUTE",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 0,
+      "fault": "wrong_standard_shape",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "marking_standard",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.22027684812674353,
+        -0.3421229955958216
+      ],
+      "worst_speed_rel_error": 0.3421229955958216,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "DISPUTE",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 0,
+      "fault": "misindexed_dash",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings"
+      ],
+      "speed_rel_errors": [
+        0.005752070486626515,
+        -0.0036371710606878382,
+        0.42739051336917155
+      ],
+      "worst_speed_rel_error": 0.42739051336917155,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 0,
+      "fault": "wrong_lateral_prior",
+      "status": "RECONSTRUCTED_COLLISION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.0032610563069432885,
+        -0.8022573407950182
+      ],
+      "worst_speed_rel_error": 0.8022573407950182,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 0,
+      "fault": "same_duty_longer",
+      "status": "RECONSTRUCTED_COLLISION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        0.09181355859579332,
+        -0.19918151295625597,
+        -0.9253484933987055
+      ],
+      "worst_speed_rel_error": 0.9253484933987055,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "PASS"
+      }
+    },
+    {
+      "scene": 0,
+      "fault": "wrong_fps_metadata",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        0.10757670809545994,
+        0.18180337563992643
+      ],
+      "worst_speed_rel_error": 0.18180337563992643,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "PASS"
+      }
+    },
+    {
+      "scene": 1,
+      "fault": "clean",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.013875864217822054
+      ],
+      "worst_speed_rel_error": 0.013875864217822054,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 1,
+      "fault": "camera_bump",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "temporal_stability",
+        "vehicle_width",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        0.9203485041869675,
+        -0.06814383086434361
+      ],
+      "worst_speed_rel_error": 0.9203485041869675,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "DISPUTE",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 1,
+      "fault": "wrong_standard_shape",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "marking_standard"
+      ],
+      "speed_rel_errors": [
+        -0.34232556067742403
+      ],
+      "worst_speed_rel_error": 0.34232556067742403,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "DISPUTE",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 1,
+      "fault": "misindexed_dash",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings"
+      ],
+      "speed_rel_errors": [
+        0.010864058055164882
+      ],
+      "worst_speed_rel_error": 0.010864058055164882,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 1,
+      "fault": "wrong_lateral_prior",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.0006713830317821579
+      ],
+      "worst_speed_rel_error": 0.0006713830317821579,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 1,
+      "fault": "same_duty_longer",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.18996924273394478
+      ],
+      "worst_speed_rel_error": 0.18996924273394478,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 1,
+      "fault": "wrong_fps_metadata",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        0.1920684981156484
+      ],
+      "worst_speed_rel_error": 0.1920684981156484,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 2,
+      "fault": "clean",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.3046480708514766
+      ],
+      "worst_speed_rel_error": 0.3046480708514766,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 2,
+      "fault": "camera_bump",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings",
+        "temporal_stability"
+      ],
+      "speed_rel_errors": [
+        -0.08391955346112057,
+        0.046538241119119306,
+        0.3218512372980702,
+        0.007584527836718369,
+        0.05260937747047745,
+        0.29059999099030653,
+        0.04423596292539078
+      ],
+      "worst_speed_rel_error": 0.3218512372980702,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "DISPUTE",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 2,
+      "fault": "wrong_standard_shape",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "marking_standard"
+      ],
+      "speed_rel_errors": [
+        -0.3445825032234605,
+        -0.9623601893188978
+      ],
+      "worst_speed_rel_error": 0.9623601893188978,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "DISPUTE",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 2,
+      "fault": "misindexed_dash",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings",
+        "temporal_stability",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.29669196755446403
+      ],
+      "worst_speed_rel_error": 0.29669196755446403,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "DISPUTE",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 2,
+      "fault": "wrong_lateral_prior",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "vehicle_width",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.01574857243873906
+      ],
+      "worst_speed_rel_error": 0.01574857243873906,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 2,
+      "fault": "same_duty_longer",
+      "status": "CONTACT_UNDETERMINED",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.19872512228988137,
+        -0.932472638533097
+      ],
+      "worst_speed_rel_error": 0.932472638533097,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 2,
+      "fault": "wrong_fps_metadata",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        0.09559763947602229,
+        0.17274515203493035
+      ],
+      "worst_speed_rel_error": 0.17274515203493035,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "PASS"
+      }
+    },
+    {
+      "scene": 3,
+      "fault": "clean",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.03535783972263229,
+        -0.02438023273059442
+      ],
+      "worst_speed_rel_error": 0.03535783972263229,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "PASS"
+      }
+    },
+    {
+      "scene": 3,
+      "fault": "camera_bump",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.0437465777777446,
+        -0.008790316024017364,
+        0.09385267597111158
+      ],
+      "worst_speed_rel_error": 0.09385267597111158,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "NOT_APPLICABLE",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 3,
+      "fault": "wrong_standard_shape",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "marking_standard"
+      ],
+      "speed_rel_errors": [
+        -0.35147957883719383
+      ],
+      "worst_speed_rel_error": 0.35147957883719383,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "DISPUTE",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 3,
+      "fault": "misindexed_dash",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings"
+      ],
+      "speed_rel_errors": [
+        0.0016924696139213324,
+        0.013126291783944088
+      ],
+      "worst_speed_rel_error": 0.013126291783944088,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "PASS"
+      }
+    },
+    {
+      "scene": 3,
+      "fault": "wrong_lateral_prior",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": false,
+      "disputed_checks": [
+        "vehicle_width"
+      ],
+      "speed_rel_errors": [
+        -0.021068516232856105,
+        -0.007659935546807217
+      ],
+      "worst_speed_rel_error": 0.021068516232856105,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 3,
+      "fault": "same_duty_longer",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.19796861159597412,
+        -0.2000448317810266
+      ],
+      "worst_speed_rel_error": 0.2000448317810266,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "PASS"
+      }
+    },
+    {
+      "scene": 3,
+      "fault": "wrong_fps_metadata",
+      "status": "CONTACT_UNDETERMINED",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        0.1494339722881537,
+        0.16898807491296508
+      ],
+      "worst_speed_rel_error": 0.16898807491296508,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "PASS"
+      }
+    },
+    {
+      "scene": 4,
+      "fault": "clean",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.41405941556448456,
+        -0.00901837256885285
+      ],
+      "worst_speed_rel_error": 0.41405941556448456,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 4,
+      "fault": "camera_bump",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "temporal_stability",
+        "vehicle_width"
+      ],
+      "speed_rel_errors": [
+        -0.020246920918487565,
+        -0.012895200668983087,
+        -0.0746932905222909
+      ],
+      "worst_speed_rel_error": 0.0746932905222909,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "DISPUTE",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 4,
+      "fault": "wrong_standard_shape",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "marking_standard",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.33626431768753884,
+        -0.3434080025634807
+      ],
+      "worst_speed_rel_error": 0.3434080025634807,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "DISPUTE",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 4,
+      "fault": "misindexed_dash",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.3836160833615383,
+        0.03299336251572571
+      ],
+      "worst_speed_rel_error": 0.3836160833615383,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 4,
+      "fault": "wrong_lateral_prior",
+      "status": "RECONSTRUCTED_NO_COLLISION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.026594778818109566,
+        -0.9563209583388261
+      ],
+      "worst_speed_rel_error": 0.9563209583388261,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 4,
+      "fault": "same_duty_longer",
+      "status": "RECONSTRUCTED_COLLISION",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": false,
+      "disputed_checks": [
+        "vehicle_width"
+      ],
+      "speed_rel_errors": [
+        -0.7213940991271388,
+        -0.18840292627051192,
+        1.294397595591395,
+        -0.8290096249288466,
+        1.5441553537090376
+      ],
+      "worst_speed_rel_error": 1.5441553537090376,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "PASS"
+      }
+    },
+    {
+      "scene": 4,
+      "fault": "wrong_fps_metadata",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        0.22006848842775795,
+        0.2884611760372129
+      ],
+      "worst_speed_rel_error": 0.2884611760372129,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 5,
+      "fault": "clean",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "vehicle_width",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.029578213460340064,
+        -0.20761826490683177,
+        0.1287640933435057
+      ],
+      "worst_speed_rel_error": 0.20761826490683177,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 5,
+      "fault": "camera_bump",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "temporal_stability",
+        "vehicle_width",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.01080871547542639
+      ],
+      "worst_speed_rel_error": 0.01080871547542639,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "DISPUTE",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 5,
+      "fault": "wrong_standard_shape",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "marking_standard",
+        "vehicle_width",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.3570751064773239,
+        -0.5538221026844591
+      ],
+      "worst_speed_rel_error": 0.5538221026844591,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "DISPUTE",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 5,
+      "fault": "misindexed_dash",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings",
+        "vehicle_width",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.00460984079214799,
+        -0.1855766353193682,
+        0.1645178429010148
+      ],
+      "worst_speed_rel_error": 0.1855766353193682,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 5,
+      "fault": "wrong_lateral_prior",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": false,
+      "disputed_checks": [
+        "vehicle_width"
+      ],
+      "speed_rel_errors": [
+        -0.07171900309043244,
+        -0.01918476484172449,
+        -0.9222108340528722
+      ],
+      "worst_speed_rel_error": 0.9222108340528722,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 5,
+      "fault": "same_duty_longer",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.202829064942033
+      ],
+      "worst_speed_rel_error": 0.202829064942033,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 5,
+      "fault": "wrong_fps_metadata",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        0.17151186603757473
+      ],
+      "worst_speed_rel_error": 0.17151186603757473,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 6,
+      "fault": "clean",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.015339397383286824,
+        -0.15684872501079428
+      ],
+      "worst_speed_rel_error": 0.15684872501079428,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 6,
+      "fault": "camera_bump",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "temporal_stability",
+        "vehicle_width"
+      ],
+      "speed_rel_errors": [
+        -0.01885987312061388,
+        0.005278415354417421,
+        1.9334102328394738
+      ],
+      "worst_speed_rel_error": 1.9334102328394738,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "DISPUTE",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 6,
+      "fault": "wrong_standard_shape",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "marking_standard"
+      ],
+      "speed_rel_errors": [
+        -0.34170174041668466
+      ],
+      "worst_speed_rel_error": 0.34170174041668466,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "DISPUTE",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 6,
+      "fault": "misindexed_dash",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings",
+        "temporal_stability"
+      ],
+      "speed_rel_errors": [
+        0.002101964891479735,
+        -0.14183694003397274
+      ],
+      "worst_speed_rel_error": 0.14183694003397274,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "DISPUTE",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 6,
+      "fault": "wrong_lateral_prior",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.2273615776060397,
+        -0.10822083136582938
+      ],
+      "worst_speed_rel_error": 0.2273615776060397,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 6,
+      "fault": "same_duty_longer",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.30161381701312673
+      ],
+      "worst_speed_rel_error": 0.30161381701312673,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 6,
+      "fault": "wrong_fps_metadata",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        0.18572582600912568
+      ],
+      "worst_speed_rel_error": 0.18572582600912568,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 7,
+      "fault": "clean",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.04353870694339801,
+        -0.01820213117571734
+      ],
+      "worst_speed_rel_error": 0.04353870694339801,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 7,
+      "fault": "camera_bump",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings",
+        "temporal_stability",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        0.007509859031147759
+      ],
+      "worst_speed_rel_error": 0.007509859031147759,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "DISPUTE",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 7,
+      "fault": "wrong_standard_shape",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "marking_standard",
+        "kinematics"
+      ],
+      "speed_rel_errors": [
+        -0.35354893068370763,
+        -0.3474383167885997
+      ],
+      "worst_speed_rel_error": 0.35354893068370763,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "DISPUTE",
+        "vehicle_width": "PASS",
+        "kinematics": "DISPUTE"
+      }
+    },
+    {
+      "scene": 7,
+      "fault": "misindexed_dash",
+      "status": "DISPUTED",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": true,
+      "disputed_checks": [
+        "held_out_markings"
+      ],
+      "speed_rel_errors": [
+        -0.011734613204441802,
+        0.014579393470485202
+      ],
+      "worst_speed_rel_error": 0.014579393470485202,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "DISPUTE",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 7,
+      "fault": "wrong_lateral_prior",
+      "status": "RECONSTRUCTED_COLLISION",
+      "rejected": false,
+      "disputed": true,
+      "blocking_dispute": false,
+      "disputed_checks": [
+        "vehicle_width"
+      ],
+      "speed_rel_errors": [
+        -0.0405840887790222,
+        -0.013557047747961182,
+        0.16021640117017544
+      ],
+      "worst_speed_rel_error": 0.16021640117017544,
+      "silent_failure": false,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "DISPUTE",
+        "kinematics": "ADVISORY"
+      }
+    },
+    {
+      "scene": 7,
+      "fault": "same_duty_longer",
+      "status": "CONTACT_UNDETERMINED",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.20696274028672124,
+        -0.19742299954172415
+      ],
+      "worst_speed_rel_error": 0.20696274028672124,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "NOT_APPLICABLE",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "PASS"
+      }
+    },
+    {
+      "scene": 7,
+      "fault": "wrong_fps_metadata",
+      "status": "RECONSTRUCTED_NO_INTERACTION",
+      "rejected": false,
+      "disputed": false,
+      "blocking_dispute": false,
+      "disputed_checks": [],
+      "speed_rel_errors": [
+        -0.9171037137351878,
+        0.13589080283654087,
+        0.1765293113213544
+      ],
+      "worst_speed_rel_error": 0.9171037137351878,
+      "silent_failure": true,
+      "checks": {
+        "held_out_markings": "PASS",
+        "temporal_stability": "PASS",
+        "marking_standard": "PASS",
+        "vehicle_width": "PASS",
+        "kinematics": "PASS"
+      }
+    }
+  ]
+}

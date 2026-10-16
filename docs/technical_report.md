@@ -166,7 +166,34 @@ docs/EVALUATION.md. Summary:
   truth was found, so **the collision verdicts are validated on simulation
   only**.
 
-Results are in EVALUATION.md, sections 2–6.
+Headline results (all from EVALUATION_RESULTS.md; 30 scenes per cell;
+"harmful" = missed collision, false collision, verdict on the wrong contact
+time, overconfident or opposite verdict):
+
+| | Reasoning layer, true tracks | Reasoning layer, true tracks + occlusion | Full pipeline from pixels |
+|---|---|---|---|
+| test, frozen v2.0: correct / harmful | 20 / 2 | 15 / 6 | 4 / 8 |
+| shift, frozen v2.0 | 8 / 0 | 7 / 6 | 5 / 2 |
+| **test2 (new held-out), shipped v2.1** | **15 / 0** | **13 / 1** | **5 / 3** |
+| v1 as received, same clips (full pipeline) | – | – | 0 verdicts issued on test |
+
+What these say:
+* The reasoning layer is sound when it gets good tracks.
+* The full pipeline mostly declines. All 8 harmful frozen errors on test
+  occurred 70–130 m from the camera, which motivated v2.1's resolution rule.
+  On the new split, v2.1 cut harmful errors from 8 to 3, with correct
+  answers about the same (4 → 5).
+* The remaining errors come from tracking. Detail: EVALUATION_RESULTS.md,
+  "Where the full pipeline fails".
+
+Other results:
+* **Road geometry**, same 18 scenes: v1 accepted 4 with up to 9.3 % error;
+  v2 accepted 18 with at most 0.23 %.
+* **Dashcam on real freeway footage** (pre-registered): median error 2.3 %,
+  90 % interval coverage 90 %.
+* **Real holdout** (pre-registered): **failed**, about 2× too fast because
+  the marking prior was wrong for a city street. A post-hoc second ruler
+  now makes CARAI refuse that case.
 
 ## 8. Limitations
 
@@ -178,9 +205,16 @@ Results are in EVALUATION.md, sections 2–6.
   tracks does much better than end to end (EVALUATION.md, section 2). Small
   or merged vehicles at long range and vehicles entering already fused are
   the main failures.
-* **Range.** Beyond roughly 70 m from the camera, one image row spans about
-  a metre of road. Contact then cannot be established within the
-  vehicle-length uncertainty, and CARAI says so instead of guessing.
+* **Range.** Beyond roughly 70 m from the camera, one image row spans
+  0.7 m of road or more. Contact then cannot be established within the
+  vehicle-length uncertainty. Since v2.1, CARAI says so instead of
+  guessing. The check is made where the follower was last tracked, so a
+  track lost early can still slip past it (one test2 case).
+* **Known logic gap (found on test2, not fixed, so the split stays
+  clean):** in traffic receding from the camera, an apparent "lead pushed
+  forward" speed jump is still accepted as an impact signature, although
+  there the lead is the hidden vehicle. That caused 2 of the 3 harmful
+  test2 errors.
 * **The marking prior is the speed scale.** If the jurisdiction's standard
   is wrong, every speed is wrong by the same factor. The duty-cycle check
   catches standards with different proportions. A standard with the same

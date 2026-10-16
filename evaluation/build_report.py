@@ -43,24 +43,36 @@ def pct(x, d=0):
     return "–" if x is None else f"{100 * x:.{d}f} %"
 
 
-def suite(split, mode):
-    name = f"collision_suite_{split}" + ("" if mode == "e2e" else f"_{mode}") + ".jsonl"
-    p = os.path.join(RES, name)
+POST = os.path.join(RES, "post_freeze_v21")
+
+
+def suite(split, mode, post=False):
+    if post:
+        p = os.path.join(POST, f"collision_suite_{split}_{mode}.jsonl")
+    else:
+        p = os.path.join(RES, f"collision_suite_{split}" + ("" if mode == "e2e" else f"_{mode}") + ".jsonl")
     if not os.path.exists(p):
         return None, None
     rows = load(p)
     return rows, summarise(rows)
 
 
-def suite_table(split):
-    cols = ["Layer", "n"] + [LABEL[k] for k in ORDER if k != "error"]
+def suite_table(split, post=False, label_split=False):
+    cols = (["Split"] if label_split else []) + ["Layer", "n"] + [LABEL[k] for k in ORDER if k != "error"]
     rows = []
-    for mode in ("oracle_clean", "oracle_occluded", "e2e"):
-        _, s = suite(split, mode)
-        if s is None:
-            continue
-        rows.append([MODE[mode], s["n"]] + [s["counts"].get(k, 0) for k in ORDER if k != "error"])
+    for sp in (split if isinstance(split, (list, tuple)) else [split]):
+        for mode in ("oracle_clean", "oracle_occluded", "e2e"):
+            _, s = suite(sp, mode, post)
+            if s is None:
+                continue
+            rows.append(([sp] if label_split else []) + [MODE[mode], s["n"]] + [s["counts"].get(k, 0) for k in ORDER if k != "error"])
     return {"columns": cols, "rows": rows} if rows else None
+
+
+def kpis(s):
+    return [{"value": f"{s['correct']['k']}/{s['n']}", "label": "full pipeline: correct, incl. correct refusals"},
+            {"value": f"{s['harmful']['k']}/{s['n']}", "label": "full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)"},
+            {"value": f"{s['definite_verdicts']['correct']}/{s['definite_verdicts']['issued']}", "label": "definite verdicts (avoidable / not avoidable) that were right"}]
 
 
 def resolution_table(split):
@@ -93,7 +105,7 @@ def family_table(split):
     return {"columns": ["Camera family", "n", "correct", "no verdict", "harmful"], "rows": out}
 
 
-def legacy_table(split):
+def legacy_table(split, label="v2.0 (frozen)"):
     rows, _ = suite(split, "e2e")
     if not rows or "legacy_status" not in rows[0]:
         return None
@@ -104,7 +116,7 @@ def legacy_table(split):
     v2_bad = sum(r["outcome"] in HARMFUL for r in rows)
     return {"columns": ["Pipeline", "n", "issued a collision verdict", "correct", "harmful"],
             "rows": [["v1 as received (process_video)", n, v1_verdicts, v1_ok, "–"],
-                     ["v2 (this submission)", n, sum(r.get("carai_verdict") in ("AVOIDABLE", "NOT_AVOIDABLE", "ASSUMPTION_DEPENDENT") for r in rows),
+                     [label, n, sum(r.get("carai_verdict") in ("AVOIDABLE", "NOT_AVOIDABLE", "ASSUMPTION_DEPENDENT") for r in rows),
                       v2_ok, v2_bad]]}
 
 
@@ -140,15 +152,19 @@ def fault_table():
     if not d:
         return None
     s = d["summary"]
-    names = {"clean": "No fault (false-alarm rate)", "camera_bump": "Camera knocked mid-clip",
+    names = {"clean": "No fault (a flag here with speeds within 10 % would be a false alarm)", "camera_bump": "Camera knocked mid-clip",
              "wrong_standard_shape": "Wrong marking standard (6 m + 12 m)", "misindexed_dash": "Dash mis-indexed (algorithm fault)",
              "wrong_lateral_prior": "Wrong lane-width prior", "same_duty_longer": "Longer markings, same proportions (undetectable by design)",
              "wrong_fps_metadata": "Wrong frame rate in file (undetectable by design)"}
     rows = []
     for k, v in s.items():
-        rows.append([names.get(k, k), v["n"], v.get("blocked_or_rejected", "–"), v["flagged_or_rejected"], v["silent_failures"],
-                     pct(v["median_worst_speed_err"], 1) if v["median_worst_speed_err"] is not None else "–"])
-    return {"columns": ["Injected fault", "n", "verdict withheld or refused", "any check flagged", "silent failures (> 10 % error, no flag)",
+        rs = [r for r in d["rows"] if r["fault"] == k]
+        false_alarm = sum(1 for r in rs if (r["disputed"] or r["blocking_dispute"]) and r["worst_speed_rel_error"] is not None
+                          and r["worst_speed_rel_error"] <= 0.10)
+        rows.append([names.get(k, k), v["n"], v.get("blocked_or_rejected", "–"), v["flagged_or_rejected"], false_alarm,
+                     v["silent_failures"], pct(v["median_worst_speed_err"], 1) if v["median_worst_speed_err"] is not None else "–"])
+    return {"columns": ["Injected fault", "n", "verdict withheld or refused", "any check flagged",
+                        "flagged runs whose reported speeds were all within 10 %", "silent failures (> 10 % error, no flag)",
                         "median worst speed error"], "rows": rows}
 
 
@@ -189,20 +205,33 @@ def testing_json():
                                                          "licence that permits this use, so the collision verdicts are "
                                                          "validated on simulation only. Real footage was used for the dashcam "
                                                          "speed mode (see the Real dashcam footage tab).")}})
-    for split, title in (("test", "Held-out test split"), ("shift", "Distribution-shift split (harder camera families over-sampled)")):
+    for split, title in (("test", "Held-out test split, frozen code (v2.0)"),
+                         ("shift", "Distribution-shift split, frozen code (v2.0; harder camera families over-sampled)")):
         t = suite_table(split)
         if not t:
             continue
         _, s = suite(split, "e2e")
-        kp = []
-        if s:
-            kp = [{"value": f"{s['correct']['k']}/{s['n']}", "label": "full pipeline: correct, incl. correct refusals"},
-                  {"value": f"{s['harmful']['k']}/{s['n']}", "label": "full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)"},
-                  {"value": f"{s['definite_verdicts']['correct']}/{s['definite_verdicts']['issued']}", "label": "definite verdicts (avoidable / not avoidable) that were right"}]
-        blocks.append({"title": title, "kpis": kp, "table": t,
+        blocks.append({"title": title, "kpis": kpis(s) if s else [], "table": t,
                        "text": "Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite."})
+    t2 = suite_table("test2")
+    if t2:
+        _, s = suite("test2", "e2e")
+        blocks.append({"title": "After the freeze: v2.1 on a new held-out split (test2)", "kpis": kpis(s) if s else [], "table": t2,
+                       "text": ("The frozen run showed that every harmful end-to-end error on test happened 70-130 m from the camera, where "
+                                "one image row spans 0.65-2.5 m of road. v2.1 adds two rules derived from the stated priors, not fitted: "
+                                "neither contact nor 'no contact' is claimed when one image row at the vehicles spans more road than "
+                                "twice the vehicle-length uncertainty (0.7 m); and 'no contact' must also hold if a hidden lead braked "
+                                "at the envelope's 8 m/s^2 (or a hidden follower did not brake). It also fixes a crash on an empty "
+                                "Monte Carlo set. Because test motivated these rules, v2.1 is scored on test2, a split defined and "
+                                "committed before v2.1 was run on it (same distribution as test).")})
+    tp = suite_table(["test", "shift", "dev"], post=True, label_split=True)
+    if tp:
+        blocks.append({"title": "v2.1 re-run on splits it has already seen (post hoc, not independent)", "table": tp,
+                       "text": "Shown so the effect of the change on the original splits is visible; these numbers are not a held-out result."})
     for split in ("test",):
         rt = resolution_table(split)
+        if rt:
+            rt = {**rt, "columns": ["Road length per image row at the event (frozen v2.0, test)"] + rt["columns"][1:]}
         if rt:
             blocks.append({"title": "Where the full pipeline fails: distance",
                            "text": ("Grouped by how much road one image row covers where the event happens (from ground truth). "
@@ -213,6 +242,10 @@ def testing_json():
             blocks.append({"title": "Where the full pipeline fails: camera family", "table": ft})
         lt = legacy_table(split)
         if lt:
+            lt2 = legacy_table("test2", "v2.1")
+            if lt2:
+                lt = {"columns": ["Split"] + lt["columns"],
+                      "rows": [["test"] + r for r in lt["rows"]] + [["test2"] + r for r in lt2["rows"]]}
             blocks.append({"title": "Before and after: the pipeline as received vs this one, same clips", "table": lt})
     g = geometry_tables()
     if g:
@@ -222,8 +255,12 @@ def testing_json():
     ft = fault_table()
     if ft:
         blocks.append({"title": "The Skeptic under fault injection", "table": ft,
-                       "text": ("Each fault is injected into otherwise clean clips analysed by the unchanged pipeline. The last two rows "
-                                "are faults no check can see from a single static camera; they are listed so the blind spots are explicit.")})
+                       "text": ("Each fault is injected into otherwise clean clips (two vehicles, no collision) analysed by the "
+                                "unchanged pipeline (v2.1). 'Speed error' is the worst error among the speeds CARAI reports, so it "
+                                "includes tracking errors: on the clean clips, every dispute was raised on a reconstruction that "
+                                "really was 20-40 % wrong (a tracking failure), and two tracking errors (16 % and 34 %) went "
+                                "unflagged. The last two rows are faults no check can see from a single static camera; they are "
+                                "listed so the blind spots are explicit.")})
     dh = dev_history_table()
     if dh:
         blocks.append({"title": "Development history on the dev split", "table": dh,

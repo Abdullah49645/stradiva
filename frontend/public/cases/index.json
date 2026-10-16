@@ -1,0 +1,22 @@
+[
+ {
+  "id": "rear_end_roadside",
+  "title": "Rear-end, roadside camera",
+  "summary": "Lead brakes hard; the follower reacts late. Synthetic, with known ground truth."
+ },
+ {
+  "id": "no_scale",
+  "title": "No dashed line",
+  "summary": "The road has no marking of known length, so CARAI refuses to measure."
+ },
+ {
+  "id": "bumped_camera",
+  "title": "Camera knocked mid-clip",
+  "summary": "The pole camera moves 1.5\u00b0 halfway through; the cross-examination catches it."
+ },
+ {
+  "id": "dashcam_real",
+  "title": "Real dashcam, wrong assumption caught",
+  "summary": "Real footage; CARAI refuses a marking assumption the geometry contradicts."
+ }
+]

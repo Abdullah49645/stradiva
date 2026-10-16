@@ -10,7 +10,7 @@ Collision verdicts are tested on a simulator whose ground truth CARAI never sees
 
 > No real collision footage with ground truth was available to us under a licence that permits this use, so the collision verdicts are validated on simulation only. Real footage was used for the dashcam speed mode (see the Real dashcam footage tab).
 
-## Held-out test split
+## Held-out test split, frozen code (v2.0)
 
 Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite.
 
@@ -24,7 +24,7 @@ Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'd
 | Reasoning only (true tracks, occluded) | 30 | 14 | 1 | 9 | 0 | 0 | 4 | 0 | 2 | 0 | 0 |
 | Full pipeline (from pixels) | 30 | 3 | 1 | 18 | 0 | 0 | 2 | 0 | 6 | 0 | 0 |
 
-## Distribution-shift split (harder camera families over-sampled)
+## Distribution-shift split, frozen code (v2.0; harder camera families over-sampled)
 
 Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite.
 
@@ -38,11 +38,34 @@ Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'd
 | Reasoning only (true tracks, occluded) | 30 | 4 | 3 | 17 | 0 | 0 | 5 | 1 | 0 | 0 | 0 |
 | Full pipeline (from pixels) | 30 | 2 | 3 | 23 | 0 | 0 | 2 | 0 | 0 | 0 | 0 |
 
+## After the freeze: v2.1 on a new held-out split (test2)
+
+The frozen run showed that every harmful end-to-end error on test happened 70-130 m from the camera, where one image row spans 0.65-2.5 m of road. v2.1 adds two rules derived from the stated priors, not fitted: neither contact nor 'no contact' is claimed when one image row at the vehicles spans more road than twice the vehicle-length uncertainty (0.7 m); and 'no contact' must also hold if a hidden lead braked at the envelope's 8 m/s^2 (or a hidden follower did not brake). It also fixes a crash on an empty Monte Carlo set. Because test motivated these rules, v2.1 is scored on test2, a split defined and committed before v2.1 was run on it (same distribution as test).
+
+* **5/30** full pipeline: correct, incl. correct refusals
+* **3/30** full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)
+* **0/0** definite verdicts (avoidable / not avoidable) that were right
+
+| Layer | n | Correct | Correct refusal (event off-screen) | No verdict / qualified | Qualified, event off-screen | Missed, event off-screen | Missed a visible collision | Reported a collision that did not happen | Verdict on the wrong contact time | Overconfident | Opposite verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Reasoning only (true tracks) | 30 | 13 | 2 | 14 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Reasoning only (true tracks, occluded) | 30 | 10 | 3 | 16 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+| Full pipeline (from pixels) | 30 | 2 | 3 | 22 | 0 | 0 | 0 | 1 | 2 | 0 | 0 |
+
+## v2.1 re-run on splits it has already seen (post hoc, not independent)
+
+Shown so the effect of the change on the original splits is visible; these numbers are not a held-out result.
+
+| Split | Layer | n | Correct | Correct refusal (event off-screen) | No verdict / qualified | Qualified, event off-screen | Missed, event off-screen | Missed a visible collision | Reported a collision that did not happen | Verdict on the wrong contact time | Overconfident | Opposite verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| test | Reasoning only (true tracks, occluded) | 30 | 6 | 1 | 23 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| test | Full pipeline (from pixels) | 2 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+
 ## Where the full pipeline fails: distance
 
 Grouped by how much road one image row covers where the event happens (from ground truth). Far from the camera the gap between two vehicles cannot be measured to within a vehicle length's uncertainty, and CARAI says so.
 
-| Road length per image row at the event | n | correct | harmful |
+| Road length per image row at the event (frozen v2.0, test) | n | correct | harmful |
 |---|---|---|---|
 | 0–0.25 m | 3 | 1 | 0 |
 | 0.25–0.5 m | 4 | 1 | 0 |
@@ -60,10 +83,12 @@ Grouped by how much road one image row covers where the event happens (from grou
 
 ## Before and after: the pipeline as received vs this one, same clips
 
-| Pipeline | n | issued a collision verdict | correct | harmful |
-|---|---|---|---|---|
-| v1 as received (process_video) | 30 | 0 | 0 | – |
-| v2 (this submission) | 30 | 9 | 4 | 8 |
+| Split | Pipeline | n | issued a collision verdict | correct | harmful |
+|---|---|---|---|---|---|
+| test | v1 as received (process_video) | 30 | 0 | 0 | – |
+| test | v2.0 (frozen) | 30 | 9 | 4 | 8 |
+| test2 | v1 as received (process_video) | 30 | 1 | 0 | – |
+| test2 | v2.1 | 30 | 4 | 5 | 3 |
 
 ## Road geometry before and after, same scenes
 
@@ -75,6 +100,20 @@ For 'prior mismatch' scenes the true markings differ from the assumed standard. 
 | yaw | 3 | 1 | 9.3 % | 3 | 0.14 % |
 | pose | 3 | 0 | – | 3 | 0.21 % |
 | prior mismatch | 5 | 2 | 8.5 % | 5 | 0.15 % |
+
+## The Skeptic under fault injection
+
+Each fault is injected into otherwise clean clips (two vehicles, no collision) analysed by the unchanged pipeline (v2.1). 'Speed error' is the worst error among the speeds CARAI reports, so it includes tracking errors: on the clean clips, every dispute was raised on a reconstruction that really was 20-40 % wrong (a tracking failure), and two tracking errors (16 % and 34 %) went unflagged. The last two rows are faults no check can see from a single static camera; they are listed so the blind spots are explicit.
+
+| Injected fault | n | verdict withheld or refused | any check flagged | flagged runs whose reported speeds were all within 10 % | silent failures (> 10 % error, no flag) | median worst speed error |
+|---|---|---|---|---|---|---|
+| No fault (a flag here with speeds within 10 % would be a false alarm) | 8 | 3 | 3 | 0 | 2 | 18.2 % |
+| Camera knocked mid-clip | 8 | 7 | 7 | 3 | 0 | 20.8 % |
+| Wrong marking standard (6 m + 12 m) | 8 | 8 | 8 | 0 | 0 | 34.7 % |
+| Dash mis-indexed (algorithm fault) | 8 | 8 | 8 | 3 | 0 | 16.4 % |
+| Wrong lane-width prior | 8 | 1 | 4 | 2 | 3 | 19.4 % |
+| Longer markings, same proportions (undetectable by design) | 8 | 2 | 3 | 0 | 5 | 25.4 % |
+| Wrong frame rate in file (undetectable by design) | 8 | 1 | 1 | 0 | 7 | 18.4 % |
 
 ## Development history on the dev split
 

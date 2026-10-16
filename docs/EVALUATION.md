@@ -166,11 +166,35 @@ recorded in the pre-registration before any comparison.
 
 ## 6. Freeze, and what was run after it
 
-The code freeze is the git tag `eval-freeze`. After the tag, the test and
-shift splits (all three layers), the Skeptic fault injection, and the v2
-geometry sweep were each run once. Any later code change is listed in
-docs/EVALUATION_RESULTS.md under "Changes after the freeze". If that
-section is absent, there were none.
+1. **Freeze** (git tag `eval-freeze`, pipeline `carai-2.0`). The run
+   order was: dev, test and shift, each in all three layers (once); the v2
+   geometry sweep; AWS sizing. The Skeptic fault injection **crashed** on
+   one clip where every Monte Carlo resample was invalid. That bug was in
+   the frozen code. Its results were never written, and it was re-run after
+   the fix (step 3).
+2. **What the frozen test run showed.** End to end, 4/30 cases were correct
+   and 8/30 harmful. Every one of the 8 harmful cases happened 70–130 m
+   from the camera, where one image row spans 0.65–2.5 m of road. On shift,
+   2/30 were harmful. With true tracks plus occlusion, missed collisions
+   came from "no contact" claims that relied on the extrapolated motion of a
+   hidden vehicle.
+3. **v2.1** (commit after `3fa9f06`, pipeline `carai-2.1`). Two rules,
+   each derived from priors already stated rather than fitted to the test
+   results, plus the crash fix:
+   * neither contact nor "no contact" is claimed when one image row at the
+     vehicles spans more than 2σ of the vehicle-length prior (0.7 m);
+   * "no contact" must also hold if a hidden lead braked at 8 m/s² (the
+     top of the braking envelope), or if a hidden follower did not brake.
+4. **New held-out split.** test2 (seed base 13000, same distribution as
+   test) was defined and committed in `3fa9f06`, *before* v2.1 was committed
+   or run on any clip. v2.1 was scored on test2 once. The
+   v2.1 re-runs of test, shift and dev are shown separately and labelled
+   post hoc.
+5. The Skeptic fault injection, the demo cases and the sizing measurement
+   were run on v2.1, the code that ships.
+
+The frozen v2.0 test and shift numbers stay the primary held-out result.
+The v2.1 test2 numbers are the held-out result for the shipped code.
 
 ## 7. Reproduce
 

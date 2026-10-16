@@ -5,19 +5,19 @@
     "height": 720,
     "fps": 30.0
   },
-  "wall_s": 28.7,
-  "peak_rss_mb": 1984.0,
+  "wall_s": 24.4,
+  "peak_rss_mb": 1986.0,
   "pipeline": {
     "status": "RECONSTRUCTED_NO_INTERACTION",
     "timings": {
-      "ingest": 1.181,
-      "background": 16.18,
-      "geometry": 16.442,
-      "tracking": 5.712,
-      "kinematics": 0.029,
-      "events_mc_counterfactual": 1.954,
-      "skeptic": 2.586,
-      "total": 28.029
+      "ingest": 0.935,
+      "background": 13.987,
+      "geometry": 14.223,
+      "tracking": 4.827,
+      "kinematics": 0.046,
+      "events_mc_counterfactual": 1.699,
+      "skeptic": 2.017,
+      "total": 23.858
     }
   },
   "machine": {

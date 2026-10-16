@@ -98,8 +98,12 @@ def gt_validation(sc, gt, case):
                  "ok": g["verdict"] == (case.get("verdict") or {}).get("value")})
     cr = (case.get("counterfactual") or {}).get("critical_reaction_s", {}).get("7")
     if cr:
-        t7 = g["critical_reaction_s"]["7"]
-        rows.append({"label": "Latest avoiding reaction at 7 m/s²", "truth": f"{t7:.2f} s",
+        # both measured from the SAME reference: CARAI's hazard onset (the lead's measured brake onset, or the
+        # first tracked frame when the onset was not identifiable); ground truth is relative to the true onset
+        t_ref = (case.get("hazard_onset") or {}).get("t_s", meta["hazard_onset_s"])
+        t7 = g["critical_reaction_s"]["7"] + (meta["hazard_onset_s"] - t_ref)
+        rows.append({"label": "Latest avoiding reaction at 7 m/s², from CARAI's hazard reference "
+                              f"(t = {t_ref:.2f} s)", "truth": f"{t7:.2f} s",
                      "carai": f"{cr['median_s']:.2f} s ({cr['ci90_s'][0]:.2f}–{cr['ci90_s'][1]:.2f})",
                      "ok": cr["ci90_s"][0] - 0.05 <= t7 <= cr["ci90_s"][1] + 0.05})
     hz = case.get("hazard_onset") or {}
@@ -177,7 +181,9 @@ def build_dashcam_real(seg_dir):
                            "summary": "One minute of real driving with the car's own CAN-bus speed for comparison.",
                            "source": "comma2k19 (comma.ai, MIT licence)", "license": "MIT"}}
     # a second pass with the marking cycle the lane geometry implies, shown as a comparison
-    res2 = estimate_ego_speed(video, MarkingPrior("cycle implied by lane geometry", float(np.median(implied))), fps_override=20.0,
+    # same post-hoc comparison as evaluation/real/run_comma2k19_posthoc_scale_check.py: the 24 ft city broken-line
+    # standard closest to the cycle the lane geometry implies (chosen after seeing the data: a demonstration)
+    res2 = estimate_ego_speed(video, MarkingPrior("city broken line 10 ft + 14 ft", 24 * 0.3048), fps_override=20.0,
                               cfg=EgoSpeedConfig(focal_px=910.0, lane_width_prior_m=3.6))
     ok2 = [(w, float(vf[int(round(w['t_start_s'] * 20)):int(round(w['t_end_s'] * 20))].mean())) for w in res2["windows"] if w["status"] == "OK"]
     ape = [abs(w["speed_mps"] - t) / t for w, t in ok2]
@@ -188,7 +194,7 @@ def build_dashcam_real(seg_dir):
                                     "carai": f"{sum(w['status'] == 'OK' for w in res['windows'])} of {len(res['windows'])}", "ok": None},
                                    {"label": "Marking cycle implied by lane geometry", "truth": "unknown (city street)",
                                     "carai": f"{np.median(implied):.2f} m", "ok": None},
-                                   {"label": "Speed error using the implied cycle (median)", "truth": "CAN bus",
+                                   {"label": "Speed error with the 24 ft city standard the geometry points to (median, post hoc)", "truth": "CAN bus",
                                     "carai": f"{100 * np.median(ape):.1f} % over {len(ok2)} windows", "ok": None},
                                    {"label": "90 % intervals containing the CAN speed", "truth": "–",
                                     "carai": f"{sum(cov)} of {len(cov)}", "ok": None}]}

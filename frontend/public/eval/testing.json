@@ -12,7 +12,7 @@
    }
   },
   {
-   "title": "Held-out test split",
+   "title": "Held-out test split, frozen code (v2.0)",
    "kpis": [
     {
      "value": "4/30",
@@ -90,7 +90,7 @@
    "text": "Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite."
   },
   {
-   "title": "Distribution-shift split (harder camera families over-sampled)",
+   "title": "Distribution-shift split, frozen code (v2.0; harder camera families over-sampled)",
    "kpis": [
     {
      "value": "5/30",
@@ -168,11 +168,142 @@
    "text": "Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite."
   },
   {
+   "title": "After the freeze: v2.1 on a new held-out split (test2)",
+   "kpis": [
+    {
+     "value": "5/30",
+     "label": "full pipeline: correct, incl. correct refusals"
+    },
+    {
+     "value": "3/30",
+     "label": "full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)"
+    },
+    {
+     "value": "0/0",
+     "label": "definite verdicts (avoidable / not avoidable) that were right"
+    }
+   ],
+   "table": {
+    "columns": [
+     "Layer",
+     "n",
+     "Correct",
+     "Correct refusal (event off-screen)",
+     "No verdict / qualified",
+     "Qualified, event off-screen",
+     "Missed, event off-screen",
+     "Missed a visible collision",
+     "Reported a collision that did not happen",
+     "Verdict on the wrong contact time",
+     "Overconfident",
+     "Opposite verdict"
+    ],
+    "rows": [
+     [
+      "Reasoning only (true tracks)",
+      30,
+      13,
+      2,
+      14,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      "Reasoning only (true tracks, occluded)",
+      30,
+      10,
+      3,
+      16,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+     ],
+     [
+      "Full pipeline (from pixels)",
+      30,
+      2,
+      3,
+      22,
+      0,
+      0,
+      0,
+      1,
+      2,
+      0,
+      0
+     ]
+    ]
+   },
+   "text": "The frozen run showed that every harmful end-to-end error on test happened 70-130 m from the camera, where one image row spans 0.65-2.5 m of road. v2.1 adds two rules derived from the stated priors, not fitted: neither contact nor 'no contact' is claimed when one image row at the vehicles spans more road than twice the vehicle-length uncertainty (0.7 m); and 'no contact' must also hold if a hidden lead braked at the envelope's 8 m/s^2 (or a hidden follower did not brake). It also fixes a crash on an empty Monte Carlo set. Because test motivated these rules, v2.1 is scored on test2, a split defined and committed before v2.1 was run on it (same distribution as test)."
+  },
+  {
+   "title": "v2.1 re-run on splits it has already seen (post hoc, not independent)",
+   "table": {
+    "columns": [
+     "Split",
+     "Layer",
+     "n",
+     "Correct",
+     "Correct refusal (event off-screen)",
+     "No verdict / qualified",
+     "Qualified, event off-screen",
+     "Missed, event off-screen",
+     "Missed a visible collision",
+     "Reported a collision that did not happen",
+     "Verdict on the wrong contact time",
+     "Overconfident",
+     "Opposite verdict"
+    ],
+    "rows": [
+     [
+      "test",
+      "Reasoning only (true tracks, occluded)",
+      30,
+      6,
+      1,
+      23,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      "test",
+      "Full pipeline (from pixels)",
+      2,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    ]
+   },
+   "text": "Shown so the effect of the change on the original splits is visible; these numbers are not a held-out result."
+  },
+  {
    "title": "Where the full pipeline fails: distance",
    "text": "Grouped by how much road one image row covers where the event happens (from ground truth). Far from the camera the gap between two vehicles cannot be measured to within a vehicle length's uncertainty, and CARAI says so.",
    "table": {
     "columns": [
-     "Road length per image row at the event",
+     "Road length per image row at the event (frozen v2.0, test)",
      "n",
      "correct",
      "harmful"
@@ -251,6 +382,7 @@
    "title": "Before and after: the pipeline as received vs this one, same clips",
    "table": {
     "columns": [
+     "Split",
      "Pipeline",
      "n",
      "issued a collision verdict",
@@ -259,6 +391,7 @@
     ],
     "rows": [
      [
+      "test",
       "v1 as received (process_video)",
       30,
       0,
@@ -266,11 +399,28 @@
       "\u2013"
      ],
      [
-      "v2 (this submission)",
+      "test",
+      "v2.0 (frozen)",
       30,
       9,
       4,
       8
+     ],
+     [
+      "test2",
+      "v1 as received (process_video)",
+      30,
+      1,
+      0,
+      "\u2013"
+     ],
+     [
+      "test2",
+      "v2.1",
+      30,
+      4,
+      5,
+      3
      ]
     ]
    }
@@ -322,6 +472,86 @@
     ]
    },
    "text": "For 'prior mismatch' scenes the true markings differ from the assumed standard. v2's error there is measured against the error the wrong prior implies (it cannot be identified from one view); v1's is raw. The duty-cycle check flagged 1 of 1 accepted scenes whose dash proportions differ from the standard."
+  },
+  {
+   "title": "The Skeptic under fault injection",
+   "table": {
+    "columns": [
+     "Injected fault",
+     "n",
+     "verdict withheld or refused",
+     "any check flagged",
+     "flagged runs whose reported speeds were all within 10 %",
+     "silent failures (> 10 % error, no flag)",
+     "median worst speed error"
+    ],
+    "rows": [
+     [
+      "No fault (a flag here with speeds within 10 % would be a false alarm)",
+      8,
+      3,
+      3,
+      0,
+      2,
+      "18.2 %"
+     ],
+     [
+      "Camera knocked mid-clip",
+      8,
+      7,
+      7,
+      3,
+      0,
+      "20.8 %"
+     ],
+     [
+      "Wrong marking standard (6 m + 12 m)",
+      8,
+      8,
+      8,
+      0,
+      0,
+      "34.7 %"
+     ],
+     [
+      "Dash mis-indexed (algorithm fault)",
+      8,
+      8,
+      8,
+      3,
+      0,
+      "16.4 %"
+     ],
+     [
+      "Wrong lane-width prior",
+      8,
+      1,
+      4,
+      2,
+      3,
+      "19.4 %"
+     ],
+     [
+      "Longer markings, same proportions (undetectable by design)",
+      8,
+      2,
+      3,
+      0,
+      5,
+      "25.4 %"
+     ],
+     [
+      "Wrong frame rate in file (undetectable by design)",
+      8,
+      1,
+      1,
+      0,
+      7,
+      "18.4 %"
+     ]
+    ]
+   },
+   "text": "Each fault is injected into otherwise clean clips (two vehicles, no collision) analysed by the unchanged pipeline (v2.1). 'Speed error' is the worst error among the speeds CARAI reports, so it includes tracking errors: on the clean clips, every dispute was raised on a reconstruction that really was 20-40 % wrong (a tracking failure), and two tracking errors (16 % and 34 %) went unflagged. The last two rows are faults no check can see from a single static camera; they are listed so the blind spots are explicit."
   },
   {
    "title": "Development history on the dev split",
