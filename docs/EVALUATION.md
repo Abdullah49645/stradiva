@@ -83,10 +83,18 @@ main changes it records:
   also fixed to hide the farther vehicle, not always the lead.
 * Scoring became stricter between iterations: missed collisions and
   wrong-time contacts were split out as harmful outcomes.
-* **Background ablation** (dev, end to end; `ablation_bg_*.jsonl`): the
-  whole-clip median with a first-half fallback (v2 at the start of this
-  work), against region-resolved segment medians with 3 or 5 segments. The
-  chosen variant and its numbers are in EVALUATION_RESULTS.md.
+* **Background ablation** (dev, end to end; `ablation_bg_*.jsonl`):
+
+  | Variant | Correct | Harmful |
+  |---|---|---|
+  | Whole-clip median with a first-half fallback (kept) | 7/30 | 1/30 |
+  | Region-resolved segment medians, 3 segments | 7/30 | 2/30 |
+  | Region-resolved segment medians, 5 segments | 8/30 | 4/30 |
+
+  The region method (`cv.tracking.mot.resolve_changed_regions`) fixes some
+  scenes (dev_004) and breaks others. It stays in the code, off by default,
+  with a unit test. These runs predate the final onset-interval change,
+  which applies to all variants alike.
 * **Tracking diagnostics** (`track_diagnostics.py`, `track_diag_*.json`)
   report, per scene, how much of each true vehicle's visible time a track
   covers, its identity breaks, and its contact-point error in pixels.

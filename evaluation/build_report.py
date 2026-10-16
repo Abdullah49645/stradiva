@@ -164,6 +164,12 @@ def dev_history_table():
             if os.path.exists(p):
                 s = summarise(load(p))
                 rows.append([it + (" (stopped early)" if s["n"] < 30 else ""), MODE[mode], s["n"], s["correct"]["k"], s["harmful"]["k"]])
+    for v, label in (("legacy", "whole-clip median + first-half fallback (kept)"), ("resolve3", "region-resolved, 3 segments"),
+                     ("resolve5", "region-resolved, 5 segments")):
+        p = os.path.join(d, f"ablation_bg_{v}.jsonl")
+        if os.path.exists(p):
+            s = summarise(load(p))
+            rows.append([f"background ablation: {label}", MODE["e2e"], s["n"], s["correct"]["k"], s["harmful"]["k"]])
     for mode in ("oracle_clean", "oracle_occluded", "e2e"):
         _, s = suite("dev", mode)
         if s:

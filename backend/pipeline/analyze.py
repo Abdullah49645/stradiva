@@ -44,7 +44,7 @@ from backend.reconstruction.kinematics import road_kinematics, velocity_kink
 from backend.causality.counterfactual import TrajectorySample, assess as assess_counterfactual, hinge_onset
 from backend.verification.skeptic import cross_examine
 
-PIPELINE_VERSION = "carai-2.0"
+PIPELINE_VERSION = "carai-2.1"
 BLOCKING_CHECKS = {"held_out_markings", "temporal_stability", "marking_standard", "kinematics"}
 FOLLOW_LENGTH_PRIOR = (4.6, 0.35)     # passenger car length mean, sd (m) -- stated assumption
 MAX_SECONDS = 20.0
@@ -124,6 +124,7 @@ def _sha256(path):
 
 
 OCCLUSION_GUARD_FRAMES = 3
+WORST_CASE_DECEL_MPS2 = 8.0          # upper end of the braking envelope (v2.1 no-contact check)
 # background before tracking: "legacy" = whole-clip median + first-half fallback in the refinement (default);
 # "resolve3" / "resolve5" = segment medians resolved region by region (cv.tracking.mot.resolve_changed_regions).
 # Dev-split ablation, end to end (evaluation/results/dev_history/ablation_bg_*.jsonl): legacy 7/30 correct,
@@ -554,7 +555,20 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
                 t_end = max(fol["kin"]["t"][-1], lead["kin"]["t"][-1])
                 _, vf_e = _follow_state(fol["kin"], [t_end])
                 closing_at_end = float(vf_e[0] - _lead_v(lead["kin"], a_lead, t_end)) > 0.5
-                if t_long is not None and t_long <= clip_end:
+                # v2.1 (post-freeze): while a vehicle is hidden its motion is unobserved. "No contact" must also hold
+                # if the hidden lead braked as hard as the envelope allows or the hidden follower did not brake.
+                t_worst = None
+                if abs(fol["kin"]["t"][-1] - lead["kin"]["t"][-1]) > 0.2:
+                    a_l_w = min(a_lead, -WORST_CASE_DECEL_MPS2) if hidden == "lead" else a_lead
+                    a_f_w = 0.0 if hidden == "follower" else None
+                    t_worst, _ = _extrapolate_contact(fol["kin"], lead["kin"], L_f + 2 * FOLLOW_LENGTH_PRIOR[1], a_l_w,
+                                                      a_follow=a_f_w, t_until=clip_end)
+                if t_worst is not None and t_worst <= clip_end:
+                    contact_source = (f"not established: the {hidden} was hidden from view; had it "
+                                      + ("braked at up to 8 m/s^2" if hidden == "lead" else "not braked")
+                                      + f" while hidden, the vehicles would have touched at t={t_worst:.2f}s; "
+                                      "the footage cannot exclude contact")
+                elif t_long is not None and t_long <= clip_end:
                     contact_source = (f"not established: no contact with the {L_f} m length prior, but a vehicle "
                                       f"{2 * FOLLOW_LENGTH_PRIOR[1]:.1f} m longer would touch at t={t_long:.2f}s; "
                                       "the footage cannot exclude contact")
@@ -569,6 +583,14 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
             res_m_per_row = float(abs(_jacobian(geo.H, fol["uv"][-1])[0, 1]))
         except Exception:  # noqa: BLE001 -- explanatory only
             pass
+        if (res_m_per_row is not None and res_m_per_row > 2 * FOLLOW_LENGTH_PRIOR[1]
+                and not contact_source.startswith("not established")):
+            # v2.1 (post-freeze): at this range pixel quantisation, not the length prior, limits the measured gap,
+            # so neither a contact (or its time) nor its absence is established
+            t_contact = None
+            contact_source = (f"not established: the vehicles are too far from the camera for the gap between them "
+                              f"to be measured to within the vehicle-length uncertainty "
+                              f"({2 * FOLLOW_LENGTH_PRIOR[1]:.1f} m)")
         if contact_source.startswith("not established") and res_m_per_row is not None:
             contact_source += (f" (at the vehicles' position one image row spans {res_m_per_row:.2f} m of road, "
                                "which limits how precisely the gap can be measured)")
@@ -631,8 +653,12 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
             stage("events", "CONTACT", f"contact at t={t_contact:.2f}s; hazard onset ({hazard['source']}) t={hazard['t_s']:.2f}s")
             samples, speed_at_onset = _mc_samples(fol, lead, geo, prior, fps, hazard, rng, n_mc, a_lead,
                                                   a_lead_rel_sigma, t_contact if kink and kink["significant"] else None)
-            cf = assess_counterfactual(samples, hazard_info=hazard)
-            case["counterfactual"] = asdict(cf)
+            if len(samples) >= 10:
+                cf = assess_counterfactual(samples, hazard_info=hazard)
+                case["counterfactual"] = asdict(cf)
+            else:
+                case["counterfactual_error"] = (f"only {len(samples)} of {n_mc} Monte Carlo reconstructions were valid "
+                                                "(too few measured positions under resampled geometry)")
             case["speeds"] = _speed_summaries(vehicles, geo, prior, fps, rng, n_mc, ref_t=hazard["t_s"])
             case["follower_speed_at_hazard_onset"] = speed_at_onset
             impacts = [s.t_impact_s for s in samples if s.t_impact_s is not None]
@@ -685,6 +711,8 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
                                              + case["counterfactual"]["narrative"]}
             else:
                 case["verdict"] = {"value": cfv, "reason": case["counterfactual"]["narrative"]}
+        elif case.get("counterfactual_error"):
+            case["verdict"] = {"value": "INSUFFICIENT_EVIDENCE", "reason": case["counterfactual_error"]}
         elif case["status"] == "RECONSTRUCTED_NO_INTERACTION":
             # not a "no collision" finding: the tracker may have fused or lost vehicles
             case["verdict"] = {"value": "NO_PAIR_RECONSTRUCTED",
