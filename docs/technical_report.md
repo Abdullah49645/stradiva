@@ -106,6 +106,36 @@ See docs/architecture.md for the diagrams. The pipeline
    widths through the homography, and physical plausibility of the motion.
    A blocking dispute withholds the verdict, and the computed result is
    still shown for review.
+10. **Investigator** (`backend/investigator/investigator.py`). A blocking
+   dispute names a failure, and each failure admits one remedy: a camera
+   that moved mid-clip is located by ECC image alignment and each stable
+   part is analysed on its own; marking proportions that do not match the
+   assumed standard trigger a re-run under every documented standard with
+   matching proportions (the verdict must hold under all of them, and speed
+   intervals become their union); a subject vehicle's physically impossible
+   motion at specific frames is a tracking failure, so those measurements are
+   quarantined and the reasoning re-run. The remedy's result goes through the
+   whole cross-examination again and replaces the refusal only if every
+   blocking check holds and a same-lane pair is reconstructed. Inputs the
+   footage cannot provide (frame rate, focal length, marking standard) are
+   returned as explicit requests, and the API accepts them with the upload.
+11. **Near-miss measures.** For every reconstructed pair: smallest bumper
+   gap, shortest time to collision and the largest deceleration that would
+   have been needed to avoid contact (DRAC), each with a 90 % interval, over
+   the interval in which both vehicles were measured. These are the standard
+   traffic-conflict measures road-safety analysts use, and they need no
+   collision to be useful.
+
+**Dashcam mode** (`backend/dashcam/`). A moving camera gets two
+measurements: its own speed from the lane markings sliding past, and, when
+the focal length is known, the vehicle ahead. YOLOX-S (OpenCV Model Zoo)
+on `cv2.dnn` finds the vehicle in the ego lane. Its range comes from two
+rulers that rest on different assumptions: the flat-road ground plane, with
+the camera height derived from the lane width, and the vehicle's width in
+pixels against a width prior for its class. They are fused when they agree
+and the window is refused when they do not. The closing speed is the range
+times the rate at which the vehicle grows in the image, and the time to
+collision is reported only while the closing is significant.
 
 ## 5. OpenCV 5 implementation
 
@@ -121,6 +151,9 @@ operation at runtime:
   `connectedComponentsWithStats`, `findContours`
 * **Tracking:** `KalmanFilter`
 * **Dashcam strip shift:** `phaseCorrelate`, `createHanningWindow`
+* **Vehicle detection (dashcam lead vehicle):** `dnn.readNet` (YOLOX-S ONNX
+  from the OpenCV Model Zoo), `dnn.NMSBoxes`
+* **Camera-bump detection (investigator):** `findTransformECC` (Euclidean)
 * **Mapping:** `perspectiveTransform`, `findHomography`
 * **Evidence clips:** `VideoWriter`, VP8
 

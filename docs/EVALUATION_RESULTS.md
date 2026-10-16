@@ -173,6 +173,15 @@ Used for evaluation only; the video has no licence file, so it is not redistribu
 | Post hoc v2 (duty + continuity checks) | freeway (frames < 9000) | 225 | 47 | 2.3 % | 6.0 % | 91 % |
 | Post hoc v2 (duty + continuity checks) | city (frames >= 9000) | 285 | 3 | 78.3 % | 91.6 % | 0 % |
 
+## Vehicle ahead: distance, closing speed and time to collision vs the car's radar
+
+Pre-registered (evaluation/real/PREREGISTRATION_LEAD.md) on the same comma2k19 segment, a different task: YOLOX-S on OpenCV 5's DNN module finds the vehicle in the ego lane; distance from the ground plane (camera height from the lane-width prior) fused with a vehicle-width ruler; closing speed from the rate at which the vehicle grows in the image. Ground truth is the car's forward radar. The method changed during development; the deviations are listed in the pre-registration. Range is compared after a constant 1.29 m camera-to-radar offset fitted on development. Each ruler alone on the test windows (post hoc, same windows): ground plane only 9.6 %, vehicle width only 2.3 %. The lead car's width is close to the 1.8 m prior, which favours the width ruler.
+
+| Part | 2 s windows | answered | range: median abs. error | range: 90 % coverage | relative speed: median abs. error | relative speed: 90 % coverage | time to collision: radar inside CARAI's interval |
+|---|---|---|---|---|---|---|---|
+| development (0-20 s, tuned here) | 10 | 8 | 2.5 % | 100 % | 0.49 m/s | 100 % | 1/2 |
+| test (20-60 s, run once) | 20 | 17 | 2.4 % | 100 % | 0.58 m/s | 82 % | 3/3 |
+
 ## Synthetic development set (before any real footage)
 
 18 of 30 windows answered; median abs. error 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 2bf75b9).

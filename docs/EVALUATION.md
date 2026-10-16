@@ -196,7 +196,64 @@ recorded in the pre-registration before any comparison.
 The frozen v2.0 test and shift numbers stay the primary held-out result.
 The v2.1 test2 numbers are the held-out result for the shipped code.
 
-## 7. Reproduce
+## 7. v2.2: investigator, near-miss measures, the vehicle ahead
+
+Pre-registered in `evaluation/PREREGISTRATION_V22.md`, committed before
+any held-out run. Development used only: the dev split, oracle_clean dev
+(near-miss measures) and fault-injection scenes 0-7 (investigator).
+
+**Held-out runs, once each, on the code tagged `eval-freeze-v22`:**
+* **test3** (seeds 17000+, the test distribution), all three layers. The
+  end-to-end run records, on every clip, both the pipeline's own outcome and
+  the outcome after the investigator, so its effect is measured on the same
+  clips: refusals it turned into correct answers against refusals it turned
+  into harmful ones.
+* **Fault injection, scenes 8-15** (seeds 708-715, never looked at), all
+  seven conditions, pipeline alone vs pipeline + investigator.
+
+**What development showed (dev, not independent).** The quarantine remedy
+for impossible motion was adopted on 4 dev clips in its first version: one
+became correct, two stayed abstentions, and one became a missed collision,
+because the "impossible" deceleration it removed was the impact itself. On
+the fault scenes, one adoption kept a track that passed the physics limit but
+was still badly wrong. Two rules were added on dev before the freeze: no
+quarantine while the reconstructed gap is under 3 m or in the last 0.5 s of
+the pair's common observation (it may be the collision), and the rest of the
+track must be clearly physical afterwards (acceleration lower bound at most
+half the 12 m/s² limit). Re-run on the same clips, the first rule refuses
+the missed-collision case, the second the fault-scene case, and the correct
+recovery stays. The near-miss measures were reported on every pair in their
+first version; on dev end to end most of the badly wrong ones came from
+disputed reconstructions or from clips where contact was undetermined, so
+they are now withheld in both (a smallest gap would contradict "the footage
+cannot exclude contact"). Building the demo cases showed that the measured
+dash duty cycle is biased upwards (true 0.25 measured as 0.29 over a 6 s
+clip and 0.33 over 3 s of it), so a remedy that picks "the standard
+matching the measured proportions" would choose too long a standard. The
+marking remedy therefore treats a standard as consistent with a measurement
+d if its duty lies in [d − 0.06 − 0.08, d + 0.06], acts only if this rules
+out the assumed standard, and never acts while the camera-stability or
+held-out-markings checks also dispute the clip. The camera-bump and marking-standard remedies
+mostly concluded "the dispute stands" on the 4 s fault scenes: their stable
+parts were too short or too poorly tracked to pass re-examination.
+
+**Near-miss measures** are scored against the simulator's vehicle states
+over the same interval CARAI observed: median absolute error and 90 %
+interval coverage for the smallest gap, the shortest time to collision
+(both sides capped at 10 s) and the largest deceleration needed to avoid
+contact.
+
+**The vehicle ahead (real footage).** A separate pre-registration
+(`evaluation/real/PREREGISTRATION_LEAD.md`) on the comma2k19 segment, with
+the car's own radar as ground truth: development on the first 20 s, test on
+the last 40 s, run once. The method changed during development, and the
+changes are listed in that file's Deviations section.
+
+All numbers: EVALUATION_RESULTS.md, sections "v2.2 with the investigator",
+"What the investigator changed", "Near-miss measures", "The investigator
+under fault injection", and "Vehicle ahead".
+
+## 8. Reproduce
 
 ```bash
 pip install -r requirements-dev.txt
@@ -214,6 +271,10 @@ python3 legacy_geometry_sweep.py && python3 geometry_sweep_v2.py
 bash ../real/fetch_comma.sh                                  # speedchallenge (evaluation only)
 python3 ../real/run_comma_eval.py --prior california_freeway
 python3 ../real/run_comma2k19_holdout.py                     # needs the comma2k19 Example_1 segment
+
+python3 collision_suite.py --split test3 --n 30 --mode e2e --investigate --no-legacy   # v2.2 + investigator
+python3 investigator_faults.py --start 8 --n 8 --out investigator_faults_heldout.json
+python3 ../real/run_comma2k19_lead.py --part test            # vehicle ahead vs radar (needs models/fetch_models.sh)
 
 cd ../.. && python3 evaluation/build_report.py               # regenerates EVALUATION_RESULTS.md and the UI data
 ```

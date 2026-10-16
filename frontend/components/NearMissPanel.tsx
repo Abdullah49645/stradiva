@@ -8,7 +8,7 @@ function iv(x: Interval | undefined, unit: string, digits = 1, cap?: number) {
 
 export default function NearMissPanel({ c }: { c: CaseFile }) {
   const nm = c.near_miss;
-  if (!nm) return null;
+  if (!nm || nm.disputed) return null;
   const collided = c.collision?.t_contact_s != null;
   if (nm.withheld)
     return (

@@ -325,8 +325,8 @@ def gt_near_miss(sc, t0, t1, min_closing=0.3, ttc_cap=10.0):
 
 def score_near_miss(case, sc):
     nm = case.get("near_miss")
-    if not nm or "observed_interval_s" not in nm:
-        return None
+    if not nm or "observed_interval_s" not in nm or nm.get("disputed"):
+        return None          # only what CARAI reports as a finding is scored
     g = gt_near_miss(sc, *nm["observed_interval_s"], ttc_cap=nm.get("ttc_cap_s", 10.0))
     res = {"gt": g}
     for k in ("min_gap_m", "min_ttc_s", "max_drac_mps2"):

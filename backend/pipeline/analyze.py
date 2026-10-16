@@ -289,7 +289,7 @@ def _json(o):
 # -------------------------------------------------------------------- main --
 
 def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks=None, max_seconds=MAX_SECONDS,
-                  return_internals=False, fps_override=None, frame_range=None, focal_px=None):
+                  return_internals=False, fps_override=None, frame_range=None, focal_px=None, preloaded=None):
     """fps_override: the true frame rate when the user supplies it (container metadata is often wrong).
     frame_range: (first, last) frame indices -- analyse only that part of the clip (used by the
     investigator for the segments either side of a camera bump); times are then relative to `first`."""
@@ -310,7 +310,9 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
 
     # 0. ingest
     try:
-        fps, frames, info = ingest(path, max_seconds)
+        # preloaded: (fps, frames, info) already decoded from this file (the investigator re-analyses parts of
+        # a clip without decoding it again, which would double peak memory)
+        fps, frames, info = (preloaded[0], preloaded[1], dict(preloaded[2])) if preloaded else ingest(path, max_seconds)
     except ValueError as e:
         case.update({"status": "INVALID_INPUT", "reasons": [str(e)]})
         stage("ingest", "FAIL", str(e))
@@ -323,6 +325,7 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
         case["input"]["fps_source"] = "supplied by the user"
     else:
         case["input"]["fps_source"] = "container metadata (unverified)"
+    all_frames = frames
     if frame_range is not None:
         a, b = int(frame_range[0]), int(min(frame_range[1], len(frames)))
         frames = frames[a:b]
@@ -425,6 +428,7 @@ def analyze_video(path, prior: RoadPrior = None, n_mc=80, seed=0, skeptic_checks
     out, internals = analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skeptic_checks, timings, t_start)
     if return_internals:
         internals["frames_shape"] = (h, w)
+        internals["ingest"] = (case["input"].get("fps_container", case["input"]["fps"]), all_frames, info)
         internals.update({"frames": frames, "case_pre": case_pre, "prior": prior, "seed": seed, "n_mc": n_mc,
                           "skeptic_checks": skeptic_checks})
         return out, internals
@@ -717,7 +721,11 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
         col = case.get("collision") or {}
         t_cut_nm = col.get("t_contact_s")
         res_nm = col.get("road_m_per_image_row_at_follower")
-        if res_nm is not None and res_nm > 2 * FOLLOW_LENGTH_PRIOR[1]:
+        if case.get("status") == "CONTACT_UNDETERMINED":
+            # a smallest-gap figure would contradict "the footage cannot exclude contact"
+            case["near_miss"] = {"withheld": "whether the vehicles touched is not established, so a closest-approach "
+                                             "figure would be misleading"}
+        elif res_nm is not None and res_nm > 2 * FOLLOW_LENGTH_PRIOR[1]:
             case["near_miss"] = {"withheld": f"one image row spans {res_nm:.2f} m of road at the follower: the bumper gap "
                                              f"is not resolved finer than the vehicle-length uncertainty"}
         else:
@@ -760,6 +768,8 @@ def analyze_from_tracks(case, frames, fps, geo, tracks, prior, rng, n_mc, skepti
                                      f"({', '.join(blocking)}); the computed result is shown for review but no verdict is issued"}
         case["status_before_skeptic"] = case["status"]
         case["status"] = "DISPUTED"
+        if isinstance(case.get("near_miss"), dict) and "min_gap_m" in case["near_miss"]:
+            case["near_miss"]["disputed"] = True     # computed, kept for review, not reported as a finding
     else:
         stage("skeptic", "PASS" if not skep["disputed"] else "ADVISORY", ", ".join(skep["disputed_checks"]) or "all checks passed")
         if case.get("counterfactual"):

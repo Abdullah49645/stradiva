@@ -107,6 +107,7 @@ export interface Interval { median: number; ci90: [number, number] }
 
 export interface NearMiss {
   withheld?: string;
+  disputed?: boolean;
   observed_interval_s?: [number, number];
   n_samples?: number;
   ttc_cap_s?: number;

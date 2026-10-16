@@ -101,13 +101,27 @@ def check_held_out_markings(geo: RoadGeometry):
                    f"each dash centre predicted from the others: RMS {rms:.2f}px, worst {mx:.2f}px", catches)
 
 
+_HALF_CACHE = {}
+
+
+def _half_geometries(frames, prior, half):
+    """The two half-clip geometries depend only on the frames and the prior, not on the tracks, so a
+    re-run of the reasoning on the same clip (the investigator's remedies) reuses them."""
+    f0 = frames[0]
+    key = (id(frames), len(frames), f0.shape, int(f0[::37, ::41].sum()), repr(prior))
+    if key not in _HALF_CACHE:
+        if len(_HALF_CACHE) > 8:
+            _HALF_CACHE.clear()
+        _HALF_CACHE[key] = (estimate_road_geometry(frames[:half], prior), estimate_road_geometry(frames[half:], prior))
+    return _HALF_CACHE[key]
+
+
 def check_temporal_stability(frames, geo: RoadGeometry, prior: RoadPrior, probe_uv):
     catches = "camera moved / zoomed / bumped during the clip"
     if len(frames) < 40 or geo.H is None:
         return _result("temporal_stability", "NOT_APPLICABLE", None, None, "clip too short to split", catches)
     half = len(frames) // 2
-    g1 = estimate_road_geometry(frames[:half], prior)
-    g2 = estimate_road_geometry(frames[half:], prior)
+    g1, g2 = _half_geometries(frames, prior, half)
     if not (g1.ok and g2.ok):
         which = [n for n, g in (("first", g1), ("second", g2)) if not g.ok]
         # failing to re-fit a half-clip (e.g. vehicles hiding an edge line) is not evidence of camera motion

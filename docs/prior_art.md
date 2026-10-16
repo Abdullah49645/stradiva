@@ -18,6 +18,11 @@ pre-registered real-footage tests that report their failures.
 | RTS smoothing with heteroscedastic measurement noise | Established | Rauch, Tung & Striebel 1965 |
 | Monte Carlo uncertainty in accident reconstruction and avoidance analysis | Established in forensic practice | Wood & O'Riordain, SAE 940720 (1994); SAE 2007-01-0741 on interpreting Monte Carlo reconstructions |
 | Abstention / selective prediction | Established | Geifman & El-Yaniv, "Selective classification for deep neural networks", NeurIPS 2017 |
+| Surrogate safety measures: time to collision, deceleration rate to avoid the crash, minimum gap | Established in traffic-conflict analysis | Hayward, "Near-miss determination through use of a scale of danger", Highway Research Record 384 (1972); Cooper & Ferguson, DRAC, *Traffic Engineering & Control* (1976); FHWA Surrogate Safety Assessment Model (Gettman & Head, FHWA-RD-03-050, 2003); from video: Saunier & Sayed (TRR, 2000s) |
+| Monocular range to the vehicle ahead from the ground plane; time to collision from image scale change | Established | Stein, Mano & Shashua, "Vision-based ACC with a single camera: bounds on range and range rate accuracy", IEEE IV 2003; Dagan et al., "Forward collision warning with a single camera", IEEE IV 2004 |
+| Vehicle detection with a COCO-trained one-stage detector | Established; we use YOLOX-S unchanged from the OpenCV Model Zoo | Ge et al., "YOLOX: Exceeding YOLO series in 2021", arXiv 2107.08430 |
+| Camera-motion detection by image alignment (ECC) | Established | Evangelidis & Psarakis, "Parametric image alignment using enhanced correlation coefficient maximization", IEEE PAMI 2008 |
+| Diagnose-then-repair loops (a failed check selects a corrective action) | Established in model-based diagnosis and robotics | Reiter, "A theory of diagnosis from first principles", *Artificial Intelligence* 1987; our remedies are hand-written rules, one per check |
 
 ## What we claim, precisely
 
@@ -39,6 +44,16 @@ pre-registered real-footage tests that report their failures.
    refusals, and recovered the actual cycle (post-hoc; see EVALUATION.md).
 4. **Failure-reporting evaluation.** Pre-registered real-footage tests,
    including the one that failed.
+5. **Remedies that must survive the same cross-examination, measured for
+   harm.** The investigator's remedies are simple rules. What we claim is the
+   discipline: a remedy's result replaces a refusal only if every blocking
+   check passes on it from scratch, it never relaxes a threshold, and its
+   effect is reported as "refusals turned into correct answers" against
+   "refusals turned into harmful answers" on held-out clips.
+6. **Two independent range rulers for the vehicle ahead.** Ground-plane range
+   and vehicle-width range use different assumptions (flat road and camera
+   height vs a vehicle-width prior); disagreement beyond their uncertainty is
+   a refusal. Each ruler is established; the refusal rule is ours.
 
 What we do NOT claim: a novel vehicle detector, tracker, calibration method or
 speed estimator; state-of-the-art speed accuracy (we have not run BrnoCompSpeed);

@@ -1,18 +1,22 @@
 """
 Builds the case files bundled with the web UI (frontend/public/cases/).
 
-Every case is produced by the unchanged production pipeline
-(backend.pipeline.analyze.analyze_video) on a video file -- the pipeline never
-sees ground truth. Ground truth is attached AFTERWARDS, as a separate
+Every synthetic case is produced by the shipped analysis (the pipeline followed by
+the investigator, backend.investigator.investigate) on a video file -- neither
+ever sees ground truth. Ground truth is attached AFTERWARDS, as a separate
 "validation" table the UI labels as such, only for synthetic footage where it
 exists.
 
 Cases:
   rear_end_roadside   synthetic, roadside pole camera, lead brakes hard, follower brakes late
   no_scale            synthetic, the same kind of road without a dashed line: no metric scale -> refusal
-  bumped_camera       synthetic, the camera is knocked 1.5 deg mid-clip: the Skeptic disputes, verdict withheld
+  bumped_camera       synthetic, the camera is knocked 1.5 deg mid-clip: the Skeptic disputes; the investigator
+                      finds the bump and analyses the stable part
+  other_markings      synthetic, the road has 6 m + 12 m dashes while 3 m + 9 m is assumed: the Skeptic disputes the
+                      proportions; the investigator tries every documented standard that matches them
   dashcam_real        REAL comma2k19 segment (MIT licence): moving camera -> own-vehicle speed with the
-                      lane-width / focal-length scale cross-check
+                      lane-width / focal-length scale cross-check, and the vehicle ahead (range, closing
+                      speed, time to collision) against the car's radar (pre-registered test)
 
 Run from the repo root:  python3 evaluation/demo/build_cases.py
 """
@@ -29,7 +33,7 @@ sys.path.insert(0, os.path.join(ROOT, "evaluation", "experiments"))
 
 from evaluation.sim.world import (Scenario, CameraSpec, RoadSpec, VehicleSpec, MotionSegment, Degradation,  # noqa: E402
                                   render_scenario)
-from backend.pipeline.analyze import analyze_video  # noqa: E402
+from backend.investigator.investigator import investigate  # noqa: E402
 
 OUT = os.path.join(ROOT, "frontend", "public", "cases")
 WORK = os.path.join(ROOT, "evaluation", "_sim_cache", "demo")
@@ -128,7 +132,7 @@ def build_synthetic(cid, sc, title, summary, post=None):
     vp, gp, gt = render_scenario(sc, WORK)
     if post:
         vp = post(vp)
-    case = analyze_video(vp, seed=0)
+    case = investigate(vp, seed=0)
     case["id"] = cid
     case["provenance"] = {"kind": "synthetic", "title": title, "summary": summary,
                           "source": "CARAI simulator (evaluation/sim/world.py)"}
@@ -198,6 +202,15 @@ def build_dashcam_real(seg_dir):
                                     "carai": f"{100 * np.median(ape):.1f} % over {len(ok2)} windows", "ok": None},
                                    {"label": "90 % intervals containing the CAN speed", "truth": "–",
                                     "carai": f"{sum(cov)} of {len(cov)}", "ok": None}]}
+    # the vehicle ahead: the pre-registered lead-vehicle run (evaluation/real/run_comma2k19_lead.py), dev + test parts
+    ld = json.load(open(os.path.join(ROOT, "evaluation", "results", "comma2k19_lead_dev.json")))
+    lt = json.load(open(os.path.join(ROOT, "evaluation", "results", "comma2k19_lead_test.json")))
+    keys = ("t_start_s", "t_end_s", "status", "reasons", "range_m", "range_ci90_m", "rel_speed_mps", "rel_speed_ci90_mps",
+            "ttc_s", "ttc_ci90_s", "radar_range_m", "radar_rel_speed_mps", "radar_ttc_s")
+    case["dashcam_lead"] = {"status": "OK", "camera_height_m": lt["summary"]["camera_height_m"],
+                            "range_offset_m": ld["summary"]["range_offset_m_from_dev"], "summary_test": lt["summary"],
+                            "windows": [{**{k: w.get(k) for k in keys}, "part": part}
+                                        for part, d in (("development", ld), ("test", lt)) for w in d["windows"]]}
     to_webm(video, os.path.join(OUT, "dashcam_real.webm"), width=720, fps=20.0, bitrate="600k")
     case["video"] = "/cases/dashcam_real.webm"
     with open(os.path.join(OUT, "dashcam_real.json"), "w") as f:
@@ -214,7 +227,12 @@ if __name__ == "__main__":
     index.append(build_synthetic("no_scale", rear_end_scene("demo_no_scale", {"dash_len_m": 0.0001, "dash_gap_m": 12.0}),
                                  "No dashed line", "The road has no marking of known length, so CARAI refuses to measure."))
     index.append(build_synthetic("bumped_camera", rear_end_scene("demo_bumped"), "Camera knocked mid-clip",
-                                 "The pole camera moves 1.5° halfway through; the cross-examination catches it.", post=bump))
+                                 "The pole camera moves 1.5° halfway through; the cross-examination catches it and the "
+                                 "investigator analyses the part before the bump.", post=bump))
+    index.append(build_synthetic("other_markings", rear_end_scene("demo_other_markings", {"dash_len_m": 6.0, "dash_gap_m": 12.0}),
+                                 "Unfamiliar road markings",
+                                 "The dashes are 6 m + 12 m, not the assumed 3 m + 9 m. CARAI notices the proportions and tries "
+                                 "every documented standard that matches them."))
     seg = os.environ.get("CARAI_COMMA2K19_SEG", os.path.join(ROOT, "evaluation", "real", "data", "comma2k19", "seg40"))
     if os.path.exists(os.path.join(seg, "video.hevc")):
         index.append(build_dashcam_real(seg))

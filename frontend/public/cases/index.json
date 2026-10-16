@@ -12,7 +12,12 @@
  {
   "id": "bumped_camera",
   "title": "Camera knocked mid-clip",
-  "summary": "The pole camera moves 1.5\u00b0 halfway through; the cross-examination catches it."
+  "summary": "The pole camera moves 1.5\u00b0 halfway through; the cross-examination catches it and the investigator analyses the part before the bump."
+ },
+ {
+  "id": "other_markings",
+  "title": "Unfamiliar road markings",
+  "summary": "The dashes are 6 m + 12 m, not the assumed 3 m + 9 m. CARAI notices the proportions and tries every documented standard that matches them."
  },
  {
   "id": "dashcam_real",

@@ -151,7 +151,15 @@ if __name__ == "__main__":
                                                            "8-15: held out")
     ap.add_argument("--n", type=int, default=8)
     ap.add_argument("--out", default="investigator_faults.json")
+    ap.add_argument("--merge", nargs="+", help="merge result files (written in parallel) into --out instead of running")
     a = ap.parse_args()
+    if a.merge:
+        parts = [json.load(open(os.path.join(os.path.dirname(__file__), "..", "results", m))) for m in a.merge]
+        rows = [r for p in parts for r in p["rows"]]
+        sc = [min(p["scenes"][0] for p in parts), max(p["scenes"][1] for p in parts)]
+        save_json({"description": __doc__, "scenes": sc, "merged_from": a.merge, "summary": summarise(rows), "rows": rows}, a.out)
+        print(json.dumps(summarise(rows), indent=1))
+        raise SystemExit
     rows = run(a.start, a.n)
     summ = summarise(rows)
     print(json.dumps(summ, indent=1))

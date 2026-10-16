@@ -63,7 +63,18 @@ def prior_for(standard: MarkingStandard, base: RoadPrior) -> RoadPrior:
     return replace(base, name=standard.key, dash_len_m=standard.dash_len_m, dash_gap_m=standard.dash_gap_m)
 
 
+# The measured duty cycle is biased UP: blur and a background median that still holds some vehicle pixels
+# lengthen dashes. On synthetic development clips with true duty 0.25 we measured +0.04 over a 6 s clip and
+# +0.08 over 3 s of it. A standard is consistent with a measurement d if its duty lies in
+# [d - tol - DUTY_INFLATION_MAX, d + tol].
+DUTY_INFLATION_MAX = 0.08
+
+
+def consistent_with_duty(duty: float, duty_measured: float, tol: float) -> bool:
+    return duty_measured - tol - DUTY_INFLATION_MAX <= duty <= duty_measured + tol
+
+
 def candidates_for_duty(duty_measured: float, tol: float, exclude: str = None):
-    """Standards whose duty cycle is within tol of the measured one, closest first."""
-    c = [s for s in STANDARDS if abs(s.duty - duty_measured) <= tol and s.key != exclude]
+    """Standards consistent with the measured duty cycle (allowing for its upward bias), closest first."""
+    c = [s for s in STANDARDS if consistent_with_duty(s.duty, duty_measured, tol) and s.key != exclude]
     return sorted(c, key=lambda s: abs(s.duty - duty_measured))

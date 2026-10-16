@@ -51,11 +51,13 @@ from dataclasses import asdict
 import cv2
 import numpy as np
 
-from backend.geometry.marking_standards import BY_KEY, candidates_for_duty, prior_for
+from backend.geometry.marking_standards import BY_KEY, DUTY_INFLATION_MAX, candidates_for_duty, consistent_with_duty, prior_for
 from backend.geometry.road_geometry import GeometryConfig, RoadPrior, estimate_road_geometry, median_background
 from backend.pipeline.analyze import BLOCKING_CHECKS, analyze_from_tracks, analyze_video
 
 MAX_QUARANTINE_FRAC = 0.25
+NEAR_GAP_M = 3.0               # impossible motion while the pair is this close may be the impact itself
+REMAINDER_ACCEL_MAX = 6.0      # after quarantine the subject's motion must be clearly physical (half the 12 m/s^2 limit)
 CONTACT_GUARD_S = 0.3
 QUARANTINE_ROUNDS = 3
 SHIFT_PX = 2.0                 # background displacement that counts as "the camera moved"
@@ -200,7 +202,8 @@ def remedy_camera_moved(path, case, internals, ctx):
             results.append({"frames": [a, b], "skipped": f"shorter than {MIN_SEGMENT_S} s"})
             continue
         r, ri = analyze_video(path, ctx["prior"], ctx["n_mc"], ctx["seed"], fps_override=ctx.get("fps"),
-                              frame_range=(a, b), return_internals=True, **ctx.get("kw", {}))
+                              frame_range=(a, b), return_internals=True, preloaded=internals.get("ingest"),
+                              **ctx.get("kw", {}))
         r, ri, sub = _settle(path, r, ri, ctx)
         results.append({"frames": [a, b], "t_s": [a / fps, b / fps], **_summary(r), "_case": r, "_int": ri,
                         **({"sub_step": sub} if sub else {})})
@@ -246,8 +249,22 @@ def remedy_marking_standard(path, case, internals, ctx):
     cands = candidates_for_duty(dm, DUTY_TOL, exclude=internals["prior"].name)
     step = {"diagnosis": f"marking_standard: dashes cover {dm:.0%} of each cycle; the assumed standard "
                          f"({internals['prior'].name}) says {chk['statistic']['duty_prior']:.0%}",
-            "action": f"look up documented standards with a duty cycle within {DUTY_TOL:.2f} of the measured one",
+            "action": (f"look up documented standards whose duty cycle is consistent with the measured one (within "
+                       f"{DUTY_TOL:.2f}, allowing up to {DUTY_INFLATION_MAX:.2f} of upward measurement bias)"),
             "observation": (", ".join(f"{c.name} ({c.duty:.0%})" for c in cands) or "none in the library")}
+    other = [c for c in _blocking(case) if c in ("temporal_stability", "held_out_markings")]
+    if other:
+        step["decision"] = ("the marking evidence itself is in question (" + ", ".join(other) + "), so its measured "
+                            "proportions cannot be used to choose another standard; the dispute stands")
+        return None, step
+    pd = internals["prior"].dash_len_m / internals["prior"].cycle_m
+    if consistent_with_duty(pd, dm, DUTY_TOL):
+        step["decision"] = (f"allowing for the measurement's known upward bias (up to {DUTY_INFLATION_MAX:.2f}), the assumed "
+                            "standard cannot be ruled out, and under it the reconstruction is disputed; the dispute stands")
+        ctx["requests"].append({"input": "marking_standard", "why": "the dash proportions are borderline for the assumed "
+                                "standard; the result depends on which standard applies here",
+                                "options": [internals["prior"].name] + [c.key for c in cands]})
+        return None, step
     if not cands:
         step["decision"] = "no documented standard matches: the dispute stands; the user is asked for the standard"
         ctx["requests"].append({"input": "marking_standard", "why": f"the road's dashes cover {dm:.0%} of each cycle, "
@@ -284,6 +301,22 @@ def remedy_marking_standard(path, case, internals, ctx):
             sp["ci90_mps"] = [min(c[0] for c in cis), max(c[1] for c in cis)]
             sp["speed_mps_by_standard"] = {r["standard"]: next((a["speed_mps"] for a in (r["_case"].get("speeds") or [])
                                                                 if a["vehicle_id"] == sp["vehicle_id"]), None) for r in ok}
+    # every other interval the UI shows is widened the same way
+    fs = [r["_case"].get("follower_speed_at_hazard_onset") for r in ok]
+    if all(f and f.get("ci90_mps") for f in fs) and out.get("follower_speed_at_hazard_onset"):
+        out["follower_speed_at_hazard_onset"]["ci90_mps"] = [min(f["ci90_mps"][0] for f in fs), max(f["ci90_mps"][1] for f in fs)]
+    cfs = [r["_case"].get("counterfactual") for r in ok]
+    if all(cfs) and out.get("counterfactual"):
+        for a, cr in out["counterfactual"]["critical_reaction_s"].items():
+            alts = [c["critical_reaction_s"].get(a) for c in cfs if c["critical_reaction_s"].get(a)]
+            cr["ci90_s"] = [min(x["ci90_s"][0] for x in alts), max(x["ci90_s"][1] for x in alts)]
+    nms = [r["_case"].get("near_miss") for r in ok]
+    if out.get("near_miss") and all(n and "min_gap_m" in n for n in nms):
+        for k in ("min_gap_m", "min_ttc_s", "max_drac_mps2"):
+            if all(k in n for n in nms):
+                out["near_miss"][k]["ci90"] = [min(n[k]["ci90"][0] for n in nms), max(n[k]["ci90"][1] for n in nms)]
+    out["interval_note"] = ("intervals span every documented marking standard whose proportions match the road: "
+                            + ", ".join(r["name"] for r in ok))
     out["marking_standard_candidates"] = step["candidates"]
     if len(verdicts) > 1:
         out["verdict"] = {"value": "INSUFFICIENT_EVIDENCE",
@@ -325,6 +358,34 @@ def _implausible_frames(kin, fps, t_cut, win=0.4, a_max=12.0, v_max=70.0):
     return bad
 
 
+def _pair_kins(inn):
+    pair = inn.get("pair")
+    if not pair or len(pair) < 2:
+        return None
+    return pair[0]["kin"], pair[1]["kin"]
+
+
+def _near_event(frames_bad, fps, pair_k):
+    """Reason string if any quarantine candidate frame is within NEAR_GAP_M of contact or in the last 0.5 s of the
+    pair's common observation (impacts and occlusions happen there), else None."""
+    if not frames_bad or pair_k is None:
+        return None
+    kf, kl = pair_k
+    t_bad = np.array(sorted(frames_bad), float) / fps
+    t0, t1 = max(kf["t"][0], kl["t"][0]), min(kf["t"][-1], kl["t"][-1])
+    if t1 <= t0:
+        return None
+    tb = t_bad[(t_bad >= t0) & (t_bad <= t1)]
+    if not len(tb):
+        return None
+    gap = np.interp(tb, kl["t"], kl["x"]) - np.interp(tb, kf["t"], kf["x"]) - 4.6
+    if gap.min() < NEAR_GAP_M:
+        return f"at t = {tb[np.argmin(gap)]:.2f} s the reconstructed gap is {gap.min():.1f} m"
+    if tb.max() > t1 - 0.5:
+        return f"at t = {tb.max():.2f} s, within 0.5 s of the end of the pair's common observation ({t1:.2f} s)"
+    return None
+
+
 def remedy_impossible_motion(path, case, internals, ctx):
     fps = internals["fps"]
     chk = next(c for c in case["skeptic"]["checks"] if c["check"] == "kinematics")
@@ -344,11 +405,18 @@ def remedy_impossible_motion(path, case, internals, ctx):
         bad_ids = {p["vehicle_id"] for p in kchk["statistic"]["vehicles"] if not p["plausible"]}
         subj = {(out.get("collision") or {}).get("follower_id"), (out.get("collision") or {}).get("lead_id")}
         new = 0
+        pair_k = _pair_kins(inn)
         for veh in inn["vehicles"]:
             vid = veh["track"]["id"]
             if vid not in bad_ids or vid not in subj:
                 continue
             frames_bad = _implausible_frames(veh["kin"], fps, t_cut)
+            near = _near_event(frames_bad, fps, pair_k)
+            if near:
+                step["observation"] = near
+                step["decision"] = ("the impossible motion happens while the two vehicles are close or at the end of their "
+                                    "common observation: it may be the collision itself, so it is not removed; the dispute stands")
+                return None, step
             ids = set(veh["track"].get("stitched_from", [vid]))
             for tr in tracks:
                 if tr["id"] not in ids:
@@ -388,6 +456,14 @@ def remedy_impossible_motion(path, case, internals, ctx):
     if max(frac.values()) > MAX_QUARANTINE_FRAC:
         step["decision"] = (f"more than {MAX_QUARANTINE_FRAC:.0%} of a vehicle's measurements would have to be discarded: "
                             "too little of the track is trustworthy; the dispute stands")
+        return None, step
+    kchk = next((c for c in out["skeptic"]["checks"] if c["check"] == "kinematics"), None)
+    worst = max((p["max_abs_accel_mps2"] for p in (kchk or {}).get("statistic", {}).get("vehicles", [])
+                 if p["vehicle_id"] in quarantined), default=0.0)
+    if worst > REMAINDER_ACCEL_MAX:
+        step["decision"] = (f"after quarantine a subject vehicle still needs {worst:.1f} m/s^2 (lower bound): passes the "
+                            f"{12:g} m/s^2 limit, but not clearly enough (<= {REMAINDER_ACCEL_MAX:g}) to trust the rest of a "
+                            "track already shown to be mistracked; the dispute stands")
         return None, step
     tc = (out.get("collision") or {}).get("t_contact_s")
     if tc is not None and any(abs(f / fps - tc) < CONTACT_GUARD_S for fr in quarantined.values() for f in fr):

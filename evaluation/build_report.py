@@ -168,6 +168,61 @@ def fault_table():
                         "median worst speed error"], "rows": rows}
 
 
+def investigator_table(split):
+    rows, _ = suite(split, "e2e")
+    if not rows or not any("investigation" in r for r in rows):
+        return None
+    inv = [r for r in rows if "investigation" in r]
+    ch = [r for r in inv if r["investigation"]["changed"]]
+    good = ("correct", "correct_abstention")
+    base_ok = sum(r["investigation"]["base_outcome"] in good for r in inv)
+    fin_ok = sum(r["outcome"] in good for r in inv)
+    base_bad = sum(r["investigation"]["base_outcome"] in HARMFUL for r in inv)
+    fin_bad = sum(r["outcome"] in HARMFUL for r in inv)
+    trans = {}
+    for r in ch:
+        k = (LABEL.get(r["investigation"]["base_outcome"], r["investigation"]["base_outcome"]), LABEL.get(r["outcome"], r["outcome"]))
+        trans[k] = trans.get(k, 0) + 1
+    blocked = sum(r["investigation"]["base_status"] == "DISPUTED" for r in inv)
+    t = {"columns": ["", "n", "correct", "harmful"],
+         "rows": [["Pipeline alone", len(inv), base_ok, base_bad], ["Pipeline + investigator", len(inv), fin_ok, fin_bad]]}
+    t2 = {"columns": ["Outcome before", "Outcome after the investigator", "clips"],
+          "rows": [[a, b, n] for (a, b), n in sorted(trans.items(), key=lambda x: -x[1])]}
+    return t, t2, blocked, len(ch)
+
+
+def near_miss_table(split):
+    out = []
+    for mode in ("oracle_clean", "oracle_occluded", "e2e"):
+        rows, _ = suite(split, mode)
+        if not rows:
+            continue
+        for k, name, unit in (("min_gap_m", "smallest bumper gap", "m"), ("min_ttc_s", "shortest time to collision (capped 10 s)", "s"),
+                              ("max_drac_mps2", "braking needed to avoid contact", "m/s^2")):
+            sc = [r["near_miss"][k] for r in rows if isinstance(r.get("near_miss"), dict) and k in r["near_miss"]]
+            if not sc:
+                continue
+            out.append([MODE[mode], name, len(sc), f"{np.median([abs(x['err']) for x in sc]):.2f} {unit}",
+                        f"{sum(x['covered'] for x in sc)}/{len(sc)}"])
+    return {"columns": ["Layer", "Measure", "clips reporting it", "median abs. error", "90 % interval contains truth"], "rows": out} if out else None
+
+
+def investigator_fault_table(name):
+    d = jload(name)
+    if not d:
+        return None
+    names = {"clean": "No fault", "camera_bump": "Camera knocked mid-clip", "wrong_standard_shape": "Marking standard 6 m + 12 m (assumed 3 m + 9 m)",
+             "misindexed_dash": "Dash mis-indexed", "wrong_lateral_prior": "Wrong lane-width prior",
+             "same_duty_longer": "Longer markings, same proportions (undetectable)", "wrong_fps_metadata": "Wrong frame rate in file (undetectable)"}
+    rows = []
+    for k, v in d["summary"].items():
+        rows.append([names.get(k, k), v["n"], v["base_answered"], v["final_answered"], v["recovered_by_investigator"],
+                     v["recovered_correct"], v["base_harmful"], v["harmful"], v["made_harmful_by_investigator"]])
+    return {"columns": ["Injected fault", "n", "answered: pipeline alone", "answered: + investigator", "answers recovered by the investigator",
+                        "of which correct", "harmful: pipeline alone", "harmful: + investigator", "made harmful by the investigator"],
+            "rows": rows}, d.get("scenes")
+
+
 def dev_history_table():
     d = os.path.join(RES, "dev_history")
     if not os.path.isdir(d):
@@ -224,6 +279,36 @@ def testing_json():
                                 "at the envelope's 8 m/s^2 (or a hidden follower did not brake). It also fixes a crash on an empty "
                                 "Monte Carlo set. Because test motivated these rules, v2.1 is scored on test2, a split defined and "
                                 "committed before v2.1 was run on it (same distribution as test).")})
+    t3 = suite_table("test3")
+    if t3:
+        _, s3 = suite("test3", "e2e")
+        blocks.append({"title": "v2.2 with the investigator on a third held-out split (test3)", "kpis": kpis(s3) if s3 else [], "table": t3,
+                       "text": ("test3 (seeds 17000+, the test distribution) was defined and committed with its pre-registration "
+                                "(evaluation/PREREGISTRATION_V22.md) before v2.2 or the investigator ran on any of its clips. "
+                                "The full-pipeline row is the shipped behaviour: the pipeline followed by the investigator.")})
+        it = investigator_table("test3")
+        if it:
+            t, t2, blocked, nch = it
+            blocks.append({"title": "What the investigator changed (test3, same clips)", "table": t,
+                           "text": (f"The investigator acts only when the cross-examination blocks a result ({blocked} of {t['rows'][0][1]} "
+                                    f"clips here). It changed the outcome of {nch}.")})
+            if t2["rows"]:
+                blocks.append({"title": "Outcome changes made by the investigator (test3)", "table": t2})
+    nmt = near_miss_table("test3") or near_miss_table("dev")
+    if nmt:
+        blocks.append({"title": "Near-miss measures against ground truth" + (" (test3)" if near_miss_table("test3") else " (dev, development only)"),
+                       "table": nmt,
+                       "text": ("Computed over the interval in which both vehicles were measured (pre-contact for collisions); ground truth "
+                                "over the same interval from the simulator's vehicle states.")})
+    for nm_, title in (("investigator_faults_heldout.json", "The investigator under fault injection (held-out scenes)"),
+                       ("investigator_faults_dev.json", "The investigator under fault injection (development scenes)")):
+        ift = investigator_fault_table(nm_)
+        if ift:
+            t, scenes = ift
+            blocks.append({"title": title, "table": t,
+                           "text": (f"Scenes {scenes[0]}-{scenes[1]} of the fault benchmark. 'Correct' means every reported speed is within "
+                                    "10 % of the truth or every 90 % interval contains it. With a matching but unknown marking standard the "
+                                    "investigator reports the union of the intervals under every candidate standard.") if scenes else None})
     tp = suite_table(["test", "shift", "dev"], post=True, label_split=True)
     if tp:
         blocks.append({"title": "v2.1 re-run on splits it has already seen (post hoc, not independent)", "table": tp,
@@ -331,6 +416,35 @@ def real_json():
                                 "answers are accurate, with interval coverage close to the nominal 90 %. In the city the prior is "
                                 "wrong and the few answers are wrong."),
                        "table": {"columns": ["Run", "Segment", "windows", "answered", "median abs. error", "90th pct abs. error", "90 % coverage"], "rows": rows}})
+    ld, lt = jload("comma2k19_lead_dev.json"), jload("comma2k19_lead_test.json")
+    if ld and lt:
+        rows = []
+        for tag, d in (("development (0-20 s, tuned here)", ld), ("test (20-60 s, run once)", lt)):
+            s_ = d["summary"]
+            rows.append([tag, s_["n_windows"], s_["n_answered"], pct(s_.get("range_median_ape"), 1), pct(s_.get("range_ci90_coverage")),
+                         f"{s_.get('rel_speed_median_abs_err_mps', float('nan')):.2f} m/s", pct(s_.get("rel_speed_ci90_coverage")),
+                         f"{s_.get('ttc_radar_inside_ci90', 0)}/{s_.get('ttc_both_closing', 0)}"])
+        off = ld["summary"]["range_offset_m_from_dev"]
+        abl = []
+        for key, name in (("range_ground_plane_m", "ground plane only"), ("range_from_width_m", "vehicle width only")):
+            dv_ = [w["radar_range_m"] - w[key] for w in ld["windows"] if w.get(key) and w.get("radar_range_m")]
+            o = float(np.median(dv_)) if dv_ else 0.0
+            te = [abs(w[key] + o - w["radar_range_m"]) / w["radar_range_m"] for w in lt["windows"]
+                  if w.get(key) and w.get("radar_range_m") and w["status"] == "OK"]
+            if te:
+                abl.append(f"{name} {100 * np.median(te):.1f} %")
+        blocks.append({"title": "Vehicle ahead: distance, closing speed and time to collision vs the car's radar",
+                       "text": ("Pre-registered (evaluation/real/PREREGISTRATION_LEAD.md) on the same comma2k19 segment, a different task: "
+                                "YOLOX-S on OpenCV 5's DNN module finds the vehicle in the ego lane; distance from the ground plane "
+                                "(camera height from the lane-width prior) fused with a vehicle-width ruler; closing speed from the "
+                                "rate at which the vehicle grows in the image. Ground truth is the car's forward radar. The method changed "
+                                "during development; the deviations are listed in the pre-registration. "
+                                f"Range is compared after a constant {off:.2f} m camera-to-radar offset fitted on development. "
+                                + (f"Each ruler alone on the test windows (post hoc, same windows): {', '.join(abl)}. " if abl else "")
+                                + "The lead car's width is close to the 1.8 m prior, which favours the width ruler."),
+                       "table": {"columns": ["Part", "2 s windows", "answered", "range: median abs. error", "range: 90 % coverage",
+                                             "relative speed: median abs. error", "relative speed: 90 % coverage",
+                                             "time to collision: radar inside CARAI's interval"], "rows": rows}})
     if dv:
         rws = dv["rows"]
         ok = [r for r in rws if r["status"] == "OK"]

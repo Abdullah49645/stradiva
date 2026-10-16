@@ -12,6 +12,7 @@ the recommendation.
 | Runtime dependencies: OpenCV (Apache-2.0), NumPy and SciPy (BSD-3-Clause), FastAPI (MIT) | All permissive. Any permissive licence or a copyleft one is compatible. Nothing forces copyleft. |
 | UI dependencies: Next.js, React, Recharts, Tailwind (MIT); fonts under OFL-1.1 | Permissive. The fonts must stay under OFL. That is satisfied by shipping the @fontsource packages unmodified. |
 | Bundled data: one comma2k19 segment (MIT) | The MIT notice must travel with it: `licenses/comma2k19-MIT.txt`, referenced from `NOTICE`. |
+| Model downloaded at build/run time: YOLOX-S from the OpenCV Model Zoo (Apache-2.0) | Same licence as the project, so no conflict. Not redistributed in the repository; its licence text is in `licenses/opencv_zoo_yolox-Apache-2.0.txt` and it is listed in `NOTICE` because the container image does include it. |
 | Not bundled: comma speedchallenge video (no licence) | Not redistributed under any choice. It is fetched by script for evaluation only. |
 | Competition | Judges must be able to run and inspect the code. Any OSI licence allows that. No specific licence was found in the official rules. |
 | Intended users: forensic engineers, insurers, public agencies | These users often embed tools in proprietary workflows. Copyleft would deter adoption, and a patent grant reduces their legal risk. |
