@@ -13,7 +13,7 @@
      "Run",
      "2 s windows",
      "answered",
-     "median |error|",
+     "median abs. error",
      "90 % interval coverage"
     ],
     "rows": [
@@ -61,8 +61,8 @@
      "Segment",
      "windows",
      "answered",
-     "median |error|",
-     "90th pct |error|",
+     "median abs. error",
+     "90th pct abs. error",
      "90 % coverage"
     ],
     "rows": [
@@ -107,7 +107,7 @@
   },
   {
    "title": "Synthetic development set (before any real footage)",
-   "text": "18 of 30 windows answered; median |error| 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 2bf75b9)."
+   "text": "18 of 30 windows answered; median abs. error 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 2bf75b9)."
   }
  ],
  "series": {

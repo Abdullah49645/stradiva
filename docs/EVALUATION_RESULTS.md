@@ -10,18 +10,90 @@ Collision verdicts are tested on a simulator whose ground truth CARAI never sees
 
 > No real collision footage with ground truth was available to us under a licence that permits this use, so the collision verdicts are validated on simulation only. Real footage was used for the dashcam speed mode (see the Real dashcam footage tab).
 
+## Held-out test split
+
+Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite.
+
+* **4/30** full pipeline: correct, incl. correct refusals
+* **8/30** full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)
+* **0/1** definite verdicts (avoidable / not avoidable) that were right
+
+| Layer | n | Correct | Correct refusal (event off-screen) | No verdict / qualified | Qualified, event off-screen | Missed, event off-screen | Missed a visible collision | Reported a collision that did not happen | Verdict on the wrong contact time | Overconfident | Opposite verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Reasoning only (true tracks) | 30 | 19 | 1 | 8 | 0 | 0 | 0 | 0 | 2 | 0 | 0 |
+| Reasoning only (true tracks, occluded) | 30 | 14 | 1 | 9 | 0 | 0 | 4 | 0 | 2 | 0 | 0 |
+| Full pipeline (from pixels) | 30 | 3 | 1 | 18 | 0 | 0 | 2 | 0 | 6 | 0 | 0 |
+
+## Distribution-shift split (harder camera families over-sampled)
+
+Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite.
+
+* **5/30** full pipeline: correct, incl. correct refusals
+* **2/30** full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)
+* **0/0** definite verdicts (avoidable / not avoidable) that were right
+
+| Layer | n | Correct | Correct refusal (event off-screen) | No verdict / qualified | Qualified, event off-screen | Missed, event off-screen | Missed a visible collision | Reported a collision that did not happen | Verdict on the wrong contact time | Overconfident | Opposite verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Reasoning only (true tracks) | 30 | 5 | 3 | 22 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Reasoning only (true tracks, occluded) | 30 | 4 | 3 | 17 | 0 | 0 | 5 | 1 | 0 | 0 | 0 |
+| Full pipeline (from pixels) | 30 | 2 | 3 | 23 | 0 | 0 | 2 | 0 | 0 | 0 | 0 |
+
+## Where the full pipeline fails: distance
+
+Grouped by how much road one image row covers where the event happens (from ground truth). Far from the camera the gap between two vehicles cannot be measured to within a vehicle length's uncertainty, and CARAI says so.
+
+| Road length per image row at the event | n | correct | harmful |
+|---|---|---|---|
+| 0–0.25 m | 3 | 1 | 0 |
+| 0.25–0.5 m | 4 | 1 | 0 |
+| 0.5–1 m | 10 | 0 | 3 |
+| > 1 m | 13 | 2 | 5 |
+
+## Where the full pipeline fails: camera family
+
+| Camera family | n | correct | no verdict | harmful |
+|---|---|---|---|---|
+| overhead behind | 9 | 1 | 5 | 3 |
+| overhead facing | 5 | 0 | 5 | 0 |
+| roadside behind | 15 | 2 | 8 | 5 |
+| roadside facing | 1 | 1 | 0 | 0 |
+
+## Before and after: the pipeline as received vs this one, same clips
+
+| Pipeline | n | issued a collision verdict | correct | harmful |
+|---|---|---|---|---|
+| v1 as received (process_video) | 30 | 0 | 0 | – |
+| v2 (this submission) | 30 | 9 | 4 | 8 |
+
+## Road geometry before and after, same scenes
+
+For 'prior mismatch' scenes the true markings differ from the assumed standard. v2's error there is measured against the error the wrong prior implies (it cannot be identified from one view); v1's is raw. The duty-cycle check flagged 1 of 1 accepted scenes whose dash proportions differ from the standard.
+
+| Scenes | n | v1 accepted | v1 worst abs. error | v2 accepted | v2 worst abs. error |
+|---|---|---|---|---|---|
+| roll | 7 | 1 | 3.7 % | 7 | 0.23 % |
+| yaw | 3 | 1 | 9.3 % | 3 | 0.14 % |
+| pose | 3 | 0 | – | 3 | 0.21 % |
+| prior mismatch | 5 | 2 | 8.5 % | 5 | 0.15 % |
+
 ## Development history on the dev split
 
 Every scored dev run, including earlier code versions. Scoring was made stricter between iterations (missed and wrong-time collisions became harmful); all rows are re-scored with the final rules.
 
 | Dev iteration | Layer | n | correct | harmful |
 |---|---|---|---|---|
-| iter1 | Reasoning only (true tracks) | 30 | 17 | 5 |
-| iter1 | Reasoning only (true tracks, occluded) | 30 | 16 | 6 |
-| iter1 | Full pipeline (from pixels) | 28 | 7 | 4 |
-| iter2 | Reasoning only (true tracks) | 30 | 14 | 0 |
-| iter2 | Reasoning only (true tracks, occluded) | 30 | 19 | 3 |
-| iter2 | Full pipeline (from pixels) | 9 | 3 | 2 |
+| iter1 | Reasoning only (true tracks) | 30 | 18 | 5 |
+| iter1 | Reasoning only (true tracks, occluded) | 30 | 17 | 5 |
+| iter1 (stopped early) | Full pipeline (from pixels) | 28 | 6 | 1 |
+| iter2 | Reasoning only (true tracks) | 30 | 15 | 0 |
+| iter2 | Reasoning only (true tracks, occluded) | 30 | 21 | 2 |
+| iter2 (stopped early) | Full pipeline (from pixels) | 9 | 2 | 2 |
+| background ablation: whole-clip median + first-half fallback (kept) | Full pipeline (from pixels) | 30 | 7 | 1 |
+| background ablation: region-resolved, 3 segments | Full pipeline (from pixels) | 30 | 7 | 2 |
+| background ablation: region-resolved, 5 segments | Full pipeline (from pixels) | 30 | 8 | 4 |
+| final (frozen) | Reasoning only (true tracks) | 30 | 14 | 0 |
+| final (frozen) | Reasoning only (true tracks, occluded) | 30 | 20 | 4 |
+| final (frozen) | Full pipeline (from pixels) | 30 | 7 | 1 |
 
 ## Reproduce
 
@@ -40,7 +112,7 @@ Own-vehicle speed from lane markings on real dashcam footage, compared with the 
 
 > The pre-registered holdout failed: 16 confident answers, all about 2x too high. Cause: the marking standard is the speed scale and was wrong for a city street. The scale cross-check that now refuses this case was added afterwards.
 
-| Run | 2 s windows | answered | median |error| | 90 % interval coverage |
+| Run | 2 s windows | answered | median abs. error | 90 % interval coverage |
 |---|---|---|---|---|
 | Pre-registered (container fps 25, unverified) | 24 | 16 | 159 % | 0 % |
 | Pre-registered (sensor-timestamp fps 20) | 30 | 16 | 109 % | 0 % |
@@ -51,7 +123,7 @@ Own-vehicle speed from lane markings on real dashcam footage, compared with the 
 
 Used for evaluation only; the video has no licence file, so it is not redistributed and not plotted here. Freeway prior (Caltrans 12 ft + 36 ft). CARAI answers only a minority of windows. On the freeway the answers are accurate, with interval coverage close to the nominal 90 %. In the city the prior is wrong and the few answers are wrong.
 
-| Run | Segment | windows | answered | median |error| | 90th pct |error| | 90 % coverage |
+| Run | Segment | windows | answered | median abs. error | 90th pct abs. error | 90 % coverage |
 |---|---|---|---|---|---|---|
 | Pre-registered | freeway (frames < 9000) | 225 | 49 | 2.3 % | 7.3 % | 90 % |
 | Pre-registered | city (frames >= 9000) | 285 | 5 | 78.3 % | 117.0 % | 20 % |
@@ -60,4 +132,4 @@ Used for evaluation only; the video has no licence file, so it is not redistribu
 
 ## Synthetic development set (before any real footage)
 
-18 of 30 windows answered; median |error| 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 2bf75b9).
+18 of 30 windows answered; median abs. error 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 2bf75b9).

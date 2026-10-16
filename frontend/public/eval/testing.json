@@ -12,6 +12,318 @@
    }
   },
   {
+   "title": "Held-out test split",
+   "kpis": [
+    {
+     "value": "4/30",
+     "label": "full pipeline: correct, incl. correct refusals"
+    },
+    {
+     "value": "8/30",
+     "label": "full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)"
+    },
+    {
+     "value": "0/1",
+     "label": "definite verdicts (avoidable / not avoidable) that were right"
+    }
+   ],
+   "table": {
+    "columns": [
+     "Layer",
+     "n",
+     "Correct",
+     "Correct refusal (event off-screen)",
+     "No verdict / qualified",
+     "Qualified, event off-screen",
+     "Missed, event off-screen",
+     "Missed a visible collision",
+     "Reported a collision that did not happen",
+     "Verdict on the wrong contact time",
+     "Overconfident",
+     "Opposite verdict"
+    ],
+    "rows": [
+     [
+      "Reasoning only (true tracks)",
+      30,
+      19,
+      1,
+      8,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0
+     ],
+     [
+      "Reasoning only (true tracks, occluded)",
+      30,
+      14,
+      1,
+      9,
+      0,
+      0,
+      4,
+      0,
+      2,
+      0,
+      0
+     ],
+     [
+      "Full pipeline (from pixels)",
+      30,
+      3,
+      1,
+      18,
+      0,
+      0,
+      2,
+      0,
+      6,
+      0,
+      0
+     ]
+    ]
+   },
+   "text": "Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite."
+  },
+  {
+   "title": "Distribution-shift split (harder camera families over-sampled)",
+   "kpis": [
+    {
+     "value": "5/30",
+     "label": "full pipeline: correct, incl. correct refusals"
+    },
+    {
+     "value": "2/30",
+     "label": "full pipeline: harmful errors (missed, false or wrong-time collision, overconfident, opposite verdict)"
+    },
+    {
+     "value": "0/0",
+     "label": "definite verdicts (avoidable / not avoidable) that were right"
+    }
+   ],
+   "table": {
+    "columns": [
+     "Layer",
+     "n",
+     "Correct",
+     "Correct refusal (event off-screen)",
+     "No verdict / qualified",
+     "Qualified, event off-screen",
+     "Missed, event off-screen",
+     "Missed a visible collision",
+     "Reported a collision that did not happen",
+     "Verdict on the wrong contact time",
+     "Overconfident",
+     "Opposite verdict"
+    ],
+    "rows": [
+     [
+      "Reasoning only (true tracks)",
+      30,
+      5,
+      3,
+      22,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      "Reasoning only (true tracks, occluded)",
+      30,
+      4,
+      3,
+      17,
+      0,
+      0,
+      5,
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      "Full pipeline (from pixels)",
+      30,
+      2,
+      3,
+      23,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0
+     ]
+    ]
+   },
+   "text": "Counts per outcome. 'No verdict / qualified' is CARAI declining, or answering 'depends on the assumptions', where the truth was definite."
+  },
+  {
+   "title": "Where the full pipeline fails: distance",
+   "text": "Grouped by how much road one image row covers where the event happens (from ground truth). Far from the camera the gap between two vehicles cannot be measured to within a vehicle length's uncertainty, and CARAI says so.",
+   "table": {
+    "columns": [
+     "Road length per image row at the event",
+     "n",
+     "correct",
+     "harmful"
+    ],
+    "rows": [
+     [
+      "0\u20130.25 m",
+      3,
+      1,
+      0
+     ],
+     [
+      "0.25\u20130.5 m",
+      4,
+      1,
+      0
+     ],
+     [
+      "0.5\u20131 m",
+      10,
+      0,
+      3
+     ],
+     [
+      "> 1 m",
+      13,
+      2,
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "title": "Where the full pipeline fails: camera family",
+   "table": {
+    "columns": [
+     "Camera family",
+     "n",
+     "correct",
+     "no verdict",
+     "harmful"
+    ],
+    "rows": [
+     [
+      "overhead behind",
+      9,
+      1,
+      5,
+      3
+     ],
+     [
+      "overhead facing",
+      5,
+      0,
+      5,
+      0
+     ],
+     [
+      "roadside behind",
+      15,
+      2,
+      8,
+      5
+     ],
+     [
+      "roadside facing",
+      1,
+      1,
+      0,
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "title": "Before and after: the pipeline as received vs this one, same clips",
+   "table": {
+    "columns": [
+     "Pipeline",
+     "n",
+     "issued a collision verdict",
+     "correct",
+     "harmful"
+    ],
+    "rows": [
+     [
+      "v1 as received (process_video)",
+      30,
+      0,
+      0,
+      "\u2013"
+     ],
+     [
+      "v2 (this submission)",
+      30,
+      9,
+      4,
+      8
+     ]
+    ]
+   }
+  },
+  {
+   "title": "Road geometry before and after, same scenes",
+   "table": {
+    "columns": [
+     "Scenes",
+     "n",
+     "v1 accepted",
+     "v1 worst abs. error",
+     "v2 accepted",
+     "v2 worst abs. error"
+    ],
+    "rows": [
+     [
+      "roll",
+      7,
+      "1",
+      "3.7 %",
+      "7",
+      "0.23 %"
+     ],
+     [
+      "yaw",
+      3,
+      "1",
+      "9.3 %",
+      "3",
+      "0.14 %"
+     ],
+     [
+      "pose",
+      3,
+      "0",
+      "\u2013",
+      "3",
+      "0.21 %"
+     ],
+     [
+      "prior mismatch",
+      5,
+      "2",
+      "8.5 %",
+      "5",
+      "0.15 %"
+     ]
+    ]
+   },
+   "text": "For 'prior mismatch' scenes the true markings differ from the assumed standard. v2's error there is measured against the error the wrong prior implies (it cannot be identified from one view); v1's is raw. The duty-cycle check flagged 1 of 1 accepted scenes whose dash proportions differ from the standard."
+  },
+  {
    "title": "Development history on the dev split",
    "table": {
     "columns": [
@@ -26,43 +338,85 @@
       "iter1",
       "Reasoning only (true tracks)",
       30,
-      17,
+      18,
       5
      ],
      [
       "iter1",
       "Reasoning only (true tracks, occluded)",
       30,
-      16,
-      6
+      17,
+      5
      ],
      [
-      "iter1",
+      "iter1 (stopped early)",
       "Full pipeline (from pixels)",
       28,
-      7,
-      4
+      6,
+      1
      ],
      [
       "iter2",
       "Reasoning only (true tracks)",
       30,
-      14,
+      15,
       0
      ],
      [
       "iter2",
       "Reasoning only (true tracks, occluded)",
       30,
-      19,
-      3
+      21,
+      2
      ],
      [
-      "iter2",
+      "iter2 (stopped early)",
       "Full pipeline (from pixels)",
       9,
-      3,
+      2,
       2
+     ],
+     [
+      "background ablation: whole-clip median + first-half fallback (kept)",
+      "Full pipeline (from pixels)",
+      30,
+      7,
+      1
+     ],
+     [
+      "background ablation: region-resolved, 3 segments",
+      "Full pipeline (from pixels)",
+      30,
+      7,
+      2
+     ],
+     [
+      "background ablation: region-resolved, 5 segments",
+      "Full pipeline (from pixels)",
+      30,
+      8,
+      4
+     ],
+     [
+      "final (frozen)",
+      "Reasoning only (true tracks)",
+      30,
+      14,
+      0
+     ],
+     [
+      "final (frozen)",
+      "Reasoning only (true tracks, occluded)",
+      30,
+      20,
+      4
+     ],
+     [
+      "final (frozen)",
+      "Full pipeline (from pixels)",
+      30,
+      7,
+      1
      ]
     ]
    },
