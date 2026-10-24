@@ -251,4 +251,4 @@ Pre-registered (evaluation/real/PREREGISTRATION_LEAD.md) on the same comma2k19 s
 
 ## Synthetic development set (before any real footage)
 
-18 of 30 windows answered; median abs. error 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 2bf75b9).
+18 of 30 windows answered; median abs. error 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 5bcdb61).

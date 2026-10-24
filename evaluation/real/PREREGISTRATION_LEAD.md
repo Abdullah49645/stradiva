@@ -48,7 +48,7 @@ No estimator output was produced or compared with radar.
 
 ## Deviations
 Recorded here after the test run (they were made during development on t = 0-20 s, before the
-test part was run, and are visible in the frozen code of commit 35ab63f, but this section was not
+test part was run, and are visible in the frozen code of commit 219e4f3, but this section was not
 updated at the time). The method that was frozen and tested differs from the one written above:
 
 1. **Range uses two rulers, not one.** The ground-plane range is fused (inverse variance, in log

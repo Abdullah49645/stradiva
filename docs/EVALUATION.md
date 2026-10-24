@@ -135,8 +135,8 @@ Reported per condition:
 
 | Dataset | Rights | Role |
 |---|---|---|
-| comma.ai speedchallenge `train.mp4` (17 min, 20 fps, freeway then city, per-frame speed labels) | No licence file. Evaluation only, not redistributed, fetched by `evaluation/real/fetch_comma.sh` with a SHA-256 check | First pre-registered test (commit 22aacf7), estimator frozen at 2bf75b9 |
-| comma2k19 Example_1 segment 40 (1 min, city street, CAN speed, sensor timestamps) | MIT | Independent holdout, pre-registered in commit 074a1fd |
+| comma.ai speedchallenge `train.mp4` (17 min, 20 fps, freeway then city, per-frame speed labels) | No licence file. Evaluation only, not redistributed, fetched by `evaluation/real/fetch_comma.sh` with a SHA-256 check | First pre-registered test (commit 597b817), estimator frozen at 5bcdb61 |
+| comma2k19 Example_1 segment 40 (1 min, city street, CAN speed, sensor timestamps) | MIT | Independent holdout, pre-registered in commit 05eebd3 |
 
 **Pre-registered speedchallenge result.** On the freeway, Stradiva answered a
 minority of 2 s windows, with a median error of a few percent and 90 %
@@ -178,7 +178,7 @@ recorded in the pre-registration before any comparison.
    2/30 were harmful. With true tracks plus occlusion, missed collisions
    came from "no contact" claims that relied on the extrapolated motion of a
    hidden vehicle.
-3. **v2.1** (commit after `3fa9f06`, pipeline `carai-2.1`). Two rules,
+3. **v2.1** (commit after `9271640`, pipeline `carai-2.1`). Two rules,
    each derived from priors already stated rather than fitted to the test
    results, plus the crash fix:
    * neither contact nor "no contact" is claimed when one image row at the
@@ -186,7 +186,7 @@ recorded in the pre-registration before any comparison.
    * "no contact" must also hold if a hidden lead braked at 8 m/s² (the
      top of the braking envelope), or if a hidden follower did not brake.
 4. **New held-out split.** test2 (seed base 13000, same distribution as
-   test) was defined and committed in `3fa9f06`, *before* v2.1 was committed
+   test) was defined and committed in `9271640`, *before* v2.1 was committed
    or run on any clip. v2.1 was scored on test2 once. The
    v2.1 re-runs of test, shift and dev are shown separately and labelled
    post hoc.
@@ -252,6 +252,11 @@ changes are listed in that file's Deviations section.
 All numbers: EVALUATION_RESULTS.md, sections "v2.2 with the investigator",
 "What the investigator changed", "Near-miss measures", "The investigator
 under fault injection", and "Vehicle ahead".
+
+**A note on commit hashes.** The repository history was rewritten once, on 24 Oct 2026, to correct the
+author and committer metadata of its commits. Commit dates, order, content and the tags `eval-freeze` and
+`eval-freeze-v22` are unchanged; the hashes changed, and the hashes quoted in this repository were updated
+to the new ones.
 
 ## 8. Reproduce
 

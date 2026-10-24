@@ -145,7 +145,7 @@
   },
   {
    "title": "Synthetic development set (before any real footage)",
-   "text": "18 of 30 windows answered; median abs. error 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 2bf75b9)."
+   "text": "18 of 30 windows answered; median abs. error 1.46 %; 18 of 18 inside their 90 % interval. The estimator was frozen after this (commit 5bcdb61)."
   }
  ],
  "series": {

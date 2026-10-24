@@ -469,7 +469,7 @@ def real_json():
         blocks.append({"title": "Synthetic development set (before any real footage)",
                        "text": (f"{len(ok)} of {len(rws)} windows answered; median abs. error "
                                 f"{np.median([abs(r['err_pct']) for r in ok]):.2f} %; {sum(r['covered'] for r in ok)} of {len(ok)} "
-                                "inside their 90 % interval. The estimator was frozen after this (commit 2bf75b9).")})
+                                "inside their 90 % interval. The estimator was frozen after this (commit 5bcdb61).")})
     return {"title": "Real dashcam footage", "intro": "", "blocks": blocks, "series": series,
             "generated": "evaluation/build_report.py on " + datetime.date.today().isoformat()}
 

@@ -46,7 +46,7 @@ On frames where CARAI returns an estimate (does not abstain):
 Windows of 2 s (40 frames), non-overlapping. Labels averaged over the same window.
 No window is excluded after looking at its error.
 
-## Results of the pre-registered run (commit 2bf75b9 estimator, unchanged)
+## Results of the pre-registered run (commit 5bcdb61 estimator, unchanged)
 See evaluation/results/comma_eval_california_freeway.json. Reported as-is in docs/EVALUATION.md.
 
 ## Deviations (after the pre-registered run -- everything below is POST-HOC)
