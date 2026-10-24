@@ -3,7 +3,7 @@ import { JobStatusResponse } from "./types";
 // One contract, two back ends: the local FastAPI server (backend/api/server.py)
 // or the AWS API Gateway stage (infrastructure/aws). Unset = no analysis
 // service; the UI then only shows the bundled, precomputed case files.
-const API_BASE = (process.env.NEXT_PUBLIC_ODOLITE_API_BASE || "").replace(/\/$/, "");
+const API_BASE = (process.env.NEXT_PUBLIC_STRADIVA_API_BASE || "").replace(/\/$/, "");
 
 export function apiBase(): string {
   return API_BASE;

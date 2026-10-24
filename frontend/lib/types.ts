@@ -50,7 +50,7 @@ export interface Provenance {
 
 export interface Validation {
   note: string;
-  rows: { label: string; truth: string; odolite: string; ok?: boolean | null }[];
+  rows: { label: string; truth: string; stradiva: string; ok?: boolean | null }[];
 }
 
 export interface CaseFile {

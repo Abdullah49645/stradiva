@@ -1,5 +1,5 @@
 """
-Unit tests for the Odolite v2 core: each test checks a component against an
+Unit tests for the Stradiva v2 core: each test checks a component against an
 analytic answer or a ground truth it did not see. None of them asserts on
 an evaluation-suite number (those live in evaluation/results and are
 reported, not tested).

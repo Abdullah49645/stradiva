@@ -1,7 +1,7 @@
 """
 Independent holdout (see evaluation/real/PREREGISTRATION_HOLDOUT.md): comma2k19 example segment,
 CAN speed as ground truth. Fetch:  git clone https://github.com/commaai/comma2k19  (MIT) and point
-ODOLITE_COMMA2K19_SEG at  Example_1/b0c9d2329ad1606b|2018-08-02--08-34-47/40
+STRADIVA_COMMA2K19_SEG at  Example_1/b0c9d2329ad1606b|2018-08-02--08-34-47/40
 """
 import json
 import os
@@ -13,7 +13,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
 from backend.dashcam.ego_speed import estimate_ego_speed, MarkingPrior  # noqa: E402
 
-SEG = os.environ.get("ODOLITE_COMMA2K19_SEG", os.path.join(ROOT, "evaluation", "real", "data", "comma2k19", "seg40"))
+SEG = os.environ.get("STRADIVA_COMMA2K19_SEG", os.path.join(ROOT, "evaluation", "real", "data", "comma2k19", "seg40"))
 
 
 def run(fps_override):

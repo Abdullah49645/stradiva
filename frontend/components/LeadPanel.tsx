@@ -22,7 +22,7 @@ export default function LeadPanel({ c }: { c: CaseFile }) {
   const estV = ok.map((w) => ({ t: mid(w), v: w.rel_speed_mps!, e: [w.rel_speed_mps! - w.rel_speed_ci90_mps![0], w.rel_speed_ci90_mps![1] - w.rel_speed_mps!] }));
   // rows where either side reports a time to collision short enough to matter
   const ttc = ws.filter((w) => w.ttc_s != null || (w.radar_ttc_s != null && w.radar_ttc_s < 20));
-  const truthName = "Car's own radar (not given to Odolite)";
+  const truthName = "Car's own radar (not given to Stradiva)";
   return (
     <section className="section">
       <div className="section-head">
@@ -47,7 +47,7 @@ export default function LeadPanel({ c }: { c: CaseFile }) {
               <Legend verticalAlign="top" height={28} />
               <ReferenceLine x={20} stroke="#7a8691" strokeDasharray="4 4" label={{ value: "test part", fontSize: 12, position: "insideTopRight" }} />
               <Line data={radarR} dataKey="r" name={truthName} stroke="#7a8691" dot={false} strokeWidth={1.5} isAnimationActive={false} />
-              <Scatter data={estR} dataKey="r" name="Odolite (90 % interval)" fill="#2f5d8c" isAnimationActive={false}><ErrorBar dataKey="e" direction="y" stroke="#2f5d8c" width={0} /></Scatter>
+              <Scatter data={estR} dataKey="r" name="Stradiva (90 % interval)" fill="#2f5d8c" isAnimationActive={false}><ErrorBar dataKey="e" direction="y" stroke="#2f5d8c" width={0} /></Scatter>
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -62,7 +62,7 @@ export default function LeadPanel({ c }: { c: CaseFile }) {
               <ReferenceLine x={20} stroke="#7a8691" strokeDasharray="4 4" />
               <ReferenceLine y={0} stroke="#c9d0d6" />
               <Line data={radarR} dataKey="v" name={truthName} stroke="#7a8691" dot={false} strokeWidth={1.5} isAnimationActive={false} />
-              <Scatter data={estV} dataKey="v" name="Odolite (90 % interval)" fill="#b07f00" isAnimationActive={false}><ErrorBar dataKey="e" direction="y" stroke="#b07f00" width={0} /></Scatter>
+              <Scatter data={estV} dataKey="v" name="Stradiva (90 % interval)" fill="#b07f00" isAnimationActive={false}><ErrorBar dataKey="e" direction="y" stroke="#b07f00" width={0} /></Scatter>
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -71,7 +71,7 @@ export default function LeadPanel({ c }: { c: CaseFile }) {
       {ttc.length > 0 && (
         <div className="table-scroll">
           <table className="plain small">
-            <thead><tr><th>Window</th><th>Time to collision, Odolite</th><th>Radar</th><th>Part</th></tr></thead>
+            <thead><tr><th>Window</th><th>Time to collision, Stradiva</th><th>Radar</th><th>Part</th></tr></thead>
             <tbody>
               {ttc.map((w) => (
                 <tr key={w.t_start_s}>

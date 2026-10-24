@@ -17,7 +17,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(ROOT, "infrastructure", "aws"))
 sys.path.insert(0, ROOT)
 
-BUCKET, TABLE, REGION = "odolite-videos-test", "odolite-jobs", "us-east-1"
+BUCKET, TABLE, REGION = "stradiva-videos-test", "stradiva-jobs", "us-east-1"
 
 
 @pytest.fixture(scope="module")
@@ -31,8 +31,8 @@ def sample_video(tmp_path_factory):
 
 @pytest.fixture
 def aws(monkeypatch):
-    for k, v in {"ODOLITE_BUCKET": BUCKET, "JOBS_TABLE": TABLE, "AWS_DEFAULT_REGION": REGION,
-                 "AWS_ACCESS_KEY_ID": "testing", "AWS_SECRET_ACCESS_KEY": "testing", "ODOLITE_ALLOWED_ORIGIN": "https://ui.example"}.items():
+    for k, v in {"STRADIVA_BUCKET": BUCKET, "JOBS_TABLE": TABLE, "AWS_DEFAULT_REGION": REGION,
+                 "AWS_ACCESS_KEY_ID": "testing", "AWS_SECRET_ACCESS_KEY": "testing", "STRADIVA_ALLOWED_ORIGIN": "https://ui.example"}.items():
         monkeypatch.setenv(k, v)
     with mock_aws():
         s3 = boto3.client("s3", region_name=REGION)
@@ -79,7 +79,7 @@ def test_upload_process_retrieve_and_duplicate_event(aws, sample_video):
     r = aws["api"].handler({"httpMethod": "GET", "pathParameters": {"job_id": job}}, None)
     out = json.loads(r["body"])
     assert out["status"] not in ("PENDING", "PROCESSING", "ERROR"), out
-    assert out["result"]["pipeline_version"].startswith("odolite-")
+    assert out["result"]["pipeline_version"].startswith("stradiva-")
     assert out["result"]["geometry"]["ok"] is True          # the synthetic road has measurable markings
     before = aws["ddb"].Table(TABLE).get_item(Key={"job_id": job})["Item"]["updated_at"]
     aws["fn"].handler(_event(key), None)                      # S3 may deliver the same event twice

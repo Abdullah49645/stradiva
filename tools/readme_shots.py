@@ -60,7 +60,7 @@ def main():
         save(section(pg, "Which assumption decides").screenshot(), "envelope")
         save(section(pg, "How close they came").screenshot(), "near_miss")
         pick("Camera knocked mid-clip")
-        save(section(pg, "What Odolite tried").screenshot(), "investigator")
+        save(section(pg, "What Stradiva tried").screenshot(), "investigator")
         pg.get_by_role("tab", name="How it was tested").click()
         pg.wait_for_timeout(1500)
         save(section(pg, "v2.2 with the investigator").screenshot(), "test3")

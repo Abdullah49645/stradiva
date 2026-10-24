@@ -25,7 +25,7 @@ to reproduce it. No number below was typed in by hand.
 * **Scoring punishes confident errors, not refusals.** The outcomes are:
   * **correct**, including "no collision" when none happened;
   * **correct refusal**: the event was off-screen;
-  * **no verdict / qualified**: Odolite declined, or answered "depends on the
+  * **no verdict / qualified**: Stradiva declined, or answered "depends on the
     assumptions", where the truth was definite;
   * **missed collision**: a visible collision reported as "no contact found";
   * **false collision**;
@@ -38,7 +38,7 @@ to reproduce it. No number below was typed in by hand.
   The last five are "harmful". The ground-truth verdict is computed
   independently (`collision_suite.gt_counterfactual`): the follower's true
   motion is replayed with braking at a after reaction time r, on the same
-  grid and envelope Odolite uses.
+  grid and envelope Stradiva uses.
 * **Failures are reported.** Real-footage tests were pre-registered
   (`evaluation/real/PREREGISTRATION*.md`), with a Deviations section for
   anything changed afterwards. The holdout failed, and that failure leads
@@ -54,7 +54,7 @@ true reaction time of 0.5–2.6 s, or not at all.
 
 What is randomised:
 * **Markings:** the true cycle is drawn from N(12 m, 3 %) on dev and test
-  and N(12 m, 5 %) on shift. Odolite always assumes 12 m ± 3 %, so on shift
+  and N(12 m, 5 %) on shift. Stradiva always assumes 12 m ± 3 %, so on shift
   its stated prior is too narrow on purpose. Edge offset, wear and paint
   contrast vary too.
 * **Camera:** roll, yaw, height, pitch and focal length.
@@ -138,10 +138,10 @@ Reported per condition:
 | comma.ai speedchallenge `train.mp4` (17 min, 20 fps, freeway then city, per-frame speed labels) | No licence file. Evaluation only, not redistributed, fetched by `evaluation/real/fetch_comma.sh` with a SHA-256 check | First pre-registered test (commit 22aacf7), estimator frozen at 2bf75b9 |
 | comma2k19 Example_1 segment 40 (1 min, city street, CAN speed, sensor timestamps) | MIT | Independent holdout, pre-registered in commit 074a1fd |
 
-**Pre-registered speedchallenge result.** On the freeway, Odolite answered a
+**Pre-registered speedchallenge result.** On the freeway, Stradiva answered a
 minority of 2 s windows, with a median error of a few percent and 90 %
 interval coverage near nominal. In the city, the freeway marking prior is
-wrong and Odolite answered almost nothing, but what it did answer was wrong.
+wrong and Stradiva answered almost nothing, but what it did answer was wrong.
 The failure analysis is in the Deviations section of
 PREREGISTRATION.md. Two checks were added after it (duty cycle and
 continuity), with tolerances set on synthetic data only. Re-running on this
@@ -149,12 +149,12 @@ video is labelled post hoc.
 
 **Pre-registered holdout: failed.** It was run with the fixed estimator
 and the Caltrans freeway prior. The segment turned out to be a city street
-with shorter markings, so Odolite gave 16 confident answers, all about 2×
+with shorter markings, so Stradiva gave 16 confident answers, all about 2×
 too fast. We report this as the primary real-footage result.
 
 **Post hoc.** A second ruler was added: lane width (3.6 m ± 10 %) together
 with the camera's focal length gives the scale independently of the
-markings. It rejects the freeway prior on this segment, and Odolite answers
+markings. It rejects the freeway prior on this segment, and Stradiva answers
 nothing instead of answering wrongly. Re-running with the 24 ft city
 standard the check points to gives a median error of a few percent. Because
 that standard was chosen after seeing the data, this is a demonstration,
@@ -238,7 +238,7 @@ mostly concluded "the dispute stands" on the 4 s fault scenes: their stable
 parts were too short or too poorly tracked to pass re-examination.
 
 **Near-miss measures** are scored against the simulator's vehicle states
-over the same interval Odolite observed: median absolute error and 90 %
+over the same interval Stradiva observed: median absolute error and 90 %
 interval coverage for the smallest gap, the shortest time to collision
 (both sides capped at 10 s) and the largest deceleration needed to avoid
 contact.

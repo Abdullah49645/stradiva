@@ -7,7 +7,7 @@
  {
   "id": "no_scale",
   "title": "No dashed line",
-  "summary": "The road has no marking of known length, so Odolite refuses to measure."
+  "summary": "The road has no marking of known length, so Stradiva refuses to measure."
  },
  {
   "id": "bumped_camera",
@@ -17,11 +17,11 @@
  {
   "id": "other_markings",
   "title": "Unfamiliar road markings",
-  "summary": "The dashes are 6 m + 12 m, not the assumed 3 m + 9 m. Odolite notices the proportions and tries every documented standard that matches them."
+  "summary": "The dashes are 6 m + 12 m, not the assumed 3 m + 9 m. Stradiva notices the proportions and tries every documented standard that matches them."
  },
  {
   "id": "dashcam_real",
   "title": "Real dashcam, wrong assumption caught",
-  "summary": "Real footage; Odolite refuses a marking assumption the geometry contradicts."
+  "summary": "Real footage; Stradiva refuses a marking assumption the geometry contradicts."
  }
 ]

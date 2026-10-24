@@ -1,7 +1,7 @@
 """
 Collision Causality & Avoidability Analysis.
 
-Inserted as a core Odolite output alongside speed/trajectory, not an
+Inserted as a core Stradiva output alongside speed/trajectory, not an
 optional extra (per the addendum to the master brief). Given the
 reconstructed motion of two vehicles (one of which typically strikes the
 other), this module answers:
@@ -12,9 +12,9 @@ other), this module answers:
   - whether the striking vehicle had a physically plausible opportunity
     to avoid the collision, under explicit, stated physical assumptions
   - an avoidable / not-avoidable / insufficient-evidence verdict, gated
-    by the same uncertainty system as every other Odolite output
+    by the same uncertainty system as every other Stradiva output
 
-Odolite never claims legal fault. Everything here is a physical, evidence-
+Stradiva never claims legal fault. Everything here is a physical, evidence-
 based assessment ("appears to have had approximately X seconds of
 potential avoidance time"), not a determination of who was at fault.
 
@@ -167,7 +167,7 @@ def compute_contribution_factors(striking_speed_mps, gap_at_earliest_m, lead_pea
     """
     Per-vehicle PHYSICAL observations only -- explicitly not a fault or
     responsibility determination (the project owner and the master brief
-    both require Odolite to never make that claim). Each factor describes
+    both require Stradiva to never make that claim). Each factor describes
     one vehicle's own motion against a physical reference (the modeled
     safe-following speed for the observed gap; a descriptive braking-
     intensity bucket) rather than ranking or blaming either driver.
@@ -183,7 +183,7 @@ def compute_contribution_factors(striking_speed_mps, gap_at_earliest_m, lead_pea
         "lead_vehicle_deceleration_classification": classify_deceleration(lead_peak_decel_mps2),
         "note": (
             "These are physical observations about each vehicle's own reconstructed motion, "
-            "not a fault, responsibility, or blame determination. Odolite does not identify which "
+            "not a fault, responsibility, or blame determination. Stradiva does not identify which "
             "driver caused the collision."
         ),
     }

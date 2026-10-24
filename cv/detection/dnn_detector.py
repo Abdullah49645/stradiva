@@ -13,7 +13,7 @@ ground contact is still measured on the foreground mask inside each box
 (pixel-accurate), never from the box alone.
 
 The model is not in the repository (36 MB): models/fetch_models.sh downloads
-it and checks its SHA-256. Without it, Odolite runs exactly as before
+it and checks its SHA-256. Without it, Stradiva runs exactly as before
 (background subtraction only) and says so in the case record.
 """
 from __future__ import annotations
@@ -24,7 +24,7 @@ import cv2
 import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DEFAULT_MODEL = os.environ.get("ODOLITE_DETECTOR_MODEL",
+DEFAULT_MODEL = os.environ.get("STRADIVA_DETECTOR_MODEL",
                                os.path.join(ROOT, "models", "object_detection_yolox_2022nov.onnx"))
 MODEL_SHA256 = "c5c2d13e59ae883e6af3b45daea64af4833a4951c92d116ec270d9ddbe998063"
 VEHICLE_CLASSES = {2: "car", 3: "motorcycle", 5: "bus", 7: "truck"}
@@ -85,6 +85,6 @@ _DETECTOR = None
 def get_detector():
     """Shared detector instance, or None if the model file is not installed."""
     global _DETECTOR
-    if _DETECTOR is None and os.path.exists(DEFAULT_MODEL) and os.environ.get("ODOLITE_DETECTOR", "1") != "0":
+    if _DETECTOR is None and os.path.exists(DEFAULT_MODEL) and os.environ.get("STRADIVA_DETECTOR", "1") != "0":
         _DETECTOR = VehicleDetector(DEFAULT_MODEL)
     return _DETECTOR

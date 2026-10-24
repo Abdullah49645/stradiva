@@ -5,12 +5,12 @@ FROM public.ecr.aws/lambda/python:3.12
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt boto3==1.43.114 --target "${LAMBDA_TASK_ROOT}"
 
-COPY backend /opt/odolite/backend
-COPY cv /opt/odolite/cv
+COPY backend /opt/stradiva/backend
+COPY cv /opt/stradiva/cv
 # vehicle detector for the dashcam lead-vehicle analysis (YOLOX-S, OpenCV Model Zoo, Apache-2.0),
 # downloaded at build time and checked against its SHA-256
-COPY models/fetch_models.sh /opt/odolite/models/fetch_models.sh
-RUN bash /opt/odolite/models/fetch_models.sh
+COPY models/fetch_models.sh /opt/stradiva/models/fetch_models.sh
+RUN bash /opt/stradiva/models/fetch_models.sh
 COPY infrastructure/aws/lambda_handler.py ${LAMBDA_TASK_ROOT}/lambda_handler.py
 
 ENV OPENCV_LOG_LEVEL=ERROR

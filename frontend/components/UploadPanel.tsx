@@ -52,7 +52,7 @@ export default function UploadPanel({ onResult }: { onResult: (c: CaseFile) => v
       <div className="drop small">
         <strong>Analyse your own clip</strong>
         <p style={{ margin: "6px 0 0" }}>No analysis service is configured for this page, so it shows the bundled cases only.
-          Run <code>uvicorn backend.api.server:app</code> and start the page with <code>NEXT_PUBLIC_ODOLITE_API_BASE=http://localhost:8000</code> to analyse uploads.</p>
+          Run <code>uvicorn backend.api.server:app</code> and start the page with <code>NEXT_PUBLIC_STRADIVA_API_BASE=http://localhost:8000</code> to analyse uploads.</p>
       </div>
     );
   }
@@ -79,7 +79,7 @@ export default function UploadPanel({ onResult }: { onResult: (c: CaseFile) => v
           </label>
           <label>Marking standard
             <select value={standard} onChange={(e) => setStandard(e.target.value)} disabled={busy}>
-              <option value="">default (Odolite test roads)</option>
+              <option value="">default (Stradiva test roads)</option>
               {Object.entries(STANDARD_NAMES).map(([k, n]) => <option key={k} value={k}>{n}</option>)}
             </select>
           </label>

@@ -23,7 +23,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
 from backend.dashcam.ego_speed import EgoSpeedConfig, MarkingPrior, estimate_ego_speed  # noqa: E402
 
-SEG = os.environ.get("ODOLITE_COMMA2K19_SEG", os.path.join(ROOT, "evaluation", "real", "data", "comma2k19", "seg40"))
+SEG = os.environ.get("STRADIVA_COMMA2K19_SEG", os.path.join(ROOT, "evaluation", "real", "data", "comma2k19", "seg40"))
 PRIORS = {"caltrans_freeway_48ft": MarkingPrior.preset("california_freeway"),
           "urban_24ft": MarkingPrior("city broken line 10 ft + 14 ft", 24 * 0.3048)}
 

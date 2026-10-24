@@ -2,7 +2,7 @@
   "scenario": "collision_1",
   "true_time_offset_s_B_minus_A": 0.4,
   "camera_a": {
-    "video": "/home/claude/carai/carai/evaluation/scripts/../dataset/synthetic_dualcam_collision_1_A.mp4",
+    "video": "evaluation/dataset/synthetic_dualcam_collision_1_A.mp4",
     "fps": 30.0,
     "start_offset_s": 0.0,
     "true_extrinsics": {
@@ -14,7 +14,7 @@
     }
   },
   "camera_b": {
-    "video": "/home/claude/carai/carai/evaluation/scripts/../dataset/synthetic_dualcam_collision_1_B.mp4",
+    "video": "evaluation/dataset/synthetic_dualcam_collision_1_B.mp4",
     "fps": 24.0,
     "start_offset_s": 0.4,
     "true_extrinsics": {

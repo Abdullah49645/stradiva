@@ -1,11 +1,11 @@
 <div align="center">
 
-# Odolite
+# Stradiva
 
 **Measurements from uncalibrated road footage, with every assumption stated.**
 
 Speed, timing, near-misses and "could braking have prevented it?" from ordinary traffic and dashcam
-video. The only ruler is the road's own paint. Odolite never assigns fault, and it says *why* when the
+video. The only ruler is the road's own paint. Stradiva never assigns fault, and it says *why* when the
 footage cannot support a number.
 
 ![OpenCV 5](https://img.shields.io/badge/OpenCV-5.0-5C3EE8?logo=opencv&logoColor=white)
@@ -26,14 +26,14 @@ OpenCV AI Competition 2026 entry · [Technical report](docs/technical_report.md)
 
 ## What it does
 
-| Footage | What Odolite measures | How it knows the scale |
+| Footage | What Stradiva measures | How it knows the scale |
 |---|---|---|
 | **Fixed camera** (CCTV, traffic pole) | Speed of every tracked vehicle; the lead's brake onset; the moment of contact; smallest gap, time to collision and braking needed (near-miss measures); whether braking could have avoided contact, over a stated range of reaction times and braking capabilities | The dash cycle of the lane markings, through a homography recovered from the paint alone |
 | **Dashcam** | The camera car's own speed; the distance, closing speed and time to collision of the vehicle ahead | The markings sliding past; two independent range rulers (the ground plane and the vehicle's width) |
 
 Three things make it different from a speed estimator:
 
-1. **Verdicts name the assumption that decides them.** Odolite replays the approach for every reaction time
+1. **Verdicts name the assumption that decides them.** Stradiva replays the approach for every reaction time
    from 0.75 to 2.0 s and every braking level from 5 to 8 m/s². It answers "avoidable" or "not avoidable"
    only when the answer holds across the whole range. Otherwise it reports the latest reaction that would
    still have avoided contact, with its interval.
@@ -49,12 +49,12 @@ Three things make it different from a speed estimator:
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/readme_lead_vs_radar.jpg" alt="Distance and closing speed of the vehicle ahead against the car's own radar"><br><sub><b>Real dashcam footage.</b> The vehicle ahead, measured with YOLOX-S on OpenCV's DNN module, against the car's own radar (grey), which Odolite never saw.</sub></td>
-<td width="50%"><img src="docs/screenshots/readme_hero_dashcam.jpg" alt="Real dashcam clip where Odolite refuses a marking assumption the lane geometry contradicts"><br><sub><b>Wrong assumption caught.</b> On the same real clip, lane width and focal length contradict a freeway marking standard, so Odolite refuses instead of reporting speeds twice too high.</sub></td>
+<td width="50%"><img src="docs/screenshots/readme_lead_vs_radar.jpg" alt="Distance and closing speed of the vehicle ahead against the car's own radar"><br><sub><b>Real dashcam footage.</b> The vehicle ahead, measured with YOLOX-S on OpenCV's DNN module, against the car's own radar (grey), which Stradiva never saw.</sub></td>
+<td width="50%"><img src="docs/screenshots/readme_hero_dashcam.jpg" alt="Real dashcam clip where Stradiva refuses a marking assumption the lane geometry contradicts"><br><sub><b>Wrong assumption caught.</b> On the same real clip, lane width and focal length contradict a freeway marking standard, so Stradiva refuses instead of reporting speeds twice too high.</sub></td>
 </tr>
 <tr>
 <td><img src="docs/screenshots/readme_envelope.jpg" alt="Avoidance map over reaction time and braking"><br><sub><b>Which assumption decides the answer.</b> Where contact was avoided across reaction times and braking levels; the verdict must hold inside the outlined box.</sub></td>
-<td><img src="docs/screenshots/readme_investigator.jpg" alt="Investigator trace after a dispute"><br><sub><b>After a dispute.</b> The camera was knocked mid-clip; Odolite finds the bump, re-analyses each part, and reports that the refusal stands.</sub></td>
+<td><img src="docs/screenshots/readme_investigator.jpg" alt="Investigator trace after a dispute"><br><sub><b>After a dispute.</b> The camera was knocked mid-clip; Stradiva finds the bump, re-analyses each part, and reports that the refusal stands.</sub></td>
 </tr>
 <tr>
 <td><img src="docs/screenshots/readme_near_miss.jpg" alt="Near-miss measures"><br><sub><b>How close they came.</b> Smallest gap, time to collision and braking needed, each with a 90 % interval.</sub></td>
@@ -116,7 +116,7 @@ outcome. Every limitation is listed in [the technical report, section 8](docs/te
 ## Quick start
 
 ```bash
-git clone https://github.com/Abdullah49645/odolite.git && cd odolite
+git clone https://github.com/Abdullah49645/stradiva.git && cd stradiva
 pip install -r requirements-dev.txt          # Python 3.12+; OpenCV 5 headless, NumPy, SciPy (pinned)
 bash models/fetch_models.sh                  # YOLOX-S detector for the dashcam mode (SHA-256 checked)
 python3 -m pytest -q tests                   # 35 tests: units, integration, investigator, AWS handlers (moto)
@@ -133,7 +133,7 @@ Run the web UI with the local API (same job contract as the AWS deployment):
 
 ```bash
 uvicorn backend.api.server:app --port 8000
-cd frontend && npm ci && NEXT_PUBLIC_ODOLITE_API_BASE=http://localhost:8000 npm run dev   # http://localhost:3000
+cd frontend && npm ci && NEXT_PUBLIC_STRADIVA_API_BASE=http://localhost:8000 npm run dev   # http://localhost:3000
 ```
 
 The UI ships with the bundled case files and works without the API; the API is needed only to analyse your
@@ -177,7 +177,7 @@ Code: Apache-2.0 ([LICENSE](LICENSE), [NOTICE](NOTICE), [reasoning](docs/licensi
 provenance: [docs/data_provenance.md](docs/data_provenance.md). One comma2k19 excerpt (MIT) is bundled;
 the YOLOX-S model (Apache-2.0, OpenCV Model Zoo) is downloaded, not stored. All other footage is synthetic.
 
-Odolite was developed under the working name *CARAI*. Identifiers inside the frozen, pre-registered result
+Stradiva was developed under the working name *CARAI*. Identifiers inside the frozen, pre-registered result
 files (`carai_verdict`, pipeline versions `carai-2.x`, the default prior name `carai_synthetic_centerline`)
 keep that name, so those files stay exactly as they were when the tests ran.
 

@@ -1,5 +1,5 @@
 """
-Odolite production pipeline (single entry point used by the evaluation
+Stradiva production pipeline (single entry point used by the evaluation
 harness, the demo-case generator, the local API and the AWS Lambda).
 
     analyze_video(path)  ->  case dict (JSON-safe)
@@ -45,7 +45,7 @@ from backend.reconstruction.kinematics import road_kinematics, velocity_kink
 from backend.causality.counterfactual import TrajectorySample, assess as assess_counterfactual, hinge_onset
 from backend.verification.skeptic import cross_examine
 
-PIPELINE_VERSION = "odolite-2.2"   # = carai-2.2 (the frozen v2.2 code under the working name)
+PIPELINE_VERSION = "stradiva-2.2"   # = carai-2.2 (the frozen v2.2 code under the working name)
 BLOCKING_CHECKS = {"held_out_markings", "temporal_stability", "marking_standard", "kinematics"}
 FOLLOW_LENGTH_PRIOR = (4.6, 0.35)     # passenger car length mean, sd (m) -- stated assumption
 MAX_SECONDS = 20.0
@@ -131,7 +131,7 @@ WORST_CASE_DECEL_MPS2 = 8.0          # upper end of the braking envelope (v2.1 n
 # Dev-split ablation, end to end (evaluation/results/dev_history/ablation_bg_*.jsonl): legacy 7/30 correct,
 # 1 harmful; resolve3 7/30, 2 harmful; resolve5 8/30, 4 harmful -> legacy kept. The env var exists only for
 # that ablation.
-BACKGROUND_MODE = os.environ.get("ODOLITE_BG_MODE", "legacy")
+BACKGROUND_MODE = os.environ.get("STRADIVA_BG_MODE", "legacy")
 
 
 def _measured(track, fps):

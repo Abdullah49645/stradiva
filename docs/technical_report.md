@@ -1,4 +1,4 @@
-# Odolite: physics from uncalibrated road footage, with stated assumptions
+# Stradiva: physics from uncalibrated road footage, with stated assumptions
 
 Technical report for the OpenCV AI Competition 2026. Every number in this
 report is generated from files in `evaluation/results/`. The commands that
@@ -14,8 +14,8 @@ vehicle start braking? Could the following driver have stopped in time?
 Today those answers come from a reconstruction expert, days later, or from
 someone eyeballing the video.
 
-Odolite measures what the footage can support and states the rest as
-assumptions. It never assigns fault. "Avoidable" in Odolite means: under the
+Stradiva measures what the footage can support and states the rest as
+assumptions. It never assigns fault. "Avoidable" in Stradiva means: under the
 stated range of reaction times and braking capabilities, braking would have
 prevented contact in at least 95 % of the reconstructions consistent with
 the video. It is a statement about physics, not about blame.
@@ -30,7 +30,7 @@ the video. It is a statement about physics, not about blame.
 * **Drivers with dashcam footage.** They get their own speed from the
   footage (a separate, simpler mode).
 
-None of these users should take a Odolite number on trust. The product is
+None of these users should take a Stradiva number on trust. The product is
 built around showing why each number is what it is, and what would change
 it.
 
@@ -58,7 +58,7 @@ calibration:
 
 The dash cycle length (dash plus gap, 12 m by default) sets the speed
 scale. **It cannot be identified from a single static view**, because a
-road with longer dashes seen from farther away looks the same. Odolite
+road with longer dashes seen from farther away looks the same. Stradiva
 therefore treats it as a stated prior with ±3 % uncertainty, reports it
 on every result, and tests its *proportions* (duty cycle), which are
 observable. docs/assumptions.md lists every such assumption.
@@ -99,7 +99,7 @@ See docs/architecture.md for the diagrams. The pipeline
    it). Each sample is replayed with the follower braking at a after reaction
    time r, over r in 0.75–2.5 s and a in 4–8 m/s². The verdict holds only if
    it holds over the whole envelope (0.75–2.0 s, 5–8 m/s²). Otherwise
-   Odolite reports the critical reaction time with its 90 % interval.
+   Stradiva reports the critical reaction time with its 90 % interval.
 9. **Skeptic.** It cross-examines the result with evidence the fit did not
    use: leave-one-dash-out prediction, geometry re-estimated on each half of
    the clip, duty cycle against the assumed standard, vehicle footprint
@@ -253,7 +253,7 @@ Other results:
   90 % interval coverage 90 %.
 * **Real holdout** (pre-registered): **failed**, about 2× too fast because
   the marking prior was wrong for a city street. A post-hoc second ruler
-  now makes Odolite refuse that case.
+  now makes Stradiva refuse that case.
 
 ## 8. Limitations
 
@@ -267,7 +267,7 @@ Other results:
   the main failures.
 * **Range.** Beyond roughly 70 m from the camera, one image row spans
   0.7 m of road or more. Contact then cannot be established within the
-  vehicle-length uncertainty. Since v2.1, Odolite says so instead of
+  vehicle-length uncertainty. Since v2.1, Stradiva says so instead of
   guessing. Since v2.2 the check is made at the event (the contact, or the
   closest approach), not where the follower was last tracked.
 * **Logic gap found on test2, fixed in v2.2 (after test2 was scored, so
@@ -282,7 +282,7 @@ Other results:
   but the wrong length; those remain requests to the user.
 * **Near-miss measures** inherit the tracking errors: they are withheld when
   the reconstruction is disputed or contact is undetermined, and are scored
-  against ground truth only where Odolite reports them.
+  against ground truth only where Stradiva reports them.
 * **Vehicle ahead (dashcam)** is validated on one real 60 s segment with
   one lead car whose width is close to the 1.8 m prior. It needs the
   camera's focal length.
@@ -310,7 +310,7 @@ Other results:
 * **Assumptions travel with results.** Every case states the marking
   prior, vehicle-length prior, reaction-time and braking envelope, and the
   identifiability of each quantity.
-* **Not validated for legal use.** Odolite is a research prototype, and its
+* **Not validated for legal use.** Stradiva is a research prototype, and its
   verdicts are validated on simulation only. It must not be the sole basis
   of any legal, insurance or disciplinary decision. Any use in such a
   setting needs an expert who can examine the assumptions.

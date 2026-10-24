@@ -3,7 +3,7 @@ import { Counterfactual } from "@/lib/types";
 // Reaction time (x) x braking deceleration (y). Each cell: share of the
 // reconstructions consistent with the video in which braking after the hazard
 // would have kept the vehicles apart. The outlined box is the range of
-// assumptions Odolite requires a verdict to hold across. Ticks: the latest
+// assumptions Stradiva requires a verdict to hold across. Ticks: the latest
 // reaction that still avoids contact, with its 90 % interval.
 
 const W = 640, Hh = 300, L = 64, R = 16, T = 16, B = 46;

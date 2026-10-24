@@ -47,7 +47,7 @@ from cv.geometry.projective import (
 @dataclass
 class RoadPrior:
     """Physical marking dimensions assumed for this road. Defaults are the
-    Odolite synthetic standard; real deployments must set them per
+    Stradiva synthetic standard; real deployments must set them per
     jurisdiction/road class (see docs/assumptions.md)."""
     name: str = "carai_synthetic_centerline"
     edge_to_centre_m: float = 1.85

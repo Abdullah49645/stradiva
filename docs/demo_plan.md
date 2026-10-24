@@ -7,19 +7,19 @@ that the app works live, the added dashcam mode with its real-footage validation
 the held-out results, failures included. Nothing in the video may suggest that the collision verdicts were
 validated on real crashes, because they were not.
 
-## Script (4:38; voiceover with timecodes in evaluation/demo/video/voiceover.md)
+## Script (4:37; voiceover with timecodes in evaluation/demo/video/voiceover.md)
 
 | Time | Screen | Point |
 |---|---|---|
-| 0:00–0:13 | Title card (team, one-line product) | What Odolite is: collision footage in, physics out |
+| 0:00–0:13 | Title card (team, one-line product) | What Stradiva is: collision footage in, physics out |
 | 0:13–0:48 | Case "Rear-end, roadside camera", the clip with the road grid | The paint is the ruler: vanishing point, closed-form horizon, tracking; speeds, brake onset, contact (synthetic, with ground truth) |
-| 0:48–1:27 | Envelope map, "How close they came", "Checked against ground truth" | A verdict only if it holds across the reaction and braking range; near-miss measures; the rows where it is off |
-| 1:27–2:07 | Case "Camera knocked mid-clip": the investigator trace | Cross-examination, the remedy (ECC bump detection, re-analysis), the refusal stands, the input request |
-| 2:07–2:34 | Live upload with the frame rate filled in (wait cut) | The app working end to end |
-| 2:34–3:22 | Case "Real dashcam": the vehicle ahead against radar, then the own-speed refusal | The added mode: YOLOX-S on cv2.dnn, two range rulers, pre-registered real-footage result |
-| 3:22–3:50 | Architecture card | OpenCV 5 components; the AWS path: API Gateway, S3, container Lambda, DynamoDB, expiry |
-| 3:50–4:28 | "How it was tested": test3, investigator, radar tables | Held-out results with the failures |
-| 4:28–4:38 | Closing card | No fault; measures what the footage supports |
+| 0:48–1:26 | Envelope map, "How close they came", "Checked against ground truth" | A verdict only if it holds across the reaction and braking range; near-miss measures; the rows where it is off |
+| 1:26–2:08 | Case "Camera knocked mid-clip": the investigator trace | Cross-examination, the remedy (ECC bump detection, re-analysis), the refusal stands, the input request |
+| 2:08–2:33 | Live upload with the frame rate filled in (wait cut) | The app working end to end |
+| 2:33–3:21 | Case "Real dashcam": the vehicle ahead against radar, then the own-speed refusal | The added mode: YOLOX-S on cv2.dnn, two range rulers, pre-registered real-footage result |
+| 3:21–3:49 | Architecture card | OpenCV 5 components; the AWS path: API Gateway, S3, container Lambda, DynamoDB, expiry |
+| 3:49–4:27 | "How it was tested": test3, investigator, radar tables | Held-out results with the failures |
+| 4:27–4:37 | Closing card | No fault; measures what the footage supports |
 
 Recording notes: 1920×1080, browser at 110 % zoom, cursor highlight on.
 Record the UI from the static build (`npm run build && npx serve out`) so
@@ -59,6 +59,6 @@ development machine this takes about 30 s (docs/aws.md); cut the wait.
 ## The recorded video
 
 `evaluation/demo/video/record_demo.py` records the video above from the real UI (static build plus the
-local API for the live upload) and cuts it with ffmpeg: 1920×1080, 4:38. The voiceover script with
+local API for the live upload) and cuts it with ffmpeg: 1920×1080, 4:37. The voiceover script with
 timecodes is `evaluation/demo/video/voiceover.md`; the title, architecture and closing cards are the HTML
 files next to it.

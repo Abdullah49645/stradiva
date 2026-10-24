@@ -1,12 +1,12 @@
-# Prior art, and what is (and is not) new in Odolite
+# Prior art, and what is (and is not) new in Stradiva
 
-Short version: every individual technique Odolite uses is established. What we can
+Short version: every individual technique Stradiva uses is established. What we can
 defend as a contribution is (a) the combination, applied to accident footage,
 and (b) the evaluation discipline around it: assumption-envelope verdicts,
 cross-examination with independent evidence measured by fault injection, and
 pre-registered real-footage tests that report their failures.
 
-| Technique in Odolite | Status | Closest prior art |
+| Technique in Stradiva | Status | Closest prior art |
 |---|---|---|
 | Vanishing point from lane lines (RANSAC over Hough segments) | Established | Textbook (Hartley & Zisserman, *Multiple View Geometry*, ch. 8); standard in traffic-camera calibration |
 | Metric scale from lane-marking dimensions | Established | Dailey & Cathey / Schoepflin & Dailey: automatic calibration of roadside cameras from lane-marker periodicity, resampling to remove perspective, autocorrelation (WSDOT research reports, 2000s) |
@@ -28,7 +28,7 @@ pre-registered real-footage tests that report their failures.
 
 1. **Verdicts that state which assumption decides them.** Forensic avoidance
    analysis usually evaluates one or a few (reaction time, deceleration)
-   pairs. Odolite evaluates the whole envelope on Monte Carlo samples of the
+   pairs. Stradiva evaluates the whole envelope on Monte Carlo samples of the
    video reconstruction, and only states AVOIDABLE / NOT_AVOIDABLE when the
    answer holds across the envelope. Otherwise it reports the critical
    reaction time and its interval. This is a new *combination*, not a new

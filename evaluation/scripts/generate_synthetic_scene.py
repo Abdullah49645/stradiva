@@ -1,5 +1,5 @@
 """
-Controlled synthetic test-scene generator for Odolite Week-1 feasibility.
+Controlled synthetic test-scene generator for Stradiva Week-1 feasibility.
 
 Why synthetic: Week 1's job is to prove the *reconstruction math* works
 end-to-end (lines -> vanishing point -> scale-anchored homography ->

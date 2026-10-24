@@ -3,9 +3,9 @@ Records the 5-minute demo video from the real UI (static build + local API), sce
 and encodes it with ffmpeg. Voiceover script: evaluation/demo/video/voiceover.md (timings match SCENES).
 
   # 1. a UI build wired to the local API, copied out of frontend/out:
-  cd frontend && NEXT_PUBLIC_ODOLITE_API_BASE=http://127.0.0.1:8000 npm run build && cp -r out /tmp/rec_out && cd ..
+  cd frontend && NEXT_PUBLIC_STRADIVA_API_BASE=http://127.0.0.1:8000 npm run build && cp -r out /tmp/rec_out && cd ..
   # 2. the local API (same job contract as AWS):
-  ODOLITE_CORS_ORIGINS=http://127.0.0.1:8770 uvicorn backend.api.server:app --port 8000 &
+  STRADIVA_CORS_ORIGINS=http://127.0.0.1:8770 uvicorn backend.api.server:app --port 8000 &
   # 3. record:
   python3 evaluation/demo/video/record_demo.py /tmp/rec_out OUT_DIR
 
@@ -184,14 +184,14 @@ def s_investigator(sc):
     sc.p.locator("video").first.evaluate("v => { v.muted = true; v.currentTime = 2.2; v.play(); }")
     sc.mark()
     sc.wait(5)
-    sc.scroll_to(sc.section("What Odolite tried"), offset=30)
+    sc.scroll_to(sc.section("What Stradiva tried"), offset=30)
     sc.wait(9)
     sc.move_to(sc.p.locator(".inv-step").nth(0), steps=40)
     sc.wait(7)
     sc.scroll_to(sc.p.locator(".inv-step").nth(1), offset=160, ms=1600)
     sc.move_to(sc.p.locator(".inv-step").nth(1), steps=40)
     sc.wait(7)
-    sc.move_to(sc.section("What Odolite tried").get_by_text("What would let Odolite say more"), steps=40)
+    sc.move_to(sc.section("What Stradiva tried").get_by_text("What would let Stradiva say more"), steps=40)
     sc.wait(4)
     return None
 
@@ -214,7 +214,7 @@ def s_upload(sc):
     sc.wait(1.0)
     sc.click(drop.get_by_role("button", name="Analyse clip"))
     t_wait0 = time.time()
-    sc.p.get_by_text("Analysed just now by the Odolite service").first.wait_for(timeout=300000)
+    sc.p.get_by_text("Analysed just now by the Stradiva service").first.wait_for(timeout=300000)
     t_wait1 = time.time()
     sc.p.evaluate("window.__smoothScroll(0, 900)")
     sc.wait(1.2)
@@ -314,7 +314,7 @@ def cut(log):
         parts.append(seg)
     lst = os.path.join(OUT, "parts.txt")
     open(lst, "w").write("".join(f"file '{p}'\n" for p in parts))
-    final = os.path.join(OUT, "odolite_demo.mp4")
+    final = os.path.join(OUT, "stradiva_demo.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst,
                     "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-map", "0:v", "-map", "1:a", "-c:v", "copy",
                     "-c:a", "aac", "-shortest", "-movflags", "+faststart", final], check=True)

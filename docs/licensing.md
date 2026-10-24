@@ -1,4 +1,4 @@
-# Licence choice for Odolite's own code
+# Licence choice for Stradiva's own code
 
 **Staged choice: Apache License 2.0** (`LICENSE`, `NOTICE`). The repository
 had no licence when it was received. This is the copyright holder's
@@ -41,6 +41,6 @@ both better served by a permissive licence plus a public repository.
   and falls under the code's licence.
 * Results JSON files are factual measurements. They are released with the
   repository under the same terms.
-* Use of Odolite's outputs in legal proceedings is not authorised or
+* Use of Stradiva's outputs in legal proceedings is not authorised or
   validated by any licence. See the responsible-use section of the
   technical report.

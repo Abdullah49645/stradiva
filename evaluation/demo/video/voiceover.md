@@ -1,6 +1,6 @@
-# Odolite demo: voiceover script
+# Stradiva demo: voiceover script
 
-Video: `odolite_demo.mp4`, 1920×1080, 4:38. The audio track is silent: record your voice and lay it over.
+Video: `stradiva_demo.mp4`, 1920×1080, 4:37. The audio track is silent: record your voice and lay it over.
 `record_demo.py` made the video from the real UI. Every number on screen comes from the committed case
 and evaluation files, and the upload scene is a live analysis by the local server.
 
@@ -8,11 +8,11 @@ Pace: about 140 words a minute, calm. Each block starts at its timecode. If a bl
 picture breathe. If it runs long, drop the sentence marked *(optional)*.
 
 Rules check (opencv.org/opencv-ai-competition-2026):
-* at most 5 minutes: ✓ (4:38);
+* at most 5 minutes: ✓ (4:37);
 * shows the team: 0:00;
-* shows the application working: 0:13–3:22, including a live upload at 2:07;
-* shows its architecture: 3:22;
-* shows its principal results: 3:50.
+* shows the application working: 0:13–3:21, including a live upload at 2:08;
+* shows its architecture: 3:21;
+* shows its principal results: 3:49.
 
 Upload it public or unlisted (unlisted YouTube is fine), and check that the link opens while logged out.
 
@@ -20,7 +20,7 @@ Upload it public or unlisted (unlisted YouTube is fine), and check that the link
 
 ### 0:00–0:13 · Title card
 
-> Hi, I'm Abdullah. This is Odolite. Give it collision footage from an ordinary, uncalibrated camera, and it
+> Hi, I'm Abdullah. This is Stradiva. Give it collision footage from an ordinary, uncalibrated camera, and it
 > works out the physics, stating every assumption along the way.
 
 ### 0:13–0:48 · A collision on a fixed roadside camera
@@ -33,31 +33,31 @@ Upload it public or unlisted (unlisted YouTube is fine), and check that the link
 > filter and Hungarian assignment track the vehicles. Out come each vehicle's speed, when braking began,
 > and the moment of contact.
 
-### 0:48–1:27 · Could braking have prevented it?
+### 0:48–1:26 · Could braking have prevented it?
 
 *(envelope map, then "How close they came", then "Checked against ground truth")*
 
-> Could braking have prevented it? Odolite doesn't pick one reaction time. It replays the approach for every
+> Could braking have prevented it? Stradiva doesn't pick one reaction time. It replays the approach for every
 > reaction from 0.75 to two seconds and every braking level from five to eight metres per second squared.
 > It only says "avoidable" or "not avoidable" if the answer holds inside the whole box. Here it doesn't, so
 > it says which assumption decides it.
 >
 > Below are the standard near-miss measures: smallest gap, time to collision and braking needed. Then the
-> check against ground truth, including the two rows where Odolite is off.
+> check against ground truth, including the two rows where Stradiva is off.
 
-### 1:27–2:07 · When the footage fights back
+### 1:26–2:08 · When the footage fights back
 
-*(camera-knocked case; scrolls through "What Odolite tried after the dispute")*
+*(camera-knocked case; scrolls through "What Stradiva tried after the dispute")*
 
 > Every result is cross-examined with evidence the fit never used. In this clip the camera was knocked
 > halfway through, and the check catches it.
 >
-> Odolite then runs the remedy for that specific failure. It finds the bump with OpenCV's ECC image
+> Stradiva then runs the remedy for that specific failure. It finds the bump with OpenCV's ECC image
 > alignment, splits the clip, and analyses each part again. Each part has to pass the whole
-> cross-examination from scratch. Neither does, so the refusal stands, and Odolite says what input would
+> cross-examination from scratch. Neither does, so the refusal stands, and Stradiva says what input would
 > help. It never relaxes a threshold to produce an answer.
 
-### 2:07–2:34 · Live upload
+### 2:08–2:33 · Live upload
 
 *(file chosen, frame rate typed, Analyse; the wait is cut; the new case appears)*
 
@@ -65,27 +65,27 @@ Upload it public or unlisted (unlisted YouTube is fine), and check that the link
 > metadata often gets wrong. The analysis takes about half a minute, cut here. Back comes the full case:
 > speeds, contact, the cross-examination and every stated assumption.
 
-### 2:34–3:22 · Added mode: dashcam footage
+### 2:33–3:21 · Added mode: dashcam footage
 
 *(real dashcam clip, the vehicle-ahead charts, then the own-speed refusal)*
 
-> Odolite also handles a moving camera, as an added mode. This is real footage: one minute of driving from
+> Stradiva also handles a moving camera, as an added mode. This is real footage: one minute of driving from
 > the comma2k19 dataset. A YOLOX detector on OpenCV 5's DNN module finds the car ahead. Its distance comes
 > from two independent rulers: where its tyres meet the road, and how wide it looks. If they disagree, the
-> window is refused. The grey line is the car's own radar, which Odolite never saw. On the pre-registered
+> window is refused. The grey line is the car's own radar, which Stradiva never saw. On the pre-registered
 > test, distance was within 2.4 percent, and every interval contained the radar.
 >
-> On the same clip, the lane width contradicts a freeway marking assumption, so Odolite refuses to give
+> On the same clip, the lane width contradicts a freeway marking assumption, so Stradiva refuses to give
 > speeds that would be twice too high.
 
-### 3:22–3:50 · Architecture
+### 3:21–3:49 · Architecture
 
 > OpenCV 5 does every image operation: the markings, tracking, optical flow, the image alignment and the DNN
 > detector. On AWS, the browser uploads through a presigned URL to a private S3 bucket. The upload triggers a
 > container Lambda that runs the full analysis, DynamoDB tracks the job, and footage expires automatically
 > after seven days.
 
-### 3:50–4:28 · Results, failures included
+### 3:49–4:27 · Results, failures included
 
 *(test3 table, then "What the investigator changed", then the radar table)*
 
@@ -95,9 +95,9 @@ Upload it public or unlisted (unlisted YouTube is fine), and check that the link
 > thing to fix. Collision verdicts are validated on simulation only, because we found no real crash footage
 > we could legally use. The dashcam measurements are validated on real footage.
 
-### 4:28–4:38 · Closing card
+### 4:27–4:37 · Closing card
 
-> Odolite never assigns fault. It measures what the footage supports, and says why when it can't. Thanks for
+> Stradiva never assigns fault. It measures what the footage supports, and says why when it can't. Thanks for
 > watching.
 
 ---
@@ -107,5 +107,5 @@ Upload it public or unlisted (unlisted YouTube is fine), and check that the link
 * A phone voice memo in a quiet room is fine; hold the phone about 20 cm away.
 * To lay it over the video, put the video and the voice on one timeline in CapCut, DaVinci Resolve or
   iMovie, and nudge each block to its timecode. Or, with ffmpeg:
-  `ffmpeg -i odolite_demo.mp4 -i voice.m4a -map 0:v -map 1:a -c:v copy -c:a aac -shortest odolite_final.mp4`
+  `ffmpeg -i stradiva_demo.mp4 -i voice.m4a -map 0:v -map 1:a -c:v copy -c:a aac -shortest stradiva_final.mp4`
 * Optional: add captions for judges watching on mute (YouTube auto-captions, then correct them).

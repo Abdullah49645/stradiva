@@ -1,6 +1,6 @@
 # Assumptions register
 
-Every number below enters Odolite's results as a stated input, never as a
+Every number below enters Stradiva's results as a stated input, never as a
 constant hidden in code. Where the video cannot test an assumption, the
 output says so.
 
@@ -17,7 +17,7 @@ output says so.
 
 The road standard is jurisdiction- and road-class-specific. On real footage we
 measured what happens when it is wrong: a freeway prior on a city street gave
-speeds 2.1x too high with tight intervals (EVALUATION.md). Odolite therefore
+speeds 2.1x too high with tight intervals (EVALUATION.md). Stradiva therefore
 reports the prior it used on every result and refuses when its checks
 contradict it.
 
@@ -41,5 +41,5 @@ contradict it.
 | Lead motion after it is hidden / after contact | measured deceleration, continued to rest; with a measured impact, the deceleration that brings its rear to the follower's front at impact | Physical constraint, not a free parameter |
 | Hazard onset | the lead's brake onset, only if identifiable (likelihood-ratio test against constant acceleration) | If not identifiable, no AVOIDABLE / NOT_AVOIDABLE verdict is issued |
 
-Odolite never states who is at fault. "Avoidable under assumption X" is a
+Stradiva never states who is at fault. "Avoidable under assumption X" is a
 statement about physics given X.

@@ -1,5 +1,5 @@
 """
-Runs the full Odolite pipeline on a two-vehicle collision scenario:
+Runs the full Stradiva pipeline on a two-vehicle collision scenario:
 geometry/scale recovery (reused from run_feasibility.py), multi-vehicle
 ground-contact tracking, per-vehicle trajectory reconstruction, and the
 new Collision Causality & Avoidability module -- then checks the
@@ -314,7 +314,7 @@ def main():
         all_results[name] = result
         print(f"reconstructability: {result.get('reconstructability')}")
         print(f"ground truth physics avoidability: {result.get('ground_truth_physics_avoidability')}")
-        print(f"Odolite causality verdict: {result.get('causality', {}).get('verdict')}")
+        print(f"Stradiva causality verdict: {result.get('causality', {}).get('verdict')}")
         print(f"narrative: {result.get('causality', {}).get('narrative')}")
 
         from backend.reports.report_generator import render_collision_report

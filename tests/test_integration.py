@@ -80,7 +80,7 @@ def test_unmarked_road_is_refused(tmp_path):
 
 def test_local_api_job_contract(tmp_path, monkeypatch):
     pytest.importorskip("httpx")
-    monkeypatch.setenv("ODOLITE_WORK_DIR", str(tmp_path))
+    monkeypatch.setenv("STRADIVA_WORK_DIR", str(tmp_path))
     from fastapi.testclient import TestClient
     from backend.api import server
     client = TestClient(server.app)

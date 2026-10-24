@@ -121,11 +121,11 @@ export function Validation({ c }: { c: CaseFile }) {
       <p className="small muted">{c.validation.note}</p>
       <div className="table-scroll">
         <table className="plain">
-          <thead><tr><th>Quantity</th><th>Ground truth</th><th>Odolite</th><th></th></tr></thead>
+          <thead><tr><th>Quantity</th><th>Ground truth</th><th>Stradiva</th><th></th></tr></thead>
           <tbody>
             {c.validation.rows.map((r) => (
               <tr key={r.label}>
-                <td>{r.label}</td><td className="num">{r.truth}</td><td className="num">{r.odolite}</td>
+                <td>{r.label}</td><td className="num">{r.truth}</td><td className="num">{r.stradiva}</td>
                 <td>{r.ok == null ? "" : r.ok ? <span className="status s-pass">consistent</span> : <span className="status s-dispute">differs</span>}</td>
               </tr>
             ))}

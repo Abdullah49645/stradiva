@@ -1,5 +1,5 @@
 """
-The investigator: what Odolite does when its own Skeptic disputes a
+The investigator: what Stradiva does when its own Skeptic disputes a
 reconstruction, instead of stopping there.
 
 Loop: PERCEIVE (read the case and the Skeptic's verdicts) -> DIAGNOSE (map
@@ -268,7 +268,7 @@ def remedy_marking_standard(path, case, internals, ctx):
     if not cands:
         step["decision"] = "no documented standard matches: the dispute stands; the user is asked for the standard"
         ctx["requests"].append({"input": "marking_standard", "why": f"the road's dashes cover {dm:.0%} of each cycle, "
-                                "which matches no standard Odolite knows", "options": sorted(BY_KEY)})
+                                "which matches no standard Stradiva knows", "options": sorted(BY_KEY)})
         return None, step
     runs = []
     for c in cands:
@@ -533,7 +533,7 @@ def investigate(path, prior: RoadPrior = None, seed=0, n_mc=80, user_inputs=None
             requests.append({"input": "marking_standard", "why": "the assumed dash cycle contradicts the lane width "
                              "seen by the camera in some windows", "options": sorted(BY_KEY)})
         if not user_inputs.get("focal_px"):
-            requests.append({"input": "focal_px", "why": "with the camera's focal length Odolite can test the marking "
+            requests.append({"input": "focal_px", "why": "with the camera's focal length Stradiva can test the marking "
                              "standard against the lane width and measure the lead vehicle's range and closing speed"})
     case["investigation"] = {"base": _summary(base), "final": _summary(case), "trace": trace, "requests": requests,
                              "changed": case is not base, "duration_s": round(time.time() - t0, 2),

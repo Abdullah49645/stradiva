@@ -1,5 +1,5 @@
 """
-Local Odolite API -- the same job contract as the AWS deployment
+Local Stradiva API -- the same job contract as the AWS deployment
 (infrastructure/aws/api_handler.py + lambda_handler.py), so the web UI talks
 to either without code changes:
 
@@ -14,7 +14,7 @@ NOT_RECONSTRUCTABLE, DISPUTED) or ERROR. Exactly what the Lambda writes to
 DynamoDB.
 
 Run:  uvicorn backend.api.server:app --port 8000      (from the repo root)
-      then start the UI with NEXT_PUBLIC_ODOLITE_API_BASE=http://localhost:8000
+      then start the UI with NEXT_PUBLIC_STRADIVA_API_BASE=http://localhost:8000
 """
 from __future__ import annotations
 
@@ -33,18 +33,18 @@ from backend.investigator.inputs import validate_inputs
 from backend.investigator.investigator import investigate
 from backend.pipeline.analyze import analyze_video, PIPELINE_VERSION
 
-MAX_UPLOAD_BYTES = int(os.environ.get("ODOLITE_MAX_UPLOAD_MB", "200")) * 1024 * 1024
+MAX_UPLOAD_BYTES = int(os.environ.get("STRADIVA_MAX_UPLOAD_MB", "200")) * 1024 * 1024
 ALLOWED_EXT = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v"}
-WORK_DIR = os.environ.get("ODOLITE_WORK_DIR", os.path.join(tempfile.gettempdir(), "odolite_jobs"))
+WORK_DIR = os.environ.get("STRADIVA_WORK_DIR", os.path.join(tempfile.gettempdir(), "stradiva_jobs"))
 os.makedirs(WORK_DIR, exist_ok=True)
 
-app = FastAPI(title="Odolite local API", version=PIPELINE_VERSION)
-app.add_middleware(CORSMiddleware, allow_origins=os.environ.get("ODOLITE_CORS_ORIGINS", "http://localhost:3000").split(","),
+app = FastAPI(title="Stradiva local API", version=PIPELINE_VERSION)
+app.add_middleware(CORSMiddleware, allow_origins=os.environ.get("STRADIVA_CORS_ORIGINS", "http://localhost:3000").split(","),
                    allow_methods=["GET", "POST", "PUT", "OPTIONS"], allow_headers=["*"])
 
 JOBS: dict = {}
 LOCK = threading.Lock()
-WORKER_SLOTS = threading.Semaphore(int(os.environ.get("ODOLITE_WORKERS", "1")))
+WORKER_SLOTS = threading.Semaphore(int(os.environ.get("STRADIVA_WORKERS", "1")))
 
 
 def _set(job_id, **kw):
@@ -52,7 +52,7 @@ def _set(job_id, **kw):
         JOBS[job_id].update(kw, updated_at=time.time())
 
 
-USE_INVESTIGATOR = os.environ.get("ODOLITE_INVESTIGATOR", "1") != "0"
+USE_INVESTIGATOR = os.environ.get("STRADIVA_INVESTIGATOR", "1") != "0"
 
 
 def _process(job_id, path):

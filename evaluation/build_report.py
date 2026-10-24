@@ -251,7 +251,7 @@ def dev_history_table():
 def testing_json():
     blocks = []
     blocks.append({"title": "What was tested, and what was not",
-                   "text": ("Collision verdicts are tested on a simulator whose ground truth Odolite never sees: 3D vehicles, "
+                   "text": ("Collision verdicts are tested on a simulator whose ground truth Stradiva never sees: 3D vehicles, "
                             "true markings that differ from the assumed standard, camera roll, yaw and noise. Seeds for the "
                             "dev, test and shift splits were fixed in advance; the code was developed on dev only, frozen, "
                             "and then run once on test and shift. Each layer is tested separately: the reasoning layer with "
@@ -267,7 +267,7 @@ def testing_json():
             continue
         _, s = suite(split, "e2e")
         blocks.append({"title": title, "kpis": kpis(s) if s else [], "table": t,
-                       "text": "Counts per outcome. 'No verdict / qualified' is Odolite declining, or answering 'depends on the assumptions', where the truth was definite."})
+                       "text": "Counts per outcome. 'No verdict / qualified' is Stradiva declining, or answering 'depends on the assumptions', where the truth was definite."})
     t2 = suite_table("test2")
     if t2:
         _, s = suite("test2", "e2e")
@@ -310,7 +310,7 @@ def testing_json():
         blocks.append({"title": "Near-miss measures against ground truth" + (" (test3)" if near_miss_table("test3") else " (dev, development only)"),
                        "table": nmt,
                        "text": ("Computed over the interval in which both vehicles were measured (pre-contact for collisions); ground truth "
-                                "over the same interval from the simulator's vehicle states. Only what Odolite reports is scored (the "
+                                "over the same interval from the simulator's vehicle states. Only what Stradiva reports is scored (the "
                                 "measures are withheld on disputed reconstructions and when contact is undetermined). With true tracks "
                                 "they are accurate; from pixels they inherit the tracking errors and should not be relied on yet.")})
     for nm_, title in (("investigator_faults_heldout.json", "The investigator under fault injection (held-out scenes)"),
@@ -339,7 +339,7 @@ def testing_json():
             blocks.append({"title": "Where the full pipeline fails: distance",
                            "text": ("Grouped by how much road one image row covers where the event happens (from ground truth). "
                                     "Far from the camera the gap between two vehicles cannot be measured to within a vehicle "
-                                    "length's uncertainty, and Odolite says so."), "table": rt})
+                                    "length's uncertainty, and Stradiva says so."), "table": rt})
         ft = family_table(split)
         if ft:
             blocks.append({"title": "Where the full pipeline fails: camera family", "table": ft})
@@ -359,7 +359,7 @@ def testing_json():
     if ft:
         blocks.append({"title": "The Skeptic under fault injection", "table": ft,
                        "text": ("Each fault is injected into otherwise clean clips (two vehicles, no collision) analysed by the "
-                                "unchanged pipeline (v2.1). 'Speed error' is the worst error among the speeds Odolite reports, so it "
+                                "unchanged pipeline (v2.1). 'Speed error' is the worst error among the speeds Stradiva reports, so it "
                                 "includes tracking errors: on the clean clips, every dispute was raised on a reconstruction that "
                                 "really was 20-40 % wrong (a tracking failure), and two tracking errors (16 % and 34 %) went "
                                 "unflagged. The last two rows are faults no check can see from a single static camera; they are "
@@ -430,7 +430,7 @@ def real_json():
                              pct(s["ci90_coverage"])])
         blocks.append({"title": "comma.ai speed challenge (17 minutes, freeway then city)",
                        "text": ("Used for evaluation only; the video has no licence file, so it is not redistributed and not plotted here. "
-                                "Freeway prior (Caltrans 12 ft + 36 ft). Odolite answers only a minority of windows. On the freeway the "
+                                "Freeway prior (Caltrans 12 ft + 36 ft). Stradiva answers only a minority of windows. On the freeway the "
                                 "answers are accurate, with interval coverage close to the nominal 90 %. In the city the prior is "
                                 "wrong and the few answers are wrong."),
                        "table": {"columns": ["Run", "Segment", "windows", "answered", "median abs. error", "90th pct abs. error", "90 % coverage"], "rows": rows}})
@@ -462,7 +462,7 @@ def real_json():
                                 + "The lead car's width is close to the 1.8 m prior, which favours the width ruler."),
                        "table": {"columns": ["Part", "2 s windows", "answered", "range: median abs. error", "range: 90 % coverage",
                                              "relative speed: median abs. error", "relative speed: 90 % coverage",
-                                             "time to collision: radar inside Odolite's interval"], "rows": rows}})
+                                             "time to collision: radar inside Stradiva's interval"], "rows": rows}})
     if dv:
         rws = dv["rows"]
         ok = [r for r in rws if r["status"] == "OK"]

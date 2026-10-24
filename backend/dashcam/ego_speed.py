@@ -78,7 +78,7 @@ class MarkingPrior:
     name: str
     cycle_m: float            # dash + gap
     cycle_rel_sigma: float = 0.03
-    duty: float = 0.25        # dash length / cycle (10/40 ft US federal, 12/48 ft Caltrans, 3/12 m Odolite synthetic)
+    duty: float = 0.25        # dash length / cycle (10/40 ft US federal, 12/48 ft Caltrans, 3/12 m Stradiva synthetic)
 
     @staticmethod
     def preset(key: str) -> "MarkingPrior":

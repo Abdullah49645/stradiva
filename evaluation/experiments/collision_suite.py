@@ -10,12 +10,12 @@ Splits (fixed before any test-split result was looked at):
                                             image quality, larger marking-prior mismatch,
                                             more oncoming-traffic scenes)
 
-Ground truth (computed here, not by Odolite code):
+Ground truth (computed here, not by Stradiva code):
   * hazard onset = the instant the lead's scripted braking begins;
   * counterfactual: follower follows its true (free) motion until onset +
     reaction time, then brakes at a constant a to rest; lead follows its
     true scripted motion (as if it had not been hit);
-  * same reaction/deceleration grid and envelope as Odolite ->
+  * same reaction/deceleration grid and envelope as Stradiva ->
     AVOIDABLE / NOT_AVOIDABLE / ASSUMPTION_DEPENDENT, and t_r*(a).
 
 Run:  python3 collision_suite.py --split dev --n 30 --workers 2
@@ -181,7 +181,7 @@ def gt_observable(gt, sc, t_event):
 
 
 def event_resolution(gt, sc, t_event):
-    """Ground truth only (for stratifying results, never used by Odolite):
+    """Ground truth only (for stratifying results, never used by Stradiva):
     along-road metres covered by one image row at the follower's visible
     ground contact at the event time (collision, else closest approach),
     and the follower's distance from the camera there."""
@@ -246,7 +246,7 @@ def classify(carai_verdict, gt_verdict):
         return "catastrophic"          # opposite definite verdicts
     if carai_verdict in definite and gt_verdict == "ASSUMPTION_DEPENDENT":
         return "overconfident"         # claims robustness the physics does not have
-    return "abstained"                 # Odolite qualified/withheld where GT was definite
+    return "abstained"                 # Stradiva qualified/withheld where GT was definite
 
 
 def oracle_tracks(gt, sc, occluded, rng, sigma_px=0.7):
@@ -307,7 +307,7 @@ def run_oracle(split, i, occluded):
 
 
 def gt_near_miss(sc, t0, t1, min_closing=0.3, ttc_cap=10.0):
-    """Ground-truth surrogate safety measures over [t0, t1] (Odolite's observed interval), from the
+    """Ground-truth surrogate safety measures over [t0, t1] (Stradiva's observed interval), from the
     simulator's vehicle states: bumper gap = d (x_lead - x_follow) - (L_lead + L_follow) / 2."""
     lead = next(v for v in sc.vehicles if v.vid == "lead")
     fol = next(v for v in sc.vehicles if v.vid == "follow")
@@ -326,7 +326,7 @@ def gt_near_miss(sc, t0, t1, min_closing=0.3, ttc_cap=10.0):
 def score_near_miss(case, sc):
     nm = case.get("near_miss")
     if not nm or "observed_interval_s" not in nm or nm.get("disputed"):
-        return None          # only what Odolite reports as a finding is scored
+        return None          # only what Stradiva reports as a finding is scored
     g = gt_near_miss(sc, *nm["observed_interval_s"], ttc_cap=nm.get("ttc_cap_s", 10.0))
     res = {"gt": g}
     for k in ("min_gap_m", "min_ttc_s", "max_drac_mps2"):
@@ -398,7 +398,7 @@ def run_one(args):
         row["gt_collision_t_s"] = gtc["t_s"] if gtc else None
         row["gt"] = gt_counterfactual(sc, meta, gtc["t_s"] if gtc else None)
         t0 = time.time()
-        if os.environ.get("ODOLITE_INVESTIGATE"):
+        if os.environ.get("STRADIVA_INVESTIGATE"):
             from backend.investigator.investigator import investigate
             case = investigate(vp, seed=i)
         else:
@@ -419,7 +419,7 @@ def run_one(args):
         row["true_roll_deg"] = sc.camera.roll_deg
         # legacy pipeline on the same clip (ablation)
         try:
-            if os.environ.get("ODOLITE_SKIP_LEGACY"):
+            if os.environ.get("STRADIVA_SKIP_LEGACY"):
                 raise RuntimeError("skipped (--no-legacy)")
             from backend.api.process_video import process_video as legacy
             t0 = time.time()
@@ -446,9 +446,9 @@ def main():
     ap.add_argument("--investigate", action="store_true", help="run the investigator (backend/investigator) on top of the pipeline")
     args = ap.parse_args()
     if args.no_legacy:
-        os.environ["ODOLITE_SKIP_LEGACY"] = "1"
+        os.environ["STRADIVA_SKIP_LEGACY"] = "1"
     if args.investigate:
-        os.environ["ODOLITE_INVESTIGATE"] = "1"
+        os.environ["STRADIVA_INVESTIGATE"] = "1"
     suffix = "" if args.mode == "e2e" else f"_{args.mode}"
     out = args.out or os.path.join(RESULTS_DIR, f"collision_suite_{args.split}{suffix}.jsonl")
     done = set()
@@ -464,7 +464,7 @@ def main():
         for row in pool.imap_unordered(run_one, todo):
             f.write(json.dumps(row, default=float) + "\n")
             f.flush()
-            print(f"{row.get('name')}: gt={row.get('gt', {}).get('verdict')} odolite={row.get('carai_verdict')} "
+            print(f"{row.get('name')}: gt={row.get('gt', {}).get('verdict')} stradiva={row.get('carai_verdict')} "
                   f"outcome={row.get('outcome')} legacy={row.get('legacy_verdict')} "
                   f"t={row.get('pipeline_s')}s err={'Y' if 'error' in row else ''}", flush=True)
 
