@@ -18,7 +18,21 @@ Parameters:
     Type: String
     Default: x86_64
     AllowedValues: [x86_64, arm64]
-    Description: arm64 runs the processing function on Graviton (all pinned wheels exist for aarch64; not benchmarked).
+    Description: arm64 runs the processing function on Graviton (all pinned wheels exist for aarch64; not benchmarked). Use arm64 when building on an Apple-silicon Mac.
+  ProcessingMemoryMB:
+    Type: Number
+    Default: 4096
+    MinValue: 3008
+    MaxValue: 10240
+    Description: Measured peak 2.7 GB (docs/aws.md). Some new AWS accounts cap Lambda memory at 3008 MB; set 3008 there.
+  ReservedConcurrency:
+    Type: Number
+    Default: 3
+    MinValue: 0
+    Description: Cost ceiling for a public demo. 0 = no reservation (needed on new accounts whose total concurrency is 10).
+
+Conditions:
+  HasReservedConcurrency: !Not [!Equals [!Ref ReservedConcurrency, 0]]
 
 Globals:
   Function:
@@ -61,10 +75,10 @@ Resources:
     Properties:
       PackageType: Image
       Architectures: [!Ref ProcessingArchitecture]
-      MemorySize: 4096
+      MemorySize: !Ref ProcessingMemoryMB
       Timeout: 900
       EphemeralStorage: {Size: 2048}
-      ReservedConcurrentExecutions: 3      # cost ceiling for a public demo
+      ReservedConcurrentExecutions: !If [HasReservedConcurrency, !Ref ReservedConcurrency, !Ref "AWS::NoValue"]
       Environment:
         Variables:
           JOBS_TABLE: !Ref JobsTable
