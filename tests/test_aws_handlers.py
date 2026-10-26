@@ -129,3 +129,10 @@ def test_api_validator_matches_pipeline_validator():
     assert api_handler.INPUT_LIMITS == LIMITS
     for raw in ({"fps": 30}, {"fps": 500}, {"focal_px": 910, "marking_standard": "us_mutcd"}, {"x": 1}, "s"):
         assert api_handler.validate_inputs(raw) == validate_inputs(raw)
+
+
+def test_upload_url_is_sigv4(aws):
+    """A browser PUT sends Content-Type; SigV2 presigned URLs sign it and fail (SignatureDoesNotMatch). SigV4 only signs the host."""
+    r, body = _create(aws)
+    assert "X-Amz-Algorithm=AWS4-HMAC-SHA256" in body["upload_url"]
+    assert "X-Amz-SignedHeaders=host" in body["upload_url"]

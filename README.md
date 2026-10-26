@@ -15,7 +15,8 @@ footage cannot support a number.
 ![Tests](https://img.shields.io/badge/tests-35%20passing-2f6b4f)
 ![Licence](https://img.shields.io/badge/licence-Apache--2.0-blue)
 
-OpenCV AI Competition 2026 entry · [Technical report](docs/technical_report.md) ·
+**[Live demo: stradiva-liard.vercel.app](https://stradiva-liard.vercel.app)** · OpenCV AI Competition 2026 entry ·
+[Technical report](docs/technical_report.md) ·
 [How it was tested](docs/EVALUATION.md) · [Every number](docs/EVALUATION_RESULTS.md)
 
 <img src="docs/screenshots/readme_rear_end.jpg" alt="A rear-end case: the road plane recovered from the paint drawn on the video, the verdict and the measured facts" width="900">
@@ -139,8 +140,8 @@ cd frontend && npm ci && NEXT_PUBLIC_STRADIVA_API_BASE=http://localhost:8000 npm
 The UI ships with the bundled case files and works without the API; the API is needed only to analyse your
 own clip. Optional inputs with an upload: frame rate, focal length in pixels, marking standard.
 
-Deploy to AWS: `cd infrastructure/aws && sam build --use-container && sam deploy --guided` (see
-[docs/aws.md](docs/aws.md)). Rebuild every evaluation number: [docs/EVALUATION.md §8](docs/EVALUATION.md#8-reproduce).
+Deploy to AWS: `bash deploy/deploy_aws.sh` (AWS CLI logged in, SAM CLI, Docker running; see [docs/aws.md](docs/aws.md)).
+Rebuild every evaluation number: [docs/EVALUATION.md §8](docs/EVALUATION.md#8-reproduce).
 
 ## Repository map
 

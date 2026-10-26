@@ -169,13 +169,15 @@ One SAM template (`infrastructure/aws/template.yaml`) defines:
   reports job status;
 * a private S3 bucket with lifecycle expiry;
 * a DynamoDB jobs table with a TTL;
-* a container-image Lambda (4 GB, 900 s) that runs the full pipeline on
-  each upload.
+* a container-image Lambda (900 s; 4 GB by default, 3008 MB on the deployed
+  account) that runs the full pipeline on each upload.
 
 Duplicate S3 events are absorbed by a conditional status write. The handlers
-are tested against moto mocks. **The stack has not been deployed from this
-development environment.** docs/aws.md separates what is verified from
-what is not, and gives the runbook.
+are tested against moto mocks. The stack is deployed in `us-east-1`
+(arm64 Graviton Lambda) and serves the web UI at
+https://stradiva-liard.vercel.app; a job was verified end to end on it.
+docs/aws.md gives the endpoint, the settings, the runbook and what was
+verified.
 
 ## 7. Evaluation
 

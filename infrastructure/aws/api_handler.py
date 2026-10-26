@@ -14,6 +14,7 @@ import time
 import uuid
 
 import boto3
+from botocore.config import Config
 
 # The API function is packaged without the pipeline (CodeUri: infrastructure/aws), so the input validation is
 # repeated here; tests/test_aws_handlers.py checks it against backend/investigator/inputs.py.
@@ -47,7 +48,10 @@ def validate_inputs(raw):
             return {}, f"unknown input '{k}' (accepted: fps, focal_px, marking_standard)"
     return clean, None
 
-S3 = boto3.client("s3")
+# SigV4 presigned URLs: SigV2 (boto3's default for presigning in us-east-1) signs the Content-Type header, so a
+# browser PUT that sends "Content-Type: video/mp4" fails with SignatureDoesNotMatch. SigV4 signs only the host.
+S3 = boto3.client("s3", region_name=os.environ.get("AWS_REGION"),
+                  config=Config(signature_version="s3v4", s3={"addressing_style": "virtual"}))
 DDB = boto3.resource("dynamodb")
 BUCKET = os.environ.get("STRADIVA_BUCKET", "stradiva-videos")
 JOBS_TABLE = os.environ.get("JOBS_TABLE", "stradiva-jobs")

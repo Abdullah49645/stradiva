@@ -1,11 +1,17 @@
 # AWS delivery
 
-**Status, stated plainly: the AWS stack has NOT been deployed from this
-repository's development environment** (no AWS credentials were available
-there). What has been verified is listed under "What is verified". A live
-endpoint for judging needs the runbook below to be executed with an AWS
-account; until then, the demo runs against the local server, which
-implements the identical job contract.
+**Status: deployed** on 26 Oct 2026 to `us-east-1` with `deploy/deploy_aws.sh`.
+
+* API: `https://r317ok5ip6.execute-api.us-east-1.amazonaws.com/Prod` (health: `GET /health`)
+* Web UI: https://stradiva-liard.vercel.app (static export on Vercel, calling the API above; the API and
+  the bucket accept requests only from that origin)
+* Processing function: container image, arm64 (Graviton), **3008 MB**, no reserved concurrency. The
+  account caps Lambda memory at 3008 MB and has no spare concurrency to reserve, so the deploy uses
+  `MEMORY_MB=3008 RESERVED=0`; the measured peak (2.7 GB, below) still fits.
+* Verified end to end against the live stack: a job created through the API, the 6 s 720p demo clip
+  uploaded with the presigned URL, processed by the Lambda (45 s of analysis after a cold start of about
+  30 s) and the case returned (`RECONSTRUCTED_COLLISION`, `ASSUMPTION_DEPENDENT`, pipeline `stradiva-2.2`),
+  the same result as the bundled case.
 
 ## What the template deploys (`infrastructure/aws/template.yaml`)
 
@@ -51,7 +57,7 @@ These are development-machine measurements, not Lambda measurements.
 | Template is valid CloudFormation/SAM | `cfn-lint infrastructure/aws/template.yaml` passes | No (static check) |
 | Dependencies install on both Lambda architectures | pinned wheels resolved for `manylinux x86_64` and `aarch64` | No image built: container registries were unreachable from the development environment |
 | Pipeline memory and time fit the function | `evaluation/results/aws_sizing.json` | No: measured locally |
-| Live endpoint | none | **No** |
+| Live endpoint | API job run end to end on the deployed stack (26 Oct 2026) | **Yes** |
 
 ## Runbook (to deploy)
 
