@@ -1,9 +1,7 @@
 # Licence choice for Stradiva's own code
 
-**Staged choice: Apache License 2.0** (`LICENSE`, `NOTICE`). The repository
-had no licence when it was received. This is the copyright holder's
-decision, so confirm it before submission. Below is the evaluation behind
-the recommendation.
+**Chosen licence: Apache License 2.0** (`LICENSE`, `NOTICE`), the same licence
+as OpenCV. Below is the evaluation behind the choice.
 
 ## What constrains the choice
 
